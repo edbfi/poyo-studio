@@ -4,7 +4,9 @@ All development pull requests and default-branch pushes run independent required
 quality, unit/registry, browser/security/production smoke, media-tool integration,
 and hygiene jobs. `ci / required` requires every job to succeed and rejects missing,
 skipped, failed or cancelled jobs. Its dispatch guard binds repair runs to the exact
-current PR commit. Review the exact current head/base, full CI results and relevant
+current PR commit. Renovate updates merge unattended after all seven current-head
+checks in `.github/merge-policy.json` pass. For other changes, review the exact
+current head/base, full CI results and relevant
 artifacts before merging with the maintainer’s ghmerge function. Repository branch protections and
 rulesets are intentionally disabled; local prek protections remain in place.
 
@@ -37,9 +39,12 @@ and cancellation of superseded runs apply consistently. Prek skips duplicate
 application hooks only in CI; its local test hook now uses the safe explicit suite.
 
 Renovate uses `edbfi/automation:default`, including official Biome package/schema
-handling and grouped non-major updates. TypeScript stays below 7 until Svelte's
-compiler API is compatible. Automerge stays off; passing CI does not replace manual
-review. Biome repair computes without write privileges, publishes only allowlisted source/config changes, and
+handling and grouped non-major updates. The v1.1.0 default and automerge presets
+make all dependency update types eligible, including majors and shared-policy
+updates, without dashboard approval. Svelte checks remain required to test
+TypeScript compatibility. The checked merge preserves genuine sign-offs and
+dispatches full CI for the exact merged commit. Biome repair computes without
+write privileges, publishes only allowlisted source/config changes, and
 explicitly runs full CI for the repaired SHA. Broad formatting changes beyond the
 shared limits require manual handling. Actions and shared preset updates arrive as
 normal Renovate PRs; full version tags are the agreed reference policy.
