@@ -342,11 +342,7 @@ function moveSelection(delta: -1 | 1, focusTarget?: HTMLElement): void {
 }
 
 function requestClose(reason: 'button' | 'escape' | 'outside'): void {
-  const target = triggerElement;
   lifecycleEvent({ type: 'REQUEST_CLOSE', reason });
-  requestAnimationFrame(() => {
-    if (target?.isConnected) target.focus();
-  });
 }
 
 function restoreTrigger(event: Event): void {

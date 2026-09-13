@@ -1353,7 +1353,25 @@ test('Gallery viewer preserves context across mixed media, focus, actions and re
     expect(await dialog.getByRole('button', { name: 'Fit image' }).isDisabled()).toBe(true);
     expect(await pageHasNoHorizontalOverflow(page)).toBe(true);
     expect(await dialog.getByRole('button', { name: 'Close' }).isVisible()).toBe(true);
-    await page.keyboard.press('Escape');
+    // Delay callbacks queued by Escape until after the next focus choice.
+    await page.evaluate(() => {
+      const original = window.requestAnimationFrame;
+      const frames: FrameRequestCallback[] = [];
+      window.requestAnimationFrame = (callback) => frames.push(callback);
+      try {
+        document.activeElement?.dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+        );
+      } finally {
+        window.requestAnimationFrame = original;
+      }
+      Object.assign(window, {
+        releaseGalleryCloseFrame: () => {
+          for (const callback of frames) callback(performance.now());
+        }
+      });
+    });
+    await dialog.waitFor({ state: 'detached' });
 
     const fallbackFocusTarget = page.getByRole('link', { name: 'Grid view' });
     const disconnectedTrigger = page
@@ -1362,6 +1380,14 @@ test('Gallery viewer preserves context across mixed media, focus, actions and re
       .getByRole('button', { name: `View image ${labels.newest}`, exact: true })
       .first();
     await fallbackFocusTarget.focus();
+    await page.evaluate(() => {
+      const frame = window as typeof window & { releaseGalleryCloseFrame?: () => void };
+      frame.releaseGalleryCloseFrame?.();
+      delete frame.releaseGalleryCloseFrame;
+    });
+    expect(
+      await fallbackFocusTarget.evaluate((element) => document.activeElement === element)
+    ).toBe(true);
     await disconnectedTrigger.evaluate((element: HTMLButtonElement) => element.click());
     await dialog.waitFor();
     await page.waitForFunction(() =>
