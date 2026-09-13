@@ -211,6 +211,9 @@ async function seedLiveGalleryItem(
   const bytes = await Bun.file(options.fixture).bytes();
   const database = new Database(harness.databasePath, { strict: true });
   try {
+    // The running app also writes here. Reserve the writer before repository reads
+    // and publish the fixture only after its local media is ready.
+    database.exec('PRAGMA busy_timeout = 5000; BEGIN IMMEDIATE;');
     const repository = new JobRepository(database, () => new Date(options.createdAt));
     const job = repository.create({
       actionId: crypto.randomUUID(),
@@ -266,8 +269,10 @@ async function seedLiveGalleryItem(
       aspectRatio: options.mediaKind === 'image' ? '16:9' : '1:1'
     });
     repository.finishIfDownloaded(job.id);
+    database.exec('COMMIT;');
     return { jobId: job.id, outputId: output.id, label: options.label };
   } finally {
+    if (database.inTransaction) database.exec('ROLLBACK;');
     database.close();
   }
 }
