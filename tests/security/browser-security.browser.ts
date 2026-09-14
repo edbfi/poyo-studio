@@ -2,8 +2,8 @@ import { expect, setDefaultTimeout, test } from 'bun:test';
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
-import { trackBrowserIssues } from '../helpers/browser-assertions';
 import { startBrowserAppHarness } from '../helpers/browser-app-harness';
+import { trackBrowserIssues } from '../helpers/browser-assertions';
 
 setDefaultTimeout(90_000);
 

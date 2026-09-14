@@ -1,10 +1,16 @@
 <script lang="ts">
+import { onMount, type Snippet, untrack } from 'svelte';
 import { afterNavigate, invalidate, invalidateAll } from '$app/navigation';
 import { page } from '$app/state';
-import { onMount, untrack, type Snippet } from 'svelte';
 import AppIcon from '$lib/components/ui/AppIcon.svelte';
 import Badge from '$lib/components/ui/Badge.svelte';
 import Sheet from '$lib/components/ui/Sheet.svelte';
+import {
+  isBalanceSnapshotStale,
+  isExactBalanceTimestamp
+} from '$lib/features/account/balance-freshness';
+import { dateLabel } from '$lib/features/library/presentation';
+import type { PublicIpv4StatusDto } from '$lib/features/settings/public-ipv4-guard';
 import {
   getRouteTitle,
   isPathActive,
@@ -13,14 +19,8 @@ import {
   moreNavigation,
   navigationGroups
 } from '$lib/navigation';
-import { dateLabel } from '$lib/features/library/presentation';
-import type { PublicIpv4StatusDto } from '$lib/features/settings/public-ipv4-guard';
-import {
-  isBalanceSnapshotStale,
-  isExactBalanceTimestamp
-} from '$lib/features/account/balance-freshness';
-import ThemeToggle from './ThemeToggle.svelte';
 import PublicIpv4Status from './PublicIpv4Status.svelte';
+import ThemeToggle from './ThemeToggle.svelte';
 
 interface Props {
   children: Snippet;

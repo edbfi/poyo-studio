@@ -1,5 +1,5 @@
-import { safeErrorSummary } from '../diagnostics/redaction';
 import type { StructuredLogger } from '../diagnostics/jsonl-logger';
+import { safeErrorSummary } from '../diagnostics/redaction';
 import { PoyoError } from './errors';
 import type { PoyoMetadataLogger, PoyoRequestMetadata } from './types';
 

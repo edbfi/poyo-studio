@@ -1,11 +1,11 @@
 <script lang="ts">
+import { untrack } from 'svelte';
 import AppIcon from '$lib/components/ui/AppIcon.svelte';
 import Badge from '$lib/components/ui/Badge.svelte';
 import Button from '$lib/components/ui/Button.svelte';
 import LinkButton from '$lib/components/ui/LinkButton.svelte';
-import type { PresetRecord } from '$lib/features/presets/types';
 import { studioModeLabel } from '$lib/features/generation/studio-modes';
-import { untrack } from 'svelte';
+import type { PresetRecord } from '$lib/features/presets/types';
 import type { PageData } from './$types';
 
 let { data }: { data: PageData } = $props();

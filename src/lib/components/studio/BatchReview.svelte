@@ -4,9 +4,9 @@ import Button from '$lib/components/ui/Button.svelte';
 import LinkButton from '$lib/components/ui/LinkButton.svelte';
 import Sheet from '$lib/components/ui/Sheet.svelte';
 import {
+  type StudioBatchItem,
   summarizeReadyBatchEstimates,
-  summarizeSettledBatchCharges,
-  type StudioBatchItem
+  summarizeSettledBatchCharges
 } from '$lib/features/generation/studio-batch';
 
 interface Props {

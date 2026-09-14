@@ -1,6 +1,6 @@
 import type { SavePresetRequest } from '$lib/features/presets/types';
+import { RequestSecurityError, readSameOriginJson } from '$lib/server/platform/request-security';
 import { getPlatformServices } from '$lib/server/platform/runtime';
-import { readSameOriginJson, RequestSecurityError } from '$lib/server/platform/request-security';
 import { PresetRepository } from '$lib/server/presets/repository';
 import type { RequestHandler } from './$types';
 

@@ -1,11 +1,11 @@
 import {
   DEFAULT_PUBLIC_IPV4_GUARD_SETTINGS,
   normalizePublicIpv4GuardSettings,
+  type PublicIpv4GuardSettings,
+  type PublicIpv4StatusDto,
   parsePublicIpv4,
   parsePublicIpv4GuardSettings,
-  publicIpv4Status,
-  type PublicIpv4GuardSettings,
-  type PublicIpv4StatusDto
+  publicIpv4Status
 } from '../../features/settings/public-ipv4-guard';
 import { publicIpv4GuardError } from '../poyo/errors';
 import type { PoyoOperation } from '../poyo/types';

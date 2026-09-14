@@ -1,6 +1,6 @@
 import { getCleanupRuntime } from '$lib/server/cleanup/runtime';
-import { readSameOriginJson } from '$lib/server/platform/request-security';
 import { operationsHttpError } from '$lib/server/operations/http';
+import { readSameOriginJson } from '$lib/server/platform/request-security';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {

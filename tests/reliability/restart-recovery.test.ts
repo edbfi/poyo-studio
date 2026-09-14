@@ -1,9 +1,9 @@
 import { afterEach, expect, setDefaultTimeout, test } from 'bun:test';
 import { join } from 'node:path';
-import { openDatabase } from '../../src/lib/server/platform/database';
 import { JobRepository } from '../../src/lib/server/jobs/repository';
-import { createTemporaryDirectory } from '../helpers/temporary-directory';
+import { openDatabase } from '../../src/lib/server/platform/database';
 import { startStudioMockPoyoServer } from '../helpers/studio-mock-poyo-server';
+import { createTemporaryDirectory } from '../helpers/temporary-directory';
 
 setDefaultTimeout(30_000);
 const cleanups: Array<() => Promise<void>> = [];

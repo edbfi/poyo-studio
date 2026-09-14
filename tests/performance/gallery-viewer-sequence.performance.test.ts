@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, setDefaultTimeout, test } from 'bun:test';
 import { join } from 'node:path';
 import type { LibraryFiltersDto } from '../../src/lib/features/library/contracts';
-import { createViewerSequenceHandler } from '../../src/lib/server/library/viewer-sequence-handler';
 import {
   buildViewerSequenceQueryPlan,
   LibraryRepository,
   type ViewerSequenceQueryObservation
 } from '../../src/lib/server/library/repository';
+import { createViewerSequenceHandler } from '../../src/lib/server/library/viewer-sequence-handler';
 import { openDatabase } from '../../src/lib/server/platform/database';
 import { createTemporaryDirectory } from '../helpers/temporary-directory';
 

@@ -1,5 +1,5 @@
-import type { StudioJobDto } from './contracts';
 import type { OutstandingSpendProjection, TaskCharge } from '../pricing/contracts';
+import type { StudioJobDto } from './contracts';
 
 export type StudioSessionJobs = Record<string, StudioJobDto>;
 export type StudioResultCandidateState = 'loading' | 'viewable' | 'empty' | 'transient';

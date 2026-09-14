@@ -2,13 +2,13 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import { mkdir, symlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { REMOTE_CLEANUP_CAPABILITY } from '../../../src/lib/features/cleanup/contracts';
-import { JOB_EVENT_METADATA_KEY } from '../../../src/lib/server/jobs/event-attention';
 import { CleanupRepository } from '../../../src/lib/server/cleanup/repository';
 import {
   CleanupRuntime,
   DEFAULT_CLEANUP_INTERVAL_MS
 } from '../../../src/lib/server/cleanup/runtime';
 import { CleanupService } from '../../../src/lib/server/cleanup/service';
+import { JOB_EVENT_METADATA_KEY } from '../../../src/lib/server/jobs/event-attention';
 import { LibraryRepository } from '../../../src/lib/server/library/repository';
 import { createJobFixture, createTestJob } from '../../helpers/job-fixture';
 

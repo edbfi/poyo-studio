@@ -1,6 +1,6 @@
 import { RegistryValidationError } from '$lib/features/registry/normalize';
 import { getJobRuntime } from '$lib/server/jobs/runtime';
-import { readSameOriginJson, RequestSecurityError } from '$lib/server/platform/request-security';
+import { RequestSecurityError, readSameOriginJson } from '$lib/server/platform/request-security';
 import { getPlatformServices } from '$lib/server/platform/runtime';
 import {
   normalizeEstimatedRegistryRequest,

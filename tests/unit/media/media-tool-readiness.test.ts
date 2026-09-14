@@ -5,10 +5,10 @@ import {
 } from '../../../src/lib/features/settings/media-privacy';
 import {
   assertMediaToolsReady,
+  type MediaCommandRunner,
   MediaPrerequisiteError,
   probeMediaTools,
-  runMediaProbeCommand,
-  type MediaCommandRunner
+  runMediaProbeCommand
 } from '../../../src/lib/server/media/media-sanitizer';
 import { MediaToolReadinessService } from '../../../src/lib/server/media/media-tool-readiness';
 

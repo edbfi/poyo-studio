@@ -13,8 +13,8 @@ import {
   writeFile
 } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
-import { DEFAULT_MEDIA_PRIVACY_SETTINGS } from '../../../src/lib/features/settings/media-privacy';
 import type { MediaToolsReadinessDto } from '../../../src/lib/features/settings/contracts';
+import { DEFAULT_MEDIA_PRIVACY_SETTINGS } from '../../../src/lib/features/settings/media-privacy';
 import { jobHttpError } from '../../../src/lib/server/jobs/http';
 import { readVerifiedManagedSourceBlob } from '../../../src/lib/server/jobs/managed-source-upload';
 import { syncDirectory as syncFilesystemDirectory } from '../../../src/lib/server/media/filesystem-boundary';

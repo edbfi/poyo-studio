@@ -1,15 +1,15 @@
 import {
   defaultRetryPolicy,
   parseRetryAfter,
+  type RetryPolicy,
   retryDelay,
   systemClock,
-  systemSleeper,
-  type RetryPolicy
+  systemSleeper
 } from './backoff';
 import { malformedResponseError, networkError, normalizePoyoError, PoyoError } from './errors';
 import {
-  POYO_API_BASE_URL,
   type Clock,
+  POYO_API_BASE_URL,
   type PoyoMetadataLogger,
   type PoyoOperation,
   type PoyoRequestMetadata,

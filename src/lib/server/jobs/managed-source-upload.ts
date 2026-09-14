@@ -1,6 +1,6 @@
 import { constants } from 'node:fs';
 import { open } from 'node:fs/promises';
-import { ManagedSourceRepository, type ManagedSourceRecord } from '../media/managed-sources';
+import { type ManagedSourceRecord, ManagedSourceRepository } from '../media/managed-sources';
 import { neutralSourceUploadName } from '../media/source-intake';
 import type { PlatformServices } from '../platform/runtime';
 import { createPoyoClient } from '../poyo/factory';

@@ -3,8 +3,8 @@ import { randomUUID } from 'node:crypto';
 import { appendFile, lstat, mkdir, readdir, rename, stat, symlink, unlink } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import {
-  StructuredLogger,
-  type LoggerFileOperations
+  type LoggerFileOperations,
+  StructuredLogger
 } from '../../../src/lib/server/diagnostics/jsonl-logger';
 import { MaintenanceGate } from '../../../src/lib/server/platform/maintenance-gate';
 import { createTemporaryDirectory } from '../../helpers/temporary-directory';
