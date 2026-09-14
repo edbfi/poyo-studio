@@ -1,10 +1,10 @@
 import manifestJson from '../src/lib/features/registry/evidence/official-source-manifest.json';
 import {
   fetchRegistrySource,
-  structuredDiff,
   type RegistrySourceEvidence,
   type RegistrySourceManifest,
-  type RegistrySourceSpec
+  type RegistrySourceSpec,
+  structuredDiff
 } from './registry-evidence-lib';
 
 const manifest = manifestJson as RegistrySourceManifest;

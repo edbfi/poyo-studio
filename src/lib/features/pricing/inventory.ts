@@ -1,6 +1,6 @@
 import { IMAGE_REGISTRY_ENTRIES, IMAGE_REGISTRY_VERSION } from '../registry/image-registry';
-import { VIDEO_REGISTRY_ENTRIES, VIDEO_REGISTRY_VERSION } from '../registry/video-registry';
 import type { ImageRegistryEntry, VideoRegistryEntry } from '../registry/types';
+import { VIDEO_REGISTRY_ENTRIES, VIDEO_REGISTRY_VERSION } from '../registry/video-registry';
 import {
   MAX_PUBLIC_PRICING_TIERS,
   type PricingDimensions,

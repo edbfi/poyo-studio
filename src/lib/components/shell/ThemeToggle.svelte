@@ -1,13 +1,13 @@
 <script lang="ts">
 import { onMount } from 'svelte';
+import AppIcon from '$lib/components/ui/AppIcon.svelte';
 import {
   isThemePreference,
   nextThemePreference,
   resolveTheme,
-  themeStorageKey,
-  type ThemePreference
+  type ThemePreference,
+  themeStorageKey
 } from '$lib/theme';
-import AppIcon from '$lib/components/ui/AppIcon.svelte';
 
 interface Props {
   showLabel?: boolean;

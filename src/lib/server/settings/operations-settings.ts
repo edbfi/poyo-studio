@@ -1,13 +1,13 @@
 import type { LocalCleanupPolicy } from '../../features/cleanup/contracts';
-import type { SettingsDto } from '../../features/settings/contracts';
 import { REMOTE_CLEANUP_CAPABILITY } from '../../features/cleanup/contracts';
-import type { AppPaths } from '../platform/app-paths';
-import type { StructuredLogger, LoggerRotationSettings } from '../diagnostics/jsonl-logger';
-import { CleanupRepository } from '../cleanup/repository';
+import type { SettingsDto } from '../../features/settings/contracts';
 import { DEFAULT_CLEANUP_POLICY, normalizeCleanupPolicy } from '../cleanup/policy';
+import { CleanupRepository } from '../cleanup/repository';
+import type { LoggerRotationSettings, StructuredLogger } from '../diagnostics/jsonl-logger';
+import type { AppPaths } from '../platform/app-paths';
 import type { ApiKeyStatusDto } from './api-key-manager';
-import type { SettingsRepository } from './settings-repository';
 import { readMediaPrivacySettings, saveMediaPrivacySettings } from './media-privacy-settings';
+import type { SettingsRepository } from './settings-repository';
 
 export interface OperationsSettings {
   polling: { intervalMs: number; staleAfterMs: number };

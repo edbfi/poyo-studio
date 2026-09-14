@@ -1,19 +1,14 @@
 <script lang="ts">
 import { untrack } from 'svelte';
 import { goto, invalidateAll } from '$app/navigation';
-import SettingsNavigation from '$lib/components/settings/SettingsNavigation.svelte';
 import MediaPrivacyControls from '$lib/components/settings/MediaPrivacyControls.svelte';
+import SettingsNavigation from '$lib/components/settings/SettingsNavigation.svelte';
 import ThemeToggle from '$lib/components/shell/ThemeToggle.svelte';
 import AppIcon from '$lib/components/ui/AppIcon.svelte';
 import Badge from '$lib/components/ui/Badge.svelte';
 import type { CleanupConsequence, CleanupPreviewDto } from '$lib/features/cleanup/contracts';
 import { byteSizeLabel, dateTimeLabel } from '$lib/features/library/presentation';
 import type { SettingsDto } from '$lib/features/settings/contracts';
-import {
-  parsePublicIpv4,
-  type PublicIpv4GuardSettings,
-  type PublicIpv4StatusDto
-} from '$lib/features/settings/public-ipv4-guard';
 import {
   apiKeyUiState,
   cleanupConsequenceLabel,
@@ -22,6 +17,11 @@ import {
   operationsRequest,
   settingsDraft
 } from '$lib/features/settings/controller';
+import {
+  type PublicIpv4GuardSettings,
+  type PublicIpv4StatusDto,
+  parsePublicIpv4
+} from '$lib/features/settings/public-ipv4-guard';
 import { resolveTheme, themeStorageKey } from '$lib/theme';
 import type { PageData } from './$types';
 

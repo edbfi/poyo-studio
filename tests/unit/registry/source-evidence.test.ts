@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import manifestJson from '../../../src/lib/features/registry/evidence/official-source-manifest.json';
 import {
   canonicalizePricingHtml,
   extractStructuredOpenApi,
+  type RegistrySourceManifest,
   sourceCorpusSha256,
-  structuredDiff,
-  type RegistrySourceManifest
+  structuredDiff
 } from '../../../scripts/registry-evidence-lib';
+import manifestJson from '../../../src/lib/features/registry/evidence/official-source-manifest.json';
 
 const manifest = manifestJson as unknown as RegistrySourceManifest;
 

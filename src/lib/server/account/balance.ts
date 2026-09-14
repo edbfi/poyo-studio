@@ -1,6 +1,6 @@
 import type { Database } from 'bun:sqlite';
-import { createPoyoClient } from '../poyo/factory';
 import type { PlatformServices } from '../platform/runtime';
+import { createPoyoClient } from '../poyo/factory';
 
 export interface BalanceSnapshotDto {
   email: string | null;

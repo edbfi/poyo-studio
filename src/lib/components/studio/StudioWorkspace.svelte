@@ -6,6 +6,7 @@ import Badge from '$lib/components/ui/Badge.svelte';
 import Button from '$lib/components/ui/Button.svelte';
 import LinkButton from '$lib/components/ui/LinkButton.svelte';
 import Sheet from '$lib/components/ui/Sheet.svelte';
+import { isBalanceSnapshotStale } from '$lib/features/account/balance-freshness';
 import type {
   StudioEntry,
   StudioJobDto,
@@ -13,66 +14,12 @@ import type {
   StudioOutputDto,
   StudioRoleInput
 } from '$lib/features/generation/contracts';
-import type { Estimate, TaskCharge } from '$lib/features/pricing/contracts';
-import type {
-  MediaSanitizationCategory,
-  MediaSanitizationReceiptDto,
-  MediaToolReadinessDto
-} from '$lib/features/settings/contracts';
-import { mediaKindSanitizationReady } from '$lib/features/settings/media-privacy';
-import { isBalanceSnapshotStale } from '$lib/features/account/balance-freshness';
-import { downloadCopy } from '$lib/features/library/attachment-request';
-import { dateTimeLabel } from '$lib/features/library/presentation';
 import {
   type BrowserMediaMetadata,
   mediaMetadataLabel,
   probeBrowserMedia,
   validateLocalFileSelection
 } from '$lib/features/generation/media-preflight';
-import {
-  createStudioSubmissionSnapshot,
-  initialGuidedValues,
-  initialRoleInputs,
-  mediaAccept,
-  nextMonotonicEventId,
-  readPaidSubmissionResponse,
-  parseExpertOverrides,
-  pendingActionRecoveryDelay,
-  presetValues,
-  roleLabel,
-  type SizeMode,
-  type StudioSubmissionSnapshot,
-  sizeModes,
-  valuesWithRoleInputs,
-  visibleFields
-} from '$lib/features/generation/studio-controller';
-import { studioModeGroups, studioModeLabel } from '$lib/features/generation/studio-modes';
-import {
-  applyStudioJobEvent,
-  compareStudioJobRecency,
-  mergeKnownStudioSnapshot,
-  nextStudioResultCandidate,
-  upsertStudioSessionJob,
-  type StudioJobEventUpdate,
-  type StudioResultCandidateStates,
-  type StudioSessionJobs
-} from '$lib/features/generation/studio-session';
-import {
-  automaticFieldChoice,
-  automaticSizingIssues,
-  initialAutomaticFields,
-  restoreAutomaticFields,
-  resolvedGuidedValues,
-  type AutomaticFieldKey,
-  type AutomaticFieldState
-} from '$lib/features/generation/studio-sizing';
-import {
-  clearStudioDraft,
-  readStudioDraft,
-  restoreStudioDraftRoleInputs,
-  serializeStudioDraftRoleInputs,
-  writeStudioDraft
-} from '$lib/features/generation/studio-draft';
 import {
   applyBatchJob,
   beginPaidBatchRetry,
@@ -81,16 +28,69 @@ import {
   readStudioBatch,
   restoreBatchItemForRegistry,
   restoreBatchRoleInputs,
-  writeStudioBatch,
   type StudioBatch,
-  type StudioBatchItem
+  type StudioBatchItem,
+  writeStudioBatch
 } from '$lib/features/generation/studio-batch';
+import {
+  createStudioSubmissionSnapshot,
+  initialGuidedValues,
+  initialRoleInputs,
+  mediaAccept,
+  nextMonotonicEventId,
+  parseExpertOverrides,
+  pendingActionRecoveryDelay,
+  presetValues,
+  readPaidSubmissionResponse,
+  roleLabel,
+  type SizeMode,
+  type StudioSubmissionSnapshot,
+  sizeModes,
+  valuesWithRoleInputs,
+  visibleFields
+} from '$lib/features/generation/studio-controller';
+import {
+  clearStudioDraft,
+  readStudioDraft,
+  restoreStudioDraftRoleInputs,
+  serializeStudioDraftRoleInputs,
+  writeStudioDraft
+} from '$lib/features/generation/studio-draft';
+import { studioModeGroups, studioModeLabel } from '$lib/features/generation/studio-modes';
+import {
+  applyStudioJobEvent,
+  compareStudioJobRecency,
+  mergeKnownStudioSnapshot,
+  nextStudioResultCandidate,
+  type StudioJobEventUpdate,
+  type StudioResultCandidateStates,
+  type StudioSessionJobs,
+  upsertStudioSessionJob
+} from '$lib/features/generation/studio-session';
+import {
+  type AutomaticFieldKey,
+  type AutomaticFieldState,
+  automaticFieldChoice,
+  automaticSizingIssues,
+  initialAutomaticFields,
+  resolvedGuidedValues,
+  restoreAutomaticFields
+} from '$lib/features/generation/studio-sizing';
+import { downloadCopy } from '$lib/features/library/attachment-request';
+import { dateTimeLabel } from '$lib/features/library/presentation';
+import type { Estimate, TaskCharge } from '$lib/features/pricing/contracts';
+import { fieldValue, validateFieldValue } from '$lib/features/registry/runtime-validation';
 import type {
   ExpertOverride,
   FieldDefinition,
   NormalizedPreview
 } from '$lib/features/registry/types';
-import { fieldValue, validateFieldValue } from '$lib/features/registry/runtime-validation';
+import type {
+  MediaSanitizationCategory,
+  MediaSanitizationReceiptDto,
+  MediaToolReadinessDto
+} from '$lib/features/settings/contracts';
+import { mediaKindSanitizationReady } from '$lib/features/settings/media-privacy';
 import AspectRatioField from './AspectRatioField.svelte';
 import BatchReview from './BatchReview.svelte';
 import ChoiceField from './ChoiceField.svelte';

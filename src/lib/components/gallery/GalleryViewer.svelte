@@ -21,18 +21,18 @@ import {
   type ViewerSession,
   wheelZoomFactor
 } from '$lib/features/gallery/viewer-transform';
+import { downloadCopy } from '$lib/features/library/attachment-request';
 import type {
   GalleryViewerItemDto,
   LibraryGroupDto,
   SafeMediaSummary
 } from '$lib/features/library/contracts';
-import { dateTimeLabel } from '$lib/features/library/presentation';
-import { downloadCopy } from '$lib/features/library/attachment-request';
 import {
+  type DownloadRequestUpdate,
   latestDownloadRequestAt,
-  mergeDownloadRequest,
-  type DownloadRequestUpdate
+  mergeDownloadRequest
 } from '$lib/features/library/download-request-sync';
+import { dateTimeLabel } from '$lib/features/library/presentation';
 
 type ViewableGroup = LibraryGroupDto & {
   representative: SafeMediaSummary & { mediaUrl: string };

@@ -15,5 +15,6 @@ export async function start(
 }
 
 if (import.meta.main) await start();
+
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';

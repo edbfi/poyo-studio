@@ -1,4 +1,4 @@
-import { publicIpv4GuardReason, type PublicIpv4GuardReason } from '../poyo/errors';
+import { type PublicIpv4GuardReason, publicIpv4GuardReason } from '../poyo/errors';
 
 export const JOB_EVENT_METADATA_KEY = '__poyoStudioEvent';
 

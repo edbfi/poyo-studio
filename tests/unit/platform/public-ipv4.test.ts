@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
-import { openDatabase } from '../../../src/lib/server/platform/database';
 import { operationsHttpError } from '../../../src/lib/server/operations/http';
+import { openDatabase } from '../../../src/lib/server/platform/database';
 import {
   PUBLIC_IPV4_GUARD_SETTING_KEY,
   PUBLIC_IPV4_LOOKUP_TIMEOUT_MS,

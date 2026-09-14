@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import { REMOTE_CLEANUP_CAPABILITY } from '../../../src/lib/features/cleanup/contracts';
 import type { OperationsDiagnosticsDto } from '../../../src/lib/features/diagnostics/contracts';
 import type { ApiKeySettingsDto, SettingsDto } from '../../../src/lib/features/settings/contracts';
-import { DEFAULT_MEDIA_PRIVACY_SETTINGS } from '../../../src/lib/features/settings/media-privacy';
 import {
   apiKeyUiState,
   cleanupConsequenceLabel,
@@ -12,6 +11,7 @@ import {
   operationsRequest,
   settingsDraft
 } from '../../../src/lib/features/settings/controller';
+import { DEFAULT_MEDIA_PRIVACY_SETTINGS } from '../../../src/lib/features/settings/media-privacy';
 
 const localCleanup: SettingsDto['localCleanup'] = {
   mode: 'never',

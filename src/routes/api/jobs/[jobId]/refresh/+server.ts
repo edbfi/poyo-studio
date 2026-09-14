@@ -1,7 +1,7 @@
 import { safeJobDto } from '$lib/server/jobs/events';
 import { jobHttpError } from '$lib/server/jobs/http';
-import { readSameOriginJson } from '$lib/server/platform/request-security';
 import { getJobRuntime } from '$lib/server/jobs/runtime';
+import { readSameOriginJson } from '$lib/server/platform/request-security';
 import type { RequestHandler } from './$types';
 export const POST: RequestHandler = async ({ request, params }) => {
   try {
