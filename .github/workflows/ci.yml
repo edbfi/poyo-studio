@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: edbfi/automation/actions/dispatch-guard@v1.1.2
+      - uses: edbfi/automation/actions/dispatch-guard@v1.1.3
         with:
           token: ${{ github.token }}
           pr-number: ${{ inputs.pr-number }}
@@ -37,14 +37,14 @@ jobs:
           expected-default-sha: ${{ inputs.expected-default-sha }}
   quality:
     needs: guard
-    uses: edbfi/automation/.github/workflows/bun.yml@v1.1.2
+    uses: edbfi/automation/.github/workflows/bun.yml@v1.1.3
     with:
       # renovate: datasource=npm depName=bun
       version: 1.4.2
       command: bun run format:check && bun run lint && bun run check
   unit:
     needs: guard
-    uses: edbfi/automation/.github/workflows/bun.yml@v1.1.2
+    uses: edbfi/automation/.github/workflows/bun.yml@v1.1.3
     with:
       # renovate: datasource=npm depName=bun
       version: 1.4.2
@@ -86,7 +86,7 @@ jobs:
       CI: 'true'
   media:
     needs: guard
-    uses: edbfi/automation/.github/workflows/bun.yml@v1.1.2
+    uses: edbfi/automation/.github/workflows/bun.yml@v1.1.3
     with:
       # renovate: datasource=npm depName=bun
       version: 1.4.2
@@ -124,13 +124,13 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: edbfi/automation/actions/dispatch-guard@v1.1.2
+      - uses: edbfi/automation/actions/dispatch-guard@v1.1.3
         with:
           token: ${{ github.token }}
           pr-number: ${{ inputs.pr-number }}
           expected-head-sha: ${{ inputs.expected-head-sha }}
           expected-default-sha: ${{ inputs.expected-default-sha }}
-      - uses: edbfi/automation/actions/gate@v1.1.2
+      - uses: edbfi/automation/actions/gate@v1.1.3
         with:
           needs: ${{ toJSON(needs) }}
           required: guard quality unit browser media hygiene
