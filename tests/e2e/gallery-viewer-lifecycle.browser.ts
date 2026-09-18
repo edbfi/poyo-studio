@@ -276,13 +276,25 @@ test('GalleryViewer retains selected media nodes and state when newer full-histo
           ?.getAttribute('aria-busy') === 'false'
     );
     await dialog.getByRole('button', { name: 'Actual size', exact: true }).click();
+    await page.waitForFunction(() => {
+      const viewport = document.querySelector('[data-testid="gallery-viewer-viewport"]');
+      const selected = viewport?.querySelector('img');
+      if (!(selected instanceof HTMLImageElement)) return false;
+      const rect = selected.getBoundingClientRect();
+      return (
+        viewport?.getAttribute('data-zoom-mode') === 'actual' &&
+        Math.abs(rect.width - selected.naturalWidth) < 1 &&
+        Math.abs(rect.height - selected.naturalHeight) < 1
+      );
+    });
     const initial = await image.evaluate((element) => {
       if (!(element instanceof HTMLImageElement))
         throw new Error('Expected history image element.');
       (window as Window & { __galleryHistoryImage?: HTMLImageElement }).__galleryHistoryImage =
         element;
       return {
-        transform: element.getAttribute('style'),
+        width: element.getBoundingClientRect().width,
+        height: element.getBoundingClientRect().height,
         previousDisabled: document.querySelector<HTMLButtonElement>('[aria-label="Previous item"]')
           ?.disabled
       };
@@ -303,10 +315,14 @@ test('GalleryViewer retains selected media nodes and state when newer full-histo
       sameNode:
         (window as Window & { __galleryHistoryImage?: HTMLImageElement }).__galleryHistoryImage ===
         element,
-      transform: element.getAttribute('style')
+      width: element.getBoundingClientRect().width,
+      height: element.getBoundingClientRect().height
     }));
     expect(retained.sameNode).toBe(true);
-    expect(retained.transform).toBe(initial.transform);
+    // The item counter can resize the viewport. Actual-size mode reconciles its
+    // fitted dimensions and scale together, preserving the rendered image size.
+    expect(retained.width).toBeCloseTo(initial.width, 0);
+    expect(retained.height).toBeCloseTo(initial.height, 0);
     expect(await page.getByTestId('gallery-viewer-viewport').getAttribute('data-zoom-mode')).toBe(
       'actual'
     );
