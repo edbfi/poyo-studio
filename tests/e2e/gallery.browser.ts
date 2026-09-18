@@ -2280,12 +2280,14 @@ test('Gallery keeps a selected old representative open while its canonical repla
   let context:
     | Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newContext']>>
     | undefined;
+  let page: Page | undefined;
+  const delayed = Promise.withResolvers<void>();
   try {
     const seeded = await seedGallery(harness);
     await harness.startApp();
     browser = await chromium.launch({ headless: true });
     context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-    const page = await context.newPage();
+    page = await context.newPage();
     const issues = trackBrowserIssues(page);
     await page.goto(`${harness.url}/gallery`);
     const dialog = await openGalleryOutput(page, labels.newest, 'image');
@@ -2296,7 +2298,6 @@ test('Gallery keeps a selected old representative open while its canonical repla
           ?.textContent?.includes('of 3') === true
     );
 
-    const delayed = Promise.withResolvers<void>();
     const requestStarted = Promise.withResolvers<void>();
     const newestReplacementOutputId = `replacement-${seeded.newest.outputId}`;
     const videoReplacementOutputId = `replacement-${seeded.video.outputId}`;
@@ -2354,6 +2355,8 @@ test('Gallery keeps a selected old representative open while its canonical repla
     expect(issues.consoleErrors).toEqual([]);
     expect(issues.pageErrors).toEqual([]);
   } finally {
+    delayed.resolve();
+    await page?.unrouteAll({ behavior: 'wait' });
     await context?.close();
     await browser?.close();
     await harness.cleanup();
