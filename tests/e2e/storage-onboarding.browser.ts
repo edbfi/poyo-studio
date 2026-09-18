@@ -148,27 +148,6 @@ async function exercisePublicIpv4Guard(harness: BrowserHarness, page: Page): Pro
   await page.getByText('Exact public IPv4 guard enabled.', { exact: true }).waitFor();
   await page.getByText('IP differs from home', { exact: true }).filter({ visible: true }).waitFor();
 
-  harness.mock.queueOutcome('held');
-  const submitsBeforeAllow = harness.mock.requests.filter(
-    (request) => request.pathname === '/api/generate/submit'
-  ).length;
-  const allowedGeneration = await submitPaidGeneration(page, 'Allowed paid generation fixture');
-  expect(allowedGeneration.status).toBe(202);
-  expect(allowedGeneration.jobId).toBeTruthy();
-  await waitForPersistedJobState(
-    page,
-    allowedGeneration.actionId,
-    (job) => Boolean(job.poyoTaskId),
-    'The allowed generation did not persist its Poyo task link.'
-  );
-  await page.goto(`${harness.url}/jobs/${allowedGeneration.jobId}`);
-  await page.getByText('Poyo task linked', { exact: true }).waitFor();
-  expect(
-    harness.mock.requests.filter((request) => request.pathname === '/api/generate/submit')
-  ).toHaveLength(submitsBeforeAllow + 1);
-  harness.mock.releaseHeldTasks();
-  await page.goto(`${harness.url}/settings#public-ip-guard`);
-
   harness.mock.setPublicIpv4Delay(350);
   const refresh = page
     .getByRole('button', { name: 'Refresh outbound public IPv4 status' })
@@ -208,6 +187,31 @@ async function exercisePublicIpv4Guard(harness: BrowserHarness, page: Page): Pro
   expect(unavailable.status()).toBe(400);
   expect(harness.mock.requests.length).toBe(poyoCallsBeforeUnavailable);
   harness.mock.setPublicIpv4Unavailable(false);
+  await refresh.click();
+  await page.getByText('IP differs from home', { exact: true }).filter({ visible: true }).waitFor();
+
+  // Finish request-count assertions before starting a job whose polling and
+  // terminal balance refresh also call Poyo.
+  harness.mock.queueOutcome('held');
+  const submitsBeforeAllow = harness.mock.requests.filter(
+    (request) => request.pathname === '/api/generate/submit'
+  ).length;
+  const allowedGeneration = await submitPaidGeneration(page, 'Allowed paid generation fixture');
+  expect(allowedGeneration.status).toBe(202);
+  expect(allowedGeneration.jobId).toBeTruthy();
+  await waitForPersistedJobState(
+    page,
+    allowedGeneration.actionId,
+    (job) => Boolean(job.poyoTaskId),
+    'The allowed generation did not persist its Poyo task link.'
+  );
+  await page.goto(`${harness.url}/jobs/${allowedGeneration.jobId}`);
+  await page.getByText('Poyo task linked', { exact: true }).waitFor();
+  expect(
+    harness.mock.requests.filter((request) => request.pathname === '/api/generate/submit')
+  ).toHaveLength(submitsBeforeAllow + 1);
+  harness.mock.releaseHeldTasks();
+  await page.goto(`${harness.url}/settings#public-ip-guard`);
 
   await harness.stopApp();
   await harness.startApp();
