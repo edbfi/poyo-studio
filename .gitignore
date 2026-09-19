@@ -88,3 +88,6 @@ Thumbs.db
 *~
 
 # bun.lock is intentionally tracked.
+
+# Generated native Svelte checker input
+.svelte-check/
