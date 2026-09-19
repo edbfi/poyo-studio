@@ -1,21 +1,22 @@
 # CI and Renovate
 
 All development pull requests and default-branch pushes run independent required
-quality, unit/registry, browser/security/production smoke, media-tool integration,
-and hygiene jobs. `ci / required` requires every job to succeed and rejects missing,
-skipped, failed or cancelled jobs. Its dispatch guard binds repair runs to the exact
-current PR commit. Renovate updates merge unattended after all seven current-head
-checks in `.github/merge-policy.json` pass. For other changes, review the exact
-current head/base, full CI results and relevant
-artifacts before merging with the maintainer’s ghmerge function. Repository branch protections and
-rulesets are intentionally disabled; local prek protections remain in place.
+quality, unit/registry, browser/security/production smoke, media-tool
+integration, and hygiene jobs. `ci / required` requires every job to succeed and
+rejects missing, skipped, failed or cancelled jobs. Its dispatch guard binds
+repair runs to the exact current PR commit. The separately required `policy / ci
+/ policy` check validates PR titles, commit sign-offs, reviews and hold labels
+using read-only API evidence. Protection must require both checks from GitHub
+Actions and current branches before enabling automerging. Local prek protections
+remain in place.
 
-Use Bun 1.4.2 and `bun install --frozen-lockfile`. CI shares `bun run format:check`,
-`bun run lint`, `bun run check`, `bun run test:ci`, `bun run test:browser:ci`, and
-`bun run test:media-tools:ci` with local development. Installation generates SvelteKit
-types so the first unit run resolves aliases from a clean checkout. The foundation
-test enforces consistent exact runtime pins and exact core dependency pins without
-copying dependency versions into a second inventory that blocks every update.
+Use Bun 1.4.2 and `bun install --frozen-lockfile`. CI shares `bun run
+format:check`, `bun run lint`, `bun run check`, `bun run test:ci`, `bun run
+test:browser:ci`, and `bun run test:media-tools:ci` with local development.
+Installation generates SvelteKit types so the first unit run resolves aliases
+from a clean checkout. The foundation test enforces consistent exact runtime
+pins and exact core dependency pins without copying dependency versions into a
+second inventory that blocks every update.
 
 The default suite retains its explicit directories, including reliability,
 performance and static security. The new aggregate browser command builds once,
@@ -38,18 +39,26 @@ permissions, lockfile/runtime/runner caches, bounded jobs, source mutation check
 and cancellation of superseded runs apply consistently. Prek skips duplicate
 application hooks only in CI; its local test hook now uses the safe explicit suite.
 
-Renovate uses `edbfi/automation:default`, including official Biome package/schema
-handling and grouped non-major updates. The v1.1.0 default and automerge presets
-make all dependency update types eligible, including majors and shared-policy
-updates, without dashboard approval. Svelte checks remain required to test
-TypeScript compatibility. The checked merge preserves genuine sign-offs and
-dispatches full CI for the exact merged commit. Biome repair computes without
-write privileges, publishes only allowlisted source/config changes, and
-explicitly runs full CI for the repaired SHA. Broad formatting changes beyond the
-shared limits require manual handling. Actions and shared preset updates arrive as
-normal Renovate PRs; full version tags are the agreed reference policy.
+Renovate uses `edbfi/automation:default`, including official Biome
+package/schema handling and grouped non-major updates. The v3 preset leaves
+native Renovate PR merging disabled for this migration. The legacy Actions
+merger and maintainer command are retired; opt-in requires a protected real
+Renovate canary. Svelte checks remain required for TypeScript compatibility.
+Biome repair computes without write privileges, publishes only allowlisted
+source/config changes, and explicitly runs full CI for the repaired SHA. Broad
+formatting changes beyond the shared limits require manual handling. Actions and
+shared preset updates arrive as normal Renovate PRs; full version tags are the
+agreed reference policy.
 
 Real paid API behavior, live model registry/pricing drift and deployment packaging
 remain separate integration/release concerns. Native media tools follow Homebrew
 releases rather than a frozen binary image; their behavioral tests and version
 readiness check are the gate for changes in those tools.
+
+Repair CI recovery reads `.github/repair-policy.json`. Recovery remains disabled,
+preserving the previous policy; the configured Biome App repair workflow remains
+enabled and uses the released v3 action. A repair must receive complete current-head
+CI and policy checks. If a workflow-token publication suppresses PR events, the
+missing policy check blocks merging until a supported App/Renovate update triggers
+full validation. Metadata and review events refresh policy; GitHub review rules
+provide the independent server-side review guarantee during event propagation.
