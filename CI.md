@@ -40,10 +40,13 @@ and cancellation of superseded runs apply consistently. Prek skips duplicate
 application hooks only in CI; its local test hook now uses the safe explicit suite.
 
 Renovate uses `edbfi/automation:default`, including official Biome
-package/schema handling and grouped non-major updates. The v3 preset leaves
-native Renovate PR merging disabled for this migration. The legacy Actions
-merger and maintainer command are retired; opt-in requires a protected real
-Renovate canary. Svelte checks remain required for TypeScript compatibility.
+package/schema handling and grouped non-major updates. Renovate owns ongoing
+dependency merging after the protected native canary
+[automation#39](https://github.com/edbfi/automation/pull/39). Native PR rebase merges
+preserve signed commits and require complete current-head CI and policy checks,
+up-to-date branches, release ages, reviews and hold labels. Shared automation
+configuration updates remain manual. The legacy Actions merger and maintainer
+command are retired. Svelte checks and the TypeScript 7 hold remain in place.
 Biome repair computes without write privileges, publishes only allowlisted
 source/config changes, and explicitly runs full CI for the repaired SHA. Broad
 formatting changes beyond the shared limits require manual handling. Actions and
