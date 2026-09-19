@@ -5,8 +5,8 @@ import { JobRepository } from '../../src/lib/server/jobs/repository';
 import { runtimeTestDownloadTransport } from '../../src/lib/server/jobs/runtime-settings';
 import { openDatabase } from '../../src/lib/server/platform/database';
 import { PublicIpv4Service } from '../../src/lib/server/platform/public-ipv4';
-import { PoyoClient } from '../../src/lib/server/poyo/client';
 import { systemClock } from '../../src/lib/server/poyo/backoff';
+import { PoyoClient } from '../../src/lib/server/poyo/client';
 import { PoyoTransport } from '../../src/lib/server/poyo/transport';
 import { SettingsRepository } from '../../src/lib/server/settings/settings-repository';
 

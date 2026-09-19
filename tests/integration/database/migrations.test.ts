@@ -1,7 +1,7 @@
 import { Database } from 'bun:sqlite';
 import { afterEach, describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
-import { migrations, type Migration } from '../../../migrations';
+import { type Migration, migrations } from '../../../migrations';
 import {
   databaseHealth,
   migrateDatabase,

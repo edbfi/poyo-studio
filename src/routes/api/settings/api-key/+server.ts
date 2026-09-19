@@ -1,6 +1,6 @@
-import { getPlatformServices } from '$lib/server/platform/runtime';
-import { readSameOriginJson } from '$lib/server/platform/request-security';
 import { operationsHttpError } from '$lib/server/operations/http';
+import { readSameOriginJson } from '$lib/server/platform/request-security';
+import { getPlatformServices } from '$lib/server/platform/runtime';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ setHeaders }) => {

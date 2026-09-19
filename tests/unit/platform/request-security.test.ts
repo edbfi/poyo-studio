@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import {
-  readSameOriginJson,
-  RequestSecurityError
+  RequestSecurityError,
+  readSameOriginJson
 } from '../../../src/lib/server/platform/request-security';
 
 function request(

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { imageCatalogue } from '../../../src/lib/features/registry/catalogue';
 import { normalizeImageRequest } from '../../../src/lib/features/registry/normalize';
+
 describe('registry catalogue and preview foundations', () => {
   test('REG-06 catalogue searches provider, model ID and workflow with capability DTOs', () => {
     expect(imageCatalogue('ByteDance').length).toBeGreaterThan(0);

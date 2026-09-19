@@ -1,12 +1,12 @@
+import { MediaRangeError } from '$lib/server/media/files';
 import {
-  acceptVerifiedAttachmentRequest,
   AttachmentRequestError,
+  acceptVerifiedAttachmentRequest,
   authorizeAcceptedAttachmentRequest,
   MediaOutputError,
   serveVerifiedMediaOutput
 } from '$lib/server/media/verified-output';
-import { MediaRangeError } from '$lib/server/media/files';
-import { readSameOriginJson, RequestSecurityError } from '$lib/server/platform/request-security';
+import { RequestSecurityError, readSameOriginJson } from '$lib/server/platform/request-security';
 import { getPlatformServices } from '$lib/server/platform/runtime';
 import type { RequestHandler } from './$types';
 

@@ -1,3 +1,4 @@
+import { OFFICIAL_SOURCE_MANIFEST, officialModelSources } from './evidence/source-evidence';
 import type {
   FieldDefinition,
   ImageRegistryEntry,
@@ -6,7 +7,6 @@ import type {
   RegistryManifest,
   RegistryProvenance
 } from './types';
-import { OFFICIAL_SOURCE_MANIFEST, officialModelSources } from './evidence/source-evidence';
 
 export const IMAGE_REGISTRY_VERSION = 'image-2026-08-24.1';
 export const IMAGE_VERIFIED_AT = OFFICIAL_SOURCE_MANIFEST.verifiedAt;

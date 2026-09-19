@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { normalizeRegistryRequest } from '../../../src/lib/features/registry/normalize-registry';
+
 const WAN_IMAGE_TO_VIDEO_KEY = 'wan2.7-image-to-video:image-to-video';
 
 describe('video registry selection', () => {

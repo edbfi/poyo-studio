@@ -1,9 +1,9 @@
 import { operationsHttpError } from '$lib/server/operations/http';
-import { getPlatformServices } from '$lib/server/platform/runtime';
 import { readSameOriginJson } from '$lib/server/platform/request-security';
+import { getPlatformServices } from '$lib/server/platform/runtime';
 import { CredentialBackendError } from '$lib/server/settings/api-key-manager';
 import { loadOnboardingState } from '$lib/server/settings/onboarding-gate';
-import { updateOnboarding, type OnboardingUpdate } from '$lib/server/settings/studio-settings';
+import { type OnboardingUpdate, updateOnboarding } from '$lib/server/settings/studio-settings';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ setHeaders }) => {

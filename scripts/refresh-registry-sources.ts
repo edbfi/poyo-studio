@@ -12,10 +12,10 @@ import {
 } from '../src/lib/features/registry/video-registry';
 import {
   fetchRegistrySource,
-  sourceCorpusSha256,
   type RegistrySourceEvidence,
   type RegistrySourceManifest,
-  type RegistrySourceSpec
+  type RegistrySourceSpec,
+  sourceCorpusSha256
 } from './registry-evidence-lib';
 
 const outputPath = resolve('src/lib/features/registry/evidence/official-source-manifest.json');

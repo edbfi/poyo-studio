@@ -1,5 +1,5 @@
+import { RequestSecurityError, readSameOriginJson } from '$lib/server/platform/request-security';
 import { getPlatformServices } from '$lib/server/platform/runtime';
-import { readSameOriginJson, RequestSecurityError } from '$lib/server/platform/request-security';
 import { ModelPreferenceRepository } from '$lib/server/registry/preferences-repository';
 import type { RequestHandler } from './$types';
 

@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import type { StudioJobDto } from '../../../src/lib/features/generation/contracts';
-import type { Estimate } from '../../../src/lib/features/pricing/contracts';
 import {
   applyBatchJob,
   batchItemCompatibilityIssues,
@@ -10,11 +9,12 @@ import {
   readStudioBatch,
   restoreBatchItemForRegistry,
   restoreBatchRoleInputs,
+  type StudioBatch,
   summarizeReadyBatchEstimates,
   summarizeSettledBatchCharges,
-  writeStudioBatch,
-  type StudioBatch
+  writeStudioBatch
 } from '../../../src/lib/features/generation/studio-batch';
+import type { Estimate } from '../../../src/lib/features/pricing/contracts';
 import { IMAGE_REGISTRY } from '../../../src/lib/features/registry/image-registry';
 
 class MemoryStorage {

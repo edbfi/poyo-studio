@@ -1,5 +1,5 @@
-import type { ApiKeyManager } from '../settings/api-key-manager';
 import type { StructuredLogger } from '../diagnostics/jsonl-logger';
+import type { ApiKeyManager } from '../settings/api-key-manager';
 import { systemClock } from './backoff';
 import { PoyoClient } from './client';
 import { PoyoError } from './errors';
