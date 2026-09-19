@@ -2,8 +2,8 @@ import { createHash } from 'node:crypto';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { openDatabase } from '../src/lib/server/platform/database';
 import { initialMigration } from '../migrations/0001-initial';
+import { openDatabase } from '../src/lib/server/platform/database';
 import { databaseSchemaSignature } from '../tests/helpers/database-schema-signature';
 
 const repositoryRoot = resolve(import.meta.dir, '..');

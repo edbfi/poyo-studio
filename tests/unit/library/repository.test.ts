@@ -3,13 +3,13 @@ import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { JobFiltersDto, LibraryFiltersDto } from '../../../src/lib/features/library/contracts';
 import { JOB_EVENT_METADATA_KEY } from '../../../src/lib/server/jobs/event-attention';
-import {
-  LibraryRepository,
-  projectSafeConfiguration
-} from '../../../src/lib/server/library/repository';
 import type {
   ViewerSequenceQueryObservation,
   ViewerSequenceTokenContext
+} from '../../../src/lib/server/library/repository';
+import {
+  LibraryRepository,
+  projectSafeConfiguration
 } from '../../../src/lib/server/library/repository';
 import { seedImageRegistry } from '../../../src/lib/server/registry/repository';
 import { createJobFixture } from '../../helpers/job-fixture';

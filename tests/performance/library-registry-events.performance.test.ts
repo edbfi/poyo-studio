@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, setDefaultTimeout, test } from 'bun:test';
 import { join } from 'node:path';
-import { modelCatalogue } from '../../src/lib/features/registry/catalogue';
 import type { JobFiltersDto, LibraryFiltersDto } from '../../src/lib/features/library/contracts';
+import { modelCatalogue } from '../../src/lib/features/registry/catalogue';
 import { LibraryRepository } from '../../src/lib/server/library/repository';
 import { openDatabase } from '../../src/lib/server/platform/database';
 import { createTemporaryDirectory } from '../helpers/temporary-directory';

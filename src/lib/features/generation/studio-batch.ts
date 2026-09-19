@@ -1,12 +1,12 @@
-import type { ExpertOverride } from '../registry/types';
 import type { Estimate, TaskCharge } from '../pricing/contracts';
 import { isPricingSignature } from '../pricing/estimate';
+import type { ExpertOverride } from '../registry/types';
 import type { StudioEntry, StudioJobDto, StudioOutputDto, StudioRoleInput } from './contracts';
 import {
   retainedSourceUrl,
-  sizeModes,
   type SizeMode,
-  type StudioCreateJobRequest
+  type StudioCreateJobRequest,
+  sizeModes
 } from './studio-controller';
 import type { AutomaticFieldKey } from './studio-sizing';
 

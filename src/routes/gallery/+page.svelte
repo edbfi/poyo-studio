@@ -32,11 +32,11 @@ import {
 import {
   createDownloadRequestReconciler,
   createDownloadRequestSync,
-  latestDownloadRequestAt,
-  mergeDownloadRequest,
   type DownloadRequestReconciler,
   type DownloadRequestSync,
-  type DownloadRequestUpdate
+  type DownloadRequestUpdate,
+  latestDownloadRequestAt,
+  mergeDownloadRequest
 } from '$lib/features/library/download-request-sync';
 import {
   byteSizeLabel,

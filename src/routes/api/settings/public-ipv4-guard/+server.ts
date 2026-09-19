@@ -1,6 +1,6 @@
 import { operationsHttpError } from '$lib/server/operations/http';
-import { getPlatformServices } from '$lib/server/platform/runtime';
 import { readSameOriginJson } from '$lib/server/platform/request-security';
+import { getPlatformServices } from '$lib/server/platform/runtime';
 import type { RequestHandler } from './$types';
 
 const noStore = { 'cache-control': 'no-store' };

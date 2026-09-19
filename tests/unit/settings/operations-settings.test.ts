@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
+import { DEFAULT_MEDIA_PRIVACY_SETTINGS } from '../../../src/lib/features/settings/media-privacy';
 import { StructuredLogger } from '../../../src/lib/server/diagnostics/jsonl-logger';
 import { openDatabase } from '../../../src/lib/server/platform/database';
 import {
@@ -7,7 +8,6 @@ import {
   OperationsSettingsService
 } from '../../../src/lib/server/settings/operations-settings';
 import { SettingsRepository } from '../../../src/lib/server/settings/settings-repository';
-import { DEFAULT_MEDIA_PRIVACY_SETTINGS } from '../../../src/lib/features/settings/media-privacy';
 import { createTemporaryDirectory } from '../../helpers/temporary-directory';
 
 const cleanups: Array<() => Promise<void>> = [];

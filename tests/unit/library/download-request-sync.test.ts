@@ -2,9 +2,9 @@ import { describe, expect, test } from 'bun:test';
 import {
   createDownloadRequestReconciler,
   createDownloadRequestSync,
+  type DownloadRequestUpdate,
   latestDownloadRequestAt,
-  mergeDownloadRequest,
-  type DownloadRequestUpdate
+  mergeDownloadRequest
 } from '../../../src/lib/features/library/download-request-sync';
 
 class FakeChannel {

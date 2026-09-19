@@ -1,8 +1,8 @@
 import type { Database } from 'bun:sqlite';
 import type { HealthDto } from '../../features/diagnostics/contracts';
-import type { ApiKeyStatusDto } from '../settings/api-key-manager';
 import { databaseHealth } from '../platform/database';
 import { APP_VERSION, DATABASE_SCHEMA_VERSION, REGISTRY_SCHEMA_VERSION } from '../platform/version';
+import type { ApiKeyStatusDto } from '../settings/api-key-manager';
 import type { StructuredLogger } from './jsonl-logger';
 
 export interface HealthDependencies {

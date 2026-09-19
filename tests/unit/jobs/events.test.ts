@@ -1,11 +1,12 @@
 import { afterEach, describe, expect, test } from 'bun:test';
+import { JOB_EVENT_METADATA_KEY } from '../../../src/lib/server/jobs/event-attention';
 import {
   createJobEventStream,
   decodeEventChunk,
   initialJobEvents
 } from '../../../src/lib/server/jobs/events';
-import { JOB_EVENT_METADATA_KEY } from '../../../src/lib/server/jobs/event-attention';
 import { createJobFixture, createTestJob } from '../../helpers/job-fixture';
+
 const cleanups: Array<() => Promise<void>> = [];
 afterEach(async () => {
   await Promise.all(cleanups.splice(0).map((cleanup) => cleanup()));

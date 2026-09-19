@@ -1,8 +1,9 @@
 import { latestBalance, refreshBalance } from '$lib/server/account/balance';
 import { jobHttpError } from '$lib/server/jobs/http';
-import { getPlatformServices } from '$lib/server/platform/runtime';
 import { readSameOriginJson } from '$lib/server/platform/request-security';
+import { getPlatformServices } from '$lib/server/platform/runtime';
 import type { RequestHandler } from './$types';
+
 const noStore = { 'cache-control': 'private, no-store' };
 
 export const GET: RequestHandler = async () => {

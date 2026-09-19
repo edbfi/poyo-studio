@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
+import { publicIpv4GuardError } from '../../../src/lib/server/poyo/errors';
 import { createPoyoClient, runtimePoyoBaseUrl } from '../../../src/lib/server/poyo/factory';
 import { MemoryPoyoMetadataLogger } from '../../../src/lib/server/poyo/logging';
 import { PoyoTransport } from '../../../src/lib/server/poyo/transport';
-import { publicIpv4GuardError } from '../../../src/lib/server/poyo/errors';
 
 const missingStatus = {
   source: 'none' as const,

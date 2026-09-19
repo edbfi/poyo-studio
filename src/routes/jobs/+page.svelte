@@ -5,9 +5,9 @@ import StatusBadge from '$lib/components/library/StatusBadge.svelte';
 import AppIcon from '$lib/components/ui/AppIcon.svelte';
 import LinkButton from '$lib/components/ui/LinkButton.svelte';
 import { nextMonotonicEventId } from '$lib/features/generation/studio-controller';
-import { dateTimeLabel, elapsedLabel } from '$lib/features/library/presentation';
-import type { ActivityCostDto } from '$lib/features/library/contracts';
 import { downloadCopy } from '$lib/features/library/attachment-request';
+import type { ActivityCostDto } from '$lib/features/library/contracts';
+import { dateTimeLabel, elapsedLabel } from '$lib/features/library/presentation';
 import type { PageData } from './$types';
 
 let { data }: { data: PageData } = $props();

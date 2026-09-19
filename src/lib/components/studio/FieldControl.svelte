@@ -1,6 +1,6 @@
 <script lang="ts">
-import type { FieldDefinition } from '$lib/features/registry/types';
 import { coerceFieldValue } from '$lib/features/generation/studio-controller';
+import type { FieldDefinition } from '$lib/features/registry/types';
 
 interface Props {
   field: FieldDefinition;

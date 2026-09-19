@@ -1,11 +1,14 @@
 <script lang="ts">
 import MediaPreview from '$lib/components/library/MediaPreview.svelte';
 import StatusBadge from '$lib/components/library/StatusBadge.svelte';
-import { attentionDescription } from '$lib/features/library/presentation';
 import AppIcon from '$lib/components/ui/AppIcon.svelte';
 import Badge from '$lib/components/ui/Badge.svelte';
 import LinkButton from '$lib/components/ui/LinkButton.svelte';
-import { byteSizeLabel, dateTimeLabel } from '$lib/features/library/presentation';
+import {
+  attentionDescription,
+  byteSizeLabel,
+  dateTimeLabel
+} from '$lib/features/library/presentation';
 import type { PageData } from './$types';
 
 let { data }: { data: PageData } = $props();

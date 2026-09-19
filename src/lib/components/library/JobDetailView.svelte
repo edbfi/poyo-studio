@@ -4,19 +4,19 @@ import { goto, invalidate, invalidateAll } from '$app/navigation';
 import AppIcon from '$lib/components/ui/AppIcon.svelte';
 import Badge from '$lib/components/ui/Badge.svelte';
 import LinkButton from '$lib/components/ui/LinkButton.svelte';
+import { downloadCopy } from '$lib/features/library/attachment-request';
 import type {
   ImageJobNavigationDto,
   JobDetailDto,
   LocalDeleteChoice
 } from '$lib/features/library/contracts';
 import {
-  byteSizeLabel,
   attentionDescription,
+  byteSizeLabel,
   dateTimeLabel,
   elapsedLabel,
   mediaFrameAspectRatio
 } from '$lib/features/library/presentation';
-import { downloadCopy } from '$lib/features/library/attachment-request';
 import MediaPreview from './MediaPreview.svelte';
 import StatusBadge from './StatusBadge.svelte';
 

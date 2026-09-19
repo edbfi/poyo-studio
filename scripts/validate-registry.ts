@@ -1,7 +1,7 @@
+import sourceManifestJson from '../src/lib/features/registry/evidence/official-source-manifest.json';
 import conditionalJson from '../src/lib/features/registry/evidence/reviewed-conditional-vectors.json';
 import conflictsJson from '../src/lib/features/registry/evidence/reviewed-conflicts.json';
 import imageFixturesJson from '../src/lib/features/registry/evidence/reviewed-image-fixtures.json';
-import sourceManifestJson from '../src/lib/features/registry/evidence/official-source-manifest.json';
 import videoFixturesAMJson from '../src/lib/features/registry/evidence/reviewed-video-fixtures-a-m.json';
 import videoFixturesNZJson from '../src/lib/features/registry/evidence/reviewed-video-fixtures-n-z.json';
 import {
@@ -30,7 +30,7 @@ import {
   VIDEO_REGISTRY_ENTRIES,
   VIDEO_REGISTRY_VERSION
 } from '../src/lib/features/registry/video-registry';
-import { sourceCorpusSha256, type RegistrySourceManifest } from './registry-evidence-lib';
+import { type RegistrySourceManifest, sourceCorpusSha256 } from './registry-evidence-lib';
 
 type RegistryEntry = ImageRegistryEntry | VideoRegistryEntry;
 

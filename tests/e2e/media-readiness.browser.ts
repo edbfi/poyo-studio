@@ -1,9 +1,9 @@
 import { expect, setDefaultTimeout, test } from 'bun:test';
 import { chromium, type Locator, type Page } from 'playwright';
 import {
-  startBrowserAppHarness,
   type BrowserMediaToolName,
-  type BrowserMediaToolShimState
+  type BrowserMediaToolShimState,
+  startBrowserAppHarness
 } from '../helpers/browser-app-harness';
 
 setDefaultTimeout(60_000);
