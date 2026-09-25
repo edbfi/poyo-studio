@@ -54,6 +54,6 @@
     "@typescript/native": "npm:typescript@7.0.2"
   },
   "dependencies": {
-    "bits-ui": "2.19.2"
+    "bits-ui": "2.19.3"
   }
 }
