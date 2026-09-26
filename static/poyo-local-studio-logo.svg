@@ -1,9 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 128 128"
+  role="img"
+  aria-labelledby="title desc"
+>
   <title id="title">Poyo Local Studio logo</title>
   <desc id="desc">A blue media frame nested inside a dark local studio tile.</desc>
-  <rect width="128" height="128" rx="26" fill="#202228"/>
-  <path d="M34 31h48a15 15 0 0 1 15 15v20A15 15 0 0 1 82 81H52v16H34V31Z" fill="#6ea5ff"/>
-  <path d="M51 48h28a5 5 0 0 1 5 5v7a5 5 0 0 1-5 5H51V48Z" fill="#202228"/>
-  <path d="m84 78 18 11-18 11V78Z" fill="#f5f7fa"/>
-  <circle cx="31" cy="97" r="6" fill="#f5f7fa"/>
+  <rect width="128" height="128" rx="26" fill="#202228" />
+  <path d="M34 31h48a15 15 0 0 1 15 15v20A15 15 0 0 1 82 81H52v16H34V31Z" fill="#6ea5ff" />
+  <path d="M51 48h28a5 5 0 0 1 5 5v7a5 5 0 0 1-5 5H51V48Z" fill="#202228" />
+  <path d="m84 78 18 11-18 11V78Z" fill="#f5f7fa" />
+  <circle cx="31" cy="97" r="6" fill="#f5f7fa" />
 </svg>

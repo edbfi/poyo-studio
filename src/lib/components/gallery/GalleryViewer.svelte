@@ -755,27 +755,114 @@ $effect(() => {
         <div class="gallery-viewer-layout">
           <header class="gallery-viewer-header">
             <div class="min-w-0 flex-1">
-              <Dialog.Title class="truncate text-sm font-semibold">{activeGroup.displayName}</Dialog.Title>
+              <Dialog.Title class="truncate text-sm font-semibold"
+                >{activeGroup.displayName}</Dialog.Title
+              >
               <Dialog.Description class="mt-0.5 truncate text-xs text-stage-muted">
-                {activeGroup.provider} · {activeGroup.workflow} · {activeIndex + 1} of {viewableGroups.length}
+                {activeGroup.provider}
+                · {activeGroup.workflow} · {activeIndex + 1} of {viewableGroups.length}
               </Dialog.Description>
             </div>
             <div class="gallery-viewer-header-controls">
-              <button class="gallery-viewer-control focus-ring" type="button" aria-label="Previous item" disabled={!canGoPrevious} onclick={(event) => moveSelection(-1, event.currentTarget)}>←</button>
-              <button class="gallery-viewer-control focus-ring" type="button" aria-label="Next item" disabled={!canGoNext} onclick={(event) => moveSelection(1, event.currentTarget)}>→</button>
-              <button class="gallery-viewer-close focus-ring" type="button" onclick={() => requestClose('button')}>Close</button>
-              {#if updating}<p class="text-xs text-stage-muted" role="status">Updating Gallery…</p>{/if}
-              {#if selectedMediaWarning}<p class="text-xs text-warning" role="alert">{selectedMediaWarning}</p>{/if}
-              {#if sequenceError}<div class="flex items-center gap-2 text-xs text-warning" role="alert"><span>Gallery history could not be updated.</span>{#if onRetry}<button class="gallery-viewer-control focus-ring" type="button" onclick={onRetry}>Retry</button>{/if}</div>{/if}
+              <button
+                class="gallery-viewer-control focus-ring"
+                type="button"
+                aria-label="Previous item"
+                disabled={!canGoPrevious}
+                onclick={(event) => moveSelection(-1, event.currentTarget)}
+              >
+                ←
+              </button>
+              <button
+                class="gallery-viewer-control focus-ring"
+                type="button"
+                aria-label="Next item"
+                disabled={!canGoNext}
+                onclick={(event) => moveSelection(1, event.currentTarget)}
+              >
+                →
+              </button>
+              <button
+                class="gallery-viewer-close focus-ring"
+                type="button"
+                onclick={() => requestClose('button')}
+              >
+                Close
+              </button>
+              {#if updating}
+                <p class="text-xs text-stage-muted" role="status">Updating Gallery…</p>
+              {/if}
+              {#if selectedMediaWarning}
+                <p class="text-xs text-warning" role="alert">{selectedMediaWarning}</p>
+              {/if}
+              {#if sequenceError}
+                <div class="flex items-center gap-2 text-xs text-warning" role="alert">
+                  <span>Gallery history could not be updated.</span>
+                  {#if onRetry}
+                    <button
+                      class="gallery-viewer-control focus-ring"
+                      type="button"
+                      onclick={onRetry}
+                    >
+                      Retry
+                    </button>
+                  {/if}
+                </div>
+              {/if}
             </div>
           </header>
           {#if activeGroup.representative.mediaKind === 'image'}
-            <div bind:this={imageToolbar} class="gallery-viewer-toolbar" role="toolbar" aria-label="Image zoom controls">
-              <button class="gallery-viewer-control focus-ring" type="button" aria-label="Zoom out" disabled={!readyImage} onclick={() => zoom(1 / DISCRETE_ZOOM_FACTOR)}>−</button>
-              <button class="gallery-viewer-control focus-ring" type="button" aria-label="Fit image" aria-pressed={readyImage?.mode === 'fit'} disabled={!readyImage} onclick={fitImage}>Fit</button>
-              <button class="gallery-viewer-control focus-ring" type="button" aria-label="Actual size" aria-pressed={readyImage?.mode === 'actual'} disabled={!readyImage} onclick={actualImage}>Actual</button>
-              <button class="gallery-viewer-control focus-ring" type="button" aria-label="Zoom in" disabled={!readyImage} onclick={() => zoom(DISCRETE_ZOOM_FACTOR)}>+</button>
-              <output data-testid="gallery-viewer-zoom" aria-label="Zoom level" aria-live="off">{readyImage ? (readyImage.mode === 'actual' ? '100%' : `${Math.round(readyImage.transform.zoom * 100)}%`) : '—'}</output>
+            <div
+              bind:this={imageToolbar}
+              class="gallery-viewer-toolbar"
+              role="toolbar"
+              aria-label="Image zoom controls"
+            >
+              <button
+                class="gallery-viewer-control focus-ring"
+                type="button"
+                aria-label="Zoom out"
+                disabled={!readyImage}
+                onclick={() => zoom(1 / DISCRETE_ZOOM_FACTOR)}
+              >
+                −
+              </button>
+              <button
+                class="gallery-viewer-control focus-ring"
+                type="button"
+                aria-label="Fit image"
+                aria-pressed={readyImage?.mode === 'fit'}
+                disabled={!readyImage}
+                onclick={fitImage}
+              >
+                Fit
+              </button>
+              <button
+                class="gallery-viewer-control focus-ring"
+                type="button"
+                aria-label="Actual size"
+                aria-pressed={readyImage?.mode === 'actual'}
+                disabled={!readyImage}
+                onclick={actualImage}
+              >
+                Actual
+              </button>
+              <button
+                class="gallery-viewer-control focus-ring"
+                type="button"
+                aria-label="Zoom in"
+                disabled={!readyImage}
+                onclick={() => zoom(DISCRETE_ZOOM_FACTOR)}
+              >
+                +
+              </button>
+              <output data-testid="gallery-viewer-zoom" aria-label="Zoom level" aria-live="off"
+                >{readyImage
+  ? readyImage.mode === 'actual'
+    ? '100%'
+    : `${Math.round(readyImage.transform.zoom * 100)}%`
+  : '—'}</output
+              >
             </div>
           {/if}
           <div class="gallery-viewer-stage" data-testid="gallery-viewer-stage">
@@ -812,10 +899,12 @@ $effect(() => {
                     decoding="async"
                     class="gallery-viewer-media"
                     class:gallery-viewer-media-ready={Boolean(readyImage)}
-                    style={readyImage ? `width:${readyImage.geometry.fitted.width}px;height:${readyImage.geometry.fitted.height}px;transform:translate3d(${readyImage.transform.x}px,${readyImage.transform.y}px,0) scale(${readyImage.transform.zoom});` : ''}
+                    style={readyImage
+  ? `width:${readyImage.geometry.fitted.width}px;height:${readyImage.geometry.fitted.height}px;transform:translate3d(${readyImage.transform.x}px,${readyImage.transform.y}px,0) scale(${readyImage.transform.zoom});`
+  : ''}
                     onload={handleImageLoad}
                     onerror={handleImageError}
-                  />
+                  >
                 {:else}
                   <!-- svelte-ignore a11y_media_has_caption -- generated media does not provide a caption track -->
                   <video
@@ -827,7 +916,9 @@ $effect(() => {
                     controls
                     autoplay={false}
                     playsinline
-                    style={readyVideo ? `width:${readyVideo.geometry.fitted.width}px;height:${readyVideo.geometry.fitted.height}px;` : ''}
+                    style={readyVideo
+  ? `width:${readyVideo.geometry.fitted.width}px;height:${readyVideo.geometry.fitted.height}px;`
+  : ''}
                     onloadedmetadata={handleVideoLoadedMetadata}
                     onerror={handleVideoError}
                   ></video>
@@ -839,13 +930,18 @@ $effect(() => {
                   role="img"
                   aria-label={`Download copy requested ${dateTimeLabel(activeDownloadRequestedAt)}`}
                   title={`Download copy requested ${dateTimeLabel(activeDownloadRequestedAt)}`}
-                >✓<span class="sr-only">Download</span></span>
+                  >✓<span class="sr-only">Download</span></span
+                >
               {/if}
               {#if session.status === 'loading'}
-                <p class="gallery-viewer-state" role="status" data-testid="gallery-viewer-loading">Loading media…</p>
+                <p class="gallery-viewer-state" role="status" data-testid="gallery-viewer-loading">
+                  Loading media…
+                </p>
               {/if}
               {#if session.status === 'error'}
-                <p class="gallery-viewer-state" role="alert" data-testid="gallery-viewer-error">{session.reason}</p>
+                <p class="gallery-viewer-state" role="alert" data-testid="gallery-viewer-error">
+                  {session.reason}
+                </p>
               {/if}
             </div>
           </div>
@@ -853,21 +949,64 @@ $effect(() => {
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div class="min-w-0 flex-1">
                 <p class="text-xs font-semibold uppercase tracking-[0.12em] text-stage-muted">
-                  {activeGroup.representative.mediaKind} · {activeIndex + 1} of {viewableGroups.length} ·
-                  <time datetime={activeGroup.createdAt}>{dateTimeLabel(activeGroup.createdAt)}</time>
+                  {activeGroup.representative.mediaKind}
+                  · {activeIndex + 1} of {viewableGroups.length} ·
+                  <time datetime={activeGroup.createdAt}
+                    >{dateTimeLabel(activeGroup.createdAt)}</time
+                  >
                 </p>
-                <p class="mt-1 line-clamp-2 text-sm leading-5">{activeGroup.promptExcerpt ?? 'No prompt stored'}</p>
+                <p class="mt-1 line-clamp-2 text-sm leading-5">
+                  {activeGroup.promptExcerpt ?? 'No prompt stored'}
+                </p>
               </div>
               <nav class="flex flex-wrap gap-2" aria-label="Selected media actions">
-                <a class="gallery-viewer-action focus-ring rounded border border-stage-border px-3 py-2 text-xs font-semibold hover:bg-stage-border" href={`/jobs/${activeGroup.jobId}`}>Open job</a>
-                <a class="gallery-viewer-action focus-ring rounded border border-stage-border px-3 py-2 text-xs font-semibold hover:bg-stage-border" href={activeGroup.representative.mediaUrl} target="_blank" rel="noreferrer">Open full size</a>
-                <button class="gallery-viewer-action focus-ring rounded border border-stage-border px-3 py-2 text-xs font-semibold hover:bg-stage-border" type="button" onclick={requestActiveDownload} disabled={downloadPending !== null}>Download copy</button>
+                <a
+                  class="gallery-viewer-action focus-ring rounded border border-stage-border px-3 py-2 text-xs font-semibold hover:bg-stage-border"
+                  href={`/jobs/${activeGroup.jobId}`}
+                  >Open job</a
+                >
+                <a
+                  class="gallery-viewer-action focus-ring rounded border border-stage-border px-3 py-2 text-xs font-semibold hover:bg-stage-border"
+                  href={activeGroup.representative.mediaUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  >Open full size</a
+                >
+                <button
+                  class="gallery-viewer-action focus-ring rounded border border-stage-border px-3 py-2 text-xs font-semibold hover:bg-stage-border"
+                  type="button"
+                  onclick={requestActiveDownload}
+                  disabled={downloadPending !== null}
+                >
+                  Download copy
+                </button>
               </nav>
             </div>
-            <p id="gallery-viewer-instructions" class="sr-only">Use the zoom controls, mouse wheel, drag, double click, or keyboard shortcuts. Arrow keys pan a zoomed image and otherwise move between items.</p>
-            <p class="sr-only" role="status" aria-live="polite" data-testid="gallery-viewer-item-status">{activeGroup.representative.mediaKind}, item {activeIndex + 1} of {viewableGroups.length}: {activeGroup.displayName}</p>
-            <p class="sr-only" role="status" aria-live="polite" aria-atomic="true" data-testid="gallery-viewer-interaction-status">{interactionMessage}</p>
-            <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">{downloadFeedback}</p>
+            <p id="gallery-viewer-instructions" class="sr-only">
+              Use the zoom controls, mouse wheel, drag, double click, or keyboard shortcuts. Arrow
+              keys pan a zoomed image and otherwise move between items.
+            </p>
+            <p
+              class="sr-only"
+              role="status"
+              aria-live="polite"
+              data-testid="gallery-viewer-item-status"
+            >
+              {activeGroup.representative.mediaKind}, item {activeIndex + 1} of
+              {viewableGroups.length}: {activeGroup.displayName}
+            </p>
+            <p
+              class="sr-only"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              data-testid="gallery-viewer-interaction-status"
+            >
+              {interactionMessage}
+            </p>
+            <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+              {downloadFeedback}
+            </p>
           </footer>
         </div>
       {/if}

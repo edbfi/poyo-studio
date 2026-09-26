@@ -60,7 +60,8 @@ function selectEntry(entry: StudioEntry): void {
               {/if}
             </span>
             <span class="mt-0.5 block truncate text-[0.6875rem] text-muted-foreground">
-              {studioProviderLabel(selectedEntry)} · {selectedEntry.publicModelId}
+              {studioProviderLabel(selectedEntry)}
+              · {selectedEntry.publicModelId}
             </span>
           </span>
           <span class="shrink-0 text-xs font-semibold text-primary">
@@ -83,7 +84,7 @@ function selectEntry(entry: StudioEntry): void {
         class="focus-ring h-9 w-full rounded-[var(--radius)] border border-input bg-background px-3 text-sm"
         placeholder="Search models or providers"
         bind:value={query}
-      />
+      >
       {#if hasSafetyCapableEntries}
         <p class="flex items-center gap-1.5 text-[0.6875rem] font-medium text-muted-foreground">
           <span
@@ -96,7 +97,8 @@ function selectEntry(entry: StudioEntry): void {
         </p>
       {/if}
       <p class="sr-only" aria-live="polite">
-        {filteredCount} audited {filteredCount === 1 ? 'model' : 'models'} available.
+        {filteredCount}
+        audited {filteredCount === 1 ? 'model' : 'models'} available.
       </p>
       <div class="grid max-h-72 gap-4 overflow-y-auto pr-1">
         {#each groups as group, groupIndex (group.key)}
@@ -121,7 +123,7 @@ function selectEntry(entry: StudioEntry): void {
                     value={entry.key}
                     checked={entry.key === selectedKey}
                     onchange={() => selectEntry(entry)}
-                  />
+                  >
                   <span class="flex items-start justify-between gap-2">
                     <span class="min-w-0">
                       <span class="flex min-w-0 items-center gap-1.5">
@@ -140,15 +142,22 @@ function selectEntry(entry: StudioEntry): void {
                         {/if}
                       </span>
                       <span class="mt-0.5 block truncate text-[0.6875rem] text-muted-foreground">
-                        {studioProviderLabel(entry)} · {entry.publicModelId}
+                        {studioProviderLabel(entry)}
+                        · {entry.publicModelId}
                       </span>
                     </span>
-                    <Badge tone={entry.status === 'current' ? 'success' : 'neutral'}>{entry.status}</Badge>
+                    <Badge tone={entry.status === 'current' ? 'success' : 'neutral'}
+                      >{entry.status}</Badge
+                    >
                   </span>
                   <span class="mt-2 flex flex-wrap gap-1 text-[0.6875rem] text-muted-foreground">
                     <span>{studioModeLabel(entry.workflow)}</span>
                     <span aria-hidden="true">·</span>
-                    <span>{entry.inputRoles.length ? `${entry.inputRoles.length} media role${entry.inputRoles.length === 1 ? '' : 's'}` : 'Prompt only'}</span>
+                    <span
+                      >{entry.inputRoles.length
+  ? `${entry.inputRoles.length} media role${entry.inputRoles.length === 1 ? '' : 's'}`
+  : 'Prompt only'}</span
+                    >
                   </span>
                 </label>
               {/each}

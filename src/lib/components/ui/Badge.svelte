@@ -26,6 +26,4 @@ let classes = $derived(
 );
 </script>
 
-<span class={classes}>
-  {@render children()}
-</span>
+<span class={classes}> {@render children()} </span>

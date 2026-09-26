@@ -71,3 +71,27 @@ installed. Deleting local data does not delete content held by Poyo.
 ## License
 
 Poyo Local Studio is licensed under the [GNU Affero General Public License v3.0](LICENSE).
+
+## Biome configuration
+
+`biome.json` uses the pinned Biome version, Git ignore rules, recommended lint and
+import-organizing rules, and the existing two-space, 100-column, single-quote style.
+`bun run lint` checks lint rules; `bun run format:check` checks formatting;
+`bun run format` writes formatting. For all checks and import organization, use
+`bunx biome check .` or `bunx biome check --write .` for safe fixes.
+
+Experimental HTML support enables Svelte markup checks and formatting. The exact
+file overrides record these compatibility limits:
+
+- Biome 2.5.14 rewrites some `{@const}` declarations into invalid Svelte. Formatting
+  is disabled for the five affected components; lint and import organization remain enabled.
+- Focusable tab panels and the keyboard-operated media viewport retain their tab stops.
+- Generated video has no caption track; the caption exceptions match the existing
+  Svelte suppressions. The media preview link has a dynamic accessible name that
+  Biome's anchor-content check does not recognize.
+- Named UI groups and the media viewport retain their explicit ARIA roles instead
+  of requiring form fieldsets or a different container element.
+
+The captured pricing HTML fixture is excluded so formatting cannot alter the
+source evidence. Keep `bun run check` as the framework/type check, and re-evaluate
+these narrow overrides when upgrading Biome.

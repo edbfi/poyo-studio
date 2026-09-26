@@ -40,7 +40,5 @@ $effect(() => {
 {#if bare}
   {@render children()}
 {:else}
-  <AppShell summary={data.shellSummary}>
-    {@render children()}
-  </AppShell>
+  <AppShell summary={data.shellSummary}> {@render children()} </AppShell>
 {/if}

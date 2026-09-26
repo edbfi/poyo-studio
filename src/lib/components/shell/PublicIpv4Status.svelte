@@ -39,7 +39,10 @@ let tone = $derived<'neutral' | 'success' | 'danger' | 'warning'>(
 
 <div class="min-w-0" aria-live="polite" aria-atomic="true">
   <div class="flex min-w-0 items-center gap-2">
-    <AppIcon name={status.state === 'blocked' || status.state === 'misconfigured' ? 'shield' : 'wifi'} size={16} />
+    <AppIcon
+      name={status.state === 'blocked' || status.state === 'misconfigured' ? 'shield' : 'wifi'}
+      size={16}
+    />
     <div class={compact ? 'hidden min-w-0 flex-1 sm:block' : 'min-w-0 flex-1'}>
       <div class="flex min-w-0 items-center gap-1.5">
         <a

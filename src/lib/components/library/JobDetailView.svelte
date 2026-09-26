@@ -272,11 +272,11 @@ function removeOutput(outputId: string): void {
     </div>
     <div class="flex flex-wrap gap-2">
       <LinkButton href={`/studio/${job.modality}?fromJob=${job.id}`} variant="outline">Edit in studio</LinkButton>
-      {#if job.poyoTaskLinked}<button onclick={refresh} disabled={pending !== null} class="focus-ring inline-flex min-h-9 items-center gap-2 rounded border border-border px-3 text-sm font-semibold"><AppIcon name="refresh" size={15} /> Refresh status</button>{/if}
+      {#if job.poyoTaskLinked}<button type="button" onclick={refresh} disabled={pending !== null} class="focus-ring inline-flex min-h-9 items-center gap-2 rounded border border-border px-3 text-sm font-semibold"><AppIcon name="refresh" size={15} /> Refresh status</button>{/if}
       {#if job.attentionCode === 'submission_unknown'}
-        <button onclick={retryAmbiguous} disabled={pending !== null} class="focus-ring min-h-9 rounded bg-warning px-3 text-sm font-semibold text-warning-foreground">Acknowledge risk and retry</button>
+        <button type="button" onclick={retryAmbiguous} disabled={pending !== null} class="focus-ring min-h-9 rounded bg-warning px-3 text-sm font-semibold text-warning-foreground">Acknowledge risk and retry</button>
       {:else if !(job.attentionCode === 'ip_guard_blocked' && job.poyoTaskLinked)}
-        <button onclick={rerun} disabled={pending !== null} class="focus-ring min-h-9 rounded bg-primary px-3 text-sm font-semibold text-primary-foreground">Run again</button>
+        <button type="button" onclick={rerun} disabled={pending !== null} class="focus-ring min-h-9 rounded bg-primary px-3 text-sm font-semibold text-primary-foreground">Run again</button>
       {/if}
     </div>
   </header>
@@ -361,7 +361,7 @@ function removeOutput(outputId: string): void {
                       <a href={output.mediaUrl ?? '#'} target="_blank" rel="noreferrer" class="focus-ring rounded border border-border px-2.5 py-1.5 text-xs font-semibold">Open in browser</a>
                       <button type="button" onclick={() => requestDownloadCopy(output.outputId)} disabled={pending !== null} class="focus-ring rounded border border-border px-2.5 py-1.5 text-xs font-semibold">Download copy</button>
                     {/if}
-                    {#if output.remoteAvailable && !output.localAvailable}<button onclick={() => retryDownload(output.outputId)} disabled={pending !== null} class="focus-ring rounded border border-border px-2.5 py-1.5 text-xs font-semibold">Download again</button>{/if}
+                    {#if output.remoteAvailable && !output.localAvailable}<button type="button" onclick={() => retryDownload(output.outputId)} disabled={pending !== null} class="focus-ring rounded border border-border px-2.5 py-1.5 text-xs font-semibold">Download again</button>{/if}
                     {#if output.remoteAvailable && output.mediaKind === 'image'}
                       <LinkButton href={`/studio/image?fromJob=${job.id}&sourceOutput=${output.outputId}`} variant="ghost">Remix image</LinkButton>
                       <LinkButton href={`/studio/video?fromJob=${job.id}&sourceOutput=${output.outputId}`} variant="ghost">Animate in Video Studio</LinkButton>
@@ -369,7 +369,7 @@ function removeOutput(outputId: string): void {
                       <LinkButton href={`/studio/video?fromJob=${job.id}&sourceOutput=${output.outputId}`} variant="ghost">Remix video</LinkButton>
                     {/if}
                   </div>
-                  <details class="mt-4 border-t border-border pt-3"><summary class="cursor-pointer text-xs font-semibold">Local deletion</summary><p class="mt-2 text-xs leading-5 text-muted-foreground">Removing metadata can leave an untracked file. No option here deletes remote Poyo data.</p><div class="mt-2 flex gap-2"><select aria-label={`Deletion consequence for output ${output.outputOrder + 1}`} value={deleteChoices[output.outputId] ?? 'file'} onchange={(event) => (deleteChoices[output.outputId] = event.currentTarget.value as LocalDeleteChoice)} class="focus-ring min-w-0 flex-1 rounded border border-input bg-background px-2 text-xs"><option value="file">File only</option><option value="metadata">Metadata only</option><option value="both">File + metadata</option></select><button onclick={() => removeOutput(output.outputId)} disabled={pending !== null} class="focus-ring rounded border border-destructive/40 px-2.5 text-xs font-semibold text-destructive">Remove</button></div></details>
+                  <details class="mt-4 border-t border-border pt-3"><summary class="cursor-pointer text-xs font-semibold">Local deletion</summary><p class="mt-2 text-xs leading-5 text-muted-foreground">Removing metadata can leave an untracked file. No option here deletes remote Poyo data.</p><div class="mt-2 flex gap-2"><select aria-label={`Deletion consequence for output ${output.outputOrder + 1}`} value={deleteChoices[output.outputId] ?? 'file'} onchange={(event) => (deleteChoices[output.outputId] = event.currentTarget.value as LocalDeleteChoice)} class="focus-ring min-w-0 flex-1 rounded border border-input bg-background px-2 text-xs"><option value="file">File only</option><option value="metadata">Metadata only</option><option value="both">File + metadata</option></select><button type="button" onclick={() => removeOutput(output.outputId)} disabled={pending !== null} class="focus-ring rounded border border-destructive/40 px-2.5 text-xs font-semibold text-destructive">Remove</button></div></details>
                 </div>
               </article>
             {/each}
@@ -388,7 +388,7 @@ function removeOutput(outputId: string): void {
 
     <aside class="space-y-6">
       <section class="border-b border-border pb-5"><p class="eyebrow-label">Summary</p><dl class="mt-3 grid grid-cols-2 gap-4 text-xs"><div><dt class="text-muted-foreground">Created</dt><dd class="mt-1 font-medium tabular-nums">{dateTimeLabel(job.createdAt)}</dd></div><div><dt class="text-muted-foreground">Elapsed</dt><dd class="mt-1 font-medium tabular-nums">{elapsedLabel(job.startedAt ?? job.createdAt, job.completedAt)}</dd></div><div><dt class="text-muted-foreground">Credits</dt><dd class="mt-1 font-medium tabular-nums">{costLabel()}</dd></div><div><dt class="text-muted-foreground">Last check</dt><dd class="mt-1 font-medium tabular-nums">{job.lastPolledAt ? dateTimeLabel(job.lastPolledAt) : 'Never'}</dd></div></dl></section>
-      <section class="border-b border-border pb-5"><p class="eyebrow-label">Organize</p><div class="mt-3 flex flex-wrap gap-2"><button onclick={() => toggle('favorite', !job.outputs.some((output) => output.favorite))} disabled={pending !== null} class="focus-ring inline-flex min-h-8 items-center gap-2 rounded border border-border px-3 text-xs font-semibold"><AppIcon name="heart" size={14} /> {job.outputs.some((output) => output.favorite) ? 'Unfavorite' : 'Favorite'}</button><button onclick={() => toggle('pin', !job.outputs.some((output) => output.pinned))} disabled={pending !== null} class="focus-ring min-h-8 rounded border border-border px-3 text-xs font-semibold">{job.outputs.some((output) => output.pinned) ? 'Unpin' : 'Pin'}</button></div><label class="mt-4 block text-xs font-semibold" for="job-tags">Tags, comma separated</label><div class="mt-2 flex gap-2"><input id="job-tags" bind:value={tags} class="focus-ring min-w-0 flex-1 rounded border border-input bg-background px-3 text-sm" /><button onclick={saveTags} disabled={pending !== null} class="focus-ring rounded border border-border px-3 text-xs font-semibold">Save</button></div></section>
+      <section class="border-b border-border pb-5"><p class="eyebrow-label">Organize</p><div class="mt-3 flex flex-wrap gap-2"><button type="button" onclick={() => toggle('favorite', !job.outputs.some((output) => output.favorite))} disabled={pending !== null} class="focus-ring inline-flex min-h-8 items-center gap-2 rounded border border-border px-3 text-xs font-semibold"><AppIcon name="heart" size={14} /> {job.outputs.some((output) => output.favorite) ? 'Unfavorite' : 'Favorite'}</button><button type="button" onclick={() => toggle('pin', !job.outputs.some((output) => output.pinned))} disabled={pending !== null} class="focus-ring min-h-8 rounded border border-border px-3 text-xs font-semibold">{job.outputs.some((output) => output.pinned) ? 'Unpin' : 'Pin'}</button></div><label class="mt-4 block text-xs font-semibold" for="job-tags">Tags, comma separated</label><div class="mt-2 flex gap-2"><input id="job-tags" bind:value={tags} class="focus-ring min-w-0 flex-1 rounded border border-input bg-background px-3 text-sm" /><button type="button" onclick={saveTags} disabled={pending !== null} class="focus-ring rounded border border-border px-3 text-xs font-semibold">Save</button></div></section>
       <section class="border-b border-border pb-5">
         <div class="flex items-center justify-between gap-2">
           <p class="eyebrow-label">Prompt</p>
@@ -410,7 +410,7 @@ function removeOutput(outputId: string): void {
               <li class="min-w-0 text-xs">
                 <p class="font-semibold">{input.role} · {input.mediaKind}</p>
                 {#if input.originalName && input.neutralUploadName}
-                  <p class="mt-1 flex min-w-0 items-center gap-1 text-muted-foreground" aria-label={`${input.originalName} uploaded to Poyo as ${input.neutralUploadName}`}>
+                  <p class="mt-1 flex min-w-0 items-center gap-1 text-muted-foreground" role="group" aria-label={`${input.originalName} uploaded to Poyo as ${input.neutralUploadName}`}>
                     <span class="truncate" title={input.originalName}>{input.originalName}</span>
                     <span aria-hidden="true">→</span>
                     <span class="truncate font-mono" title={input.neutralUploadName}>{input.neutralUploadName}</span>

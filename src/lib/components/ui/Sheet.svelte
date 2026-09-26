@@ -28,9 +28,7 @@ let {
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.Trigger class={triggerClass}>
-    {@render trigger()}
-  </Dialog.Trigger>
+  <Dialog.Trigger class={triggerClass}> {@render trigger()} </Dialog.Trigger>
   <Dialog.Portal>
     <Dialog.Overlay class="sheet-overlay" />
     <Dialog.Content

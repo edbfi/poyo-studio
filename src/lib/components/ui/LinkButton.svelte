@@ -28,6 +28,4 @@ let classes = $derived(
 );
 </script>
 
-<a {href} {target} {rel} class={classes}>
-  {@render children()}
-</a>
+<a {href} {target} {rel} class={classes}> {@render children()} </a>

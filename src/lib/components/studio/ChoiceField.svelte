@@ -39,7 +39,7 @@ let compact = $derived(options.length <= 12);
             value="automatic"
             checked={automatic}
             onchange={() => onchange(field.key, undefined, true)}
-          />
+          >
           {automaticChoice.label}
         </label>
       {/if}
@@ -58,7 +58,7 @@ let compact = $derived(options.length <= 12);
             value={option}
             checked={!automatic && String(value) === option}
             onchange={() => onchange(field.key, coerceFieldValue(field, option), false)}
-          />
+          >
           {option}
         </label>
       {/each}
@@ -66,27 +66,30 @@ let compact = $derived(options.length <= 12);
   {:else}
     <div class="grid gap-1.5">
       {#if automaticChoice.available}
-        <label class="focus-within:ring-2 focus-within:ring-ring flex min-h-10 cursor-pointer items-center gap-2 rounded-[var(--radius)] border border-border bg-background px-3 text-xs font-semibold">
+        <label
+          class="focus-within:ring-2 focus-within:ring-ring flex min-h-10 cursor-pointer items-center gap-2 rounded-[var(--radius)] border border-border bg-background px-3 text-xs font-semibold"
+        >
           <input
             type="radio"
             name={`${id}-mode`}
             checked={automatic}
             onchange={() => onchange(field.key, undefined, true)}
-          />
+          >
           {automaticChoice.label}
         </label>
       {/if}
       <label class="grid gap-1 text-xs font-semibold" for={id}>
         Explicit {label.toLowerCase()}
         <select
-          id={id}
+          {id}
           class="focus-ring h-9 w-full rounded-[var(--radius)] border border-input bg-background px-2.5 text-sm"
           value={automatic ? '' : String(value ?? '')}
-          onchange={(event) =>
-            onchange(field.key, coerceFieldValue(field, event.currentTarget.value), false)}
+          onchange={(event) => onchange(field.key, coerceFieldValue(field, event.currentTarget.value), false)}
         >
           <option value="" disabled>Select a value</option>
-          {#each options as option (option)}<option value={option}>{option}</option>{/each}
+          {#each options as option (option)}
+            <option value={option}>{option}</option>
+          {/each}
         </select>
       </label>
     </div>
