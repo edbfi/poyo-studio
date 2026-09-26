@@ -13,13 +13,13 @@ concurrency:
   cancel-in-progress: true
 jobs:
   quality:
-    uses: edbfi/automation/.github/workflows/bun.yml@v4.1.0
+    uses: edbfi/automation/.github/workflows/bun.yml@v4.1.1
     with:
       # renovate: datasource=npm depName=bun
       version: 1.4.2
       command: bun run format:check && bun run lint && bun run check
   unit:
-    uses: edbfi/automation/.github/workflows/bun.yml@v4.1.0
+    uses: edbfi/automation/.github/workflows/bun.yml@v4.1.1
     with:
       # renovate: datasource=npm depName=bun
       version: 1.4.2
@@ -59,7 +59,7 @@ jobs:
     env:
       CI: 'true'
   media:
-    uses: edbfi/automation/.github/workflows/bun.yml@v4.1.0
+    uses: edbfi/automation/.github/workflows/bun.yml@v4.1.1
     with:
       # renovate: datasource=npm depName=bun
       version: 1.4.2
@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
-      - uses: edbfi/automation/actions/gate@v4.1.0
+      - uses: edbfi/automation/actions/gate@v4.1.1
         with:
           needs: ${{ toJSON(needs) }}
           required: quality unit browser media hygiene
