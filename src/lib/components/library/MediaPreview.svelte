@@ -65,7 +65,7 @@ $effect(() => {
 
 <div class={`relative overflow-hidden bg-stage text-stage-foreground ${className}`}>
   {#if src && mediaKind === 'image'}
-    <img class={`size-full ${fitClass}`} {src} {alt} loading="lazy" decoding="async" />
+    <img class={`size-full ${fitClass}`} {src} {alt} loading="lazy" decoding="async">
   {:else if src && mediaKind === 'video'}
     <!-- svelte-ignore a11y_media_has_caption -- generated media does not provide a caption track -->
     <video
@@ -95,95 +95,120 @@ $effect(() => {
           View
         </Dialog.Trigger>
         <Dialog.Portal>
-        <Dialog.Overlay class="fixed inset-0 z-50 bg-black/85" />
-        <Dialog.Content
-          class="fixed inset-0 z-50 bg-stage text-stage-foreground"
-          onkeydown={(event) => {
-            if (mediaKind !== 'image') return;
-            if (event.key === '+' || event.key === '=') changeZoom(0.25);
-            else if (event.key === '-') changeZoom(-0.25);
-            else if (event.key === '0') zoom = 1;
-            else return;
-            event.preventDefault();
-          }}
-        >
-          <div bind:this={viewer} class="grid size-full grid-rows-[auto_minmax(0,1fr)_auto] bg-stage text-stage-foreground">
-            <header class="flex items-center justify-between gap-3 border-b border-stage-border bg-stage-elevated px-3 py-2 sm:px-5">
-            <div class="min-w-0">
-              <Dialog.Title class="truncate text-sm font-semibold">{alt}</Dialog.Title>
-              <Dialog.Description class="mt-0.5 text-xs text-stage-muted">
-                {mediaKind === 'image'
-                  ? 'Zoom with the controls or plus, minus and zero keys.'
-                  : 'Generated video with browser playback controls.'}
-              </Dialog.Description>
-            </div>
-            <Dialog.Close class="focus-ring min-h-9 rounded px-3 text-sm font-semibold hover:bg-stage-border">
-              Close
-            </Dialog.Close>
-            </header>
+          <Dialog.Overlay class="fixed inset-0 z-50 bg-black/85" />
+          <Dialog.Content
+            class="fixed inset-0 z-50 bg-stage text-stage-foreground"
+            onkeydown={(event) => {
+  if (mediaKind !== 'image') return;
+  if (event.key === '+' || event.key === '=') changeZoom(0.25);
+  else if (event.key === '-') changeZoom(-0.25);
+  else if (event.key === '0') zoom = 1;
+  else return;
+  event.preventDefault();
+}}
+          >
+            <div
+              bind:this={viewer}
+              class="grid size-full grid-rows-[auto_minmax(0,1fr)_auto] bg-stage text-stage-foreground"
+            >
+              <header
+                class="flex items-center justify-between gap-3 border-b border-stage-border bg-stage-elevated px-3 py-2 sm:px-5"
+              >
+                <div class="min-w-0">
+                  <Dialog.Title class="truncate text-sm font-semibold">{alt}</Dialog.Title>
+                  <Dialog.Description class="mt-0.5 text-xs text-stage-muted">
+                    {mediaKind === 'image'
+  ? 'Zoom with the controls or plus, minus and zero keys.'
+  : 'Generated video with browser playback controls.'}
+                  </Dialog.Description>
+                </div>
+                <Dialog.Close
+                  class="focus-ring min-h-9 rounded px-3 text-sm font-semibold hover:bg-stage-border"
+                >
+                  Close
+                </Dialog.Close>
+              </header>
 
-            <div class="grid min-h-0 place-items-center overflow-auto p-4 sm:p-6">
-              {#if mediaKind === 'image'}
-                <img
-                  {src}
-                  {alt}
-                  class="max-h-full max-w-full object-contain"
-                  style={`transform: scale(${zoom}); transform-origin: center;`}
-                />
-              {:else}
-                <!-- svelte-ignore a11y_media_has_caption -- generated media does not provide a caption track -->
-                <video
-                  {src}
-                  aria-label={alt}
-                  class="max-h-full max-w-full object-contain"
-                  preload="metadata"
-                  controls
-                  autoplay={false}
-                  playsinline
-                ></video>
-              {/if}
-            </div>
+              <div class="grid min-h-0 place-items-center overflow-auto p-4 sm:p-6">
+                {#if mediaKind === 'image'}
+                  <img
+                    {src}
+                    {alt}
+                    class="max-h-full max-w-full object-contain"
+                    style={`transform: scale(${zoom}); transform-origin: center;`}
+                  >
+                {:else}
+                  <!-- svelte-ignore a11y_media_has_caption -- generated media does not provide a caption track -->
+                  <video
+                    {src}
+                    aria-label={alt}
+                    class="max-h-full max-w-full object-contain"
+                    preload="metadata"
+                    controls
+                    autoplay={false}
+                    playsinline
+                  ></video>
+                {/if}
+              </div>
 
-            <footer class="flex min-h-12 flex-wrap items-center justify-center gap-2 border-t border-stage-border bg-stage-elevated px-3 py-2">
-            {#if mediaKind === 'image'}
-              <button
-                type="button"
-                class="focus-ring min-h-8 rounded border border-stage-border px-3 text-xs font-semibold disabled:opacity-50"
-                aria-label="Zoom out"
-                disabled={zoom <= 0.5}
-                onclick={() => changeZoom(-0.25)}
-              >−</button>
-              <button
-                type="button"
-                class="focus-ring min-h-8 min-w-20 rounded border border-stage-border px-3 text-xs font-semibold"
-                onclick={() => (zoom = 1)}
-              >{zoomPercent}%</button>
-              <button
-                type="button"
-                class="focus-ring min-h-8 rounded border border-stage-border px-3 text-xs font-semibold disabled:opacity-50"
-                aria-label="Zoom in"
-                disabled={zoom >= 4}
-                onclick={() => changeZoom(0.25)}
-              >+</button>
-            {/if}
-            {#if fullscreenAvailable}
-              <button
-                type="button"
-                class="focus-ring min-h-8 rounded border border-stage-border px-3 text-xs font-semibold"
-                onclick={() => void toggleFullscreen()}
-              >{fullscreen ? 'Exit browser full screen' : 'Enter browser full screen'}</button>
-            {/if}
-            <p class="sr-only" role="status" aria-live="polite">
-              {mediaKind === 'image' ? `Zoom ${zoomPercent} percent.` : ''}
-              {fullscreen ? ' Browser full screen active.' : ''}
-            </p>
-            </footer>
-          </div>
-        </Dialog.Content>
+              <footer
+                class="flex min-h-12 flex-wrap items-center justify-center gap-2 border-t border-stage-border bg-stage-elevated px-3 py-2"
+              >
+                {#if mediaKind === 'image'}
+                  <button
+                    type="button"
+                    class="focus-ring min-h-8 rounded border border-stage-border px-3 text-xs font-semibold disabled:opacity-50"
+                    aria-label="Zoom out"
+                    disabled={zoom <= 0.5}
+                    onclick={() => changeZoom(-0.25)}
+                  >
+                    −
+                  </button>
+                  <button
+                    type="button"
+                    class="focus-ring min-h-8 min-w-20 rounded border border-stage-border px-3 text-xs font-semibold"
+                    onclick={() => (zoom = 1)}
+                  >
+                    {zoomPercent}%
+                  </button>
+                  <button
+                    type="button"
+                    class="focus-ring min-h-8 rounded border border-stage-border px-3 text-xs font-semibold disabled:opacity-50"
+                    aria-label="Zoom in"
+                    disabled={zoom >= 4}
+                    onclick={() => changeZoom(0.25)}
+                  >
+                    +
+                  </button>
+                {/if}
+                {#if fullscreenAvailable}
+                  <button
+                    type="button"
+                    class="focus-ring min-h-8 rounded border border-stage-border px-3 text-xs font-semibold"
+                    onclick={() => void toggleFullscreen()}
+                  >
+                    {fullscreen ? 'Exit browser full screen' : 'Enter browser full screen'}
+                  </button>
+                {/if}
+                <p class="sr-only" role="status" aria-live="polite">
+                  {mediaKind === 'image' ? `Zoom ${zoomPercent} percent.` : ''}
+                  {fullscreen ? ' Browser full screen active.' : ''}
+                </p>
+              </footer>
+            </div>
+          </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
       {#if mediaKind === 'image'}
-        <a href={src} target="_blank" rel="noreferrer" class="focus-ring grid size-8 shrink-0 place-items-center rounded bg-background/90 text-base leading-none text-foreground shadow-[var(--shadow-sm)] backdrop-blur hover:bg-background" aria-label={`Open ${alt} in a new tab`} title="Open image in a new tab"><span aria-hidden="true">↗</span></a>
+        <a
+          href={src}
+          target="_blank"
+          rel="noreferrer"
+          class="focus-ring grid size-8 shrink-0 place-items-center rounded bg-background/90 text-base leading-none text-foreground shadow-[var(--shadow-sm)] backdrop-blur hover:bg-background"
+          aria-label={`Open ${alt} in a new tab`}
+          title="Open image in a new tab"
+          ><span aria-hidden="true">↗</span></a
+        >
       {/if}
     </div>
   {/if}

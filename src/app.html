@@ -1,26 +1,26 @@
 <!doctype html>
 <html lang="en-GB">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light dark" />
-    <link rel="icon" href="/poyo-local-studio-logo.svg" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <link rel="icon" href="/poyo-local-studio-logo.svg">
     <script>
-      (() => {
-        try {
-          const stored = localStorage.getItem('poyo-studio-theme');
-          // Fall back to the installation default injected onto <html> by hooks.server.ts so a
-          // brand-new browser paints the configured theme immediately instead of flashing light.
-          const preference = stored || document.documentElement.dataset.themeDefault || 'light';
-          const useDark =
-            preference === 'dark' ||
-            (preference === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
-          document.documentElement.classList.toggle('dark', useDark);
-          document.documentElement.dataset.theme = useDark ? 'dark' : 'light';
-        } catch {
-          document.documentElement.dataset.theme = 'light';
-        }
-      })();
+    (() => {
+      try {
+        const stored = localStorage.getItem('poyo-studio-theme');
+        // Fall back to the installation default injected onto <html> by hooks.server.ts so a
+        // brand-new browser paints the configured theme immediately instead of flashing light.
+        const preference = stored || document.documentElement.dataset.themeDefault || 'light';
+        const useDark =
+          preference === 'dark' ||
+          (preference === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', useDark);
+        document.documentElement.dataset.theme = useDark ? 'dark' : 'light';
+      } catch {
+        document.documentElement.dataset.theme = 'light';
+      }
+    })();
     </script>
     %sveltekit.head%
   </head>

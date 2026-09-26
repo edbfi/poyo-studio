@@ -1,17 +1,24 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
   "files": {
+    "ignoreUnknown": true,
     "includes": [
       "**",
-      "!!node_modules",
-      "!!.svelte-kit",
-      "!!build",
-      "!!coverage",
+      "!**/.svelte-kit",
+      "!!**/build",
+      "!!**/coverage",
       "!!data",
       "!!.agents",
       "!!.gjc",
       "!!.omc",
-      "!!.omx"
+      "!!.omx",
+      "!tests/fixtures/pricing/public-pricing.html",
+      "!**/.svelte-check"
     ]
   },
   "formatter": {
@@ -26,6 +33,14 @@
       "preset": "recommended"
     }
   },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "preset": "recommended"
+      }
+    }
+  },
   "javascript": {
     "formatter": {
       "quoteStyle": "single",
@@ -33,16 +48,64 @@
       "trailingCommas": "none"
     }
   },
+  "html": {
+    "experimentalFullSupportEnabled": true,
+    "formatter": {
+      "enabled": true
+    }
+  },
   "overrides": [
     {
-      "includes": ["**/*.svelte"],
+      "includes": [
+        "src/lib/components/gallery/GalleryViewer.svelte",
+        "src/lib/components/studio/StudioWorkspace.svelte"
+      ],
       "linter": {
         "rules": {
-          "correctness": {
-            "noUnusedImports": "off",
-            "noUnusedVariables": "off"
+          "a11y": {
+            "noNoninteractiveTabindex": "off",
+            "useMediaCaption": "off",
+            "useSemanticElements": "off"
           }
         }
+      }
+    },
+    {
+      "includes": ["src/lib/components/library/MediaPreview.svelte"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useAnchorContent": "off",
+            "useMediaCaption": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/lib/components/library/JobDetailView.svelte",
+        "src/lib/components/studio/BatchReview.svelte",
+        "src/lib/components/studio/StudioScaffold.svelte",
+        "src/routes/gallery/+page.svelte"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useSemanticElements": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/routes/gallery/+page.svelte",
+        "src/lib/components/studio/AspectRatioField.svelte",
+        "src/lib/components/studio/StudioWorkspace.svelte",
+        "src/lib/components/shell/AppShell.svelte",
+        "src/lib/components/library/JobDetailView.svelte"
+      ],
+      "formatter": {
+        "enabled": false
       }
     }
   ]

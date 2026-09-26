@@ -85,7 +85,9 @@ let { name, size = 18, strokeWidth = 1.75, class: className = '' }: Props = $pro
     <path d="M6 3h12v18l-6-4-6 4V3Z" />
   {:else if name === 'settings'}
     <circle cx="12" cy="12" r="3" />
-    <path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1A7 7 0 0 0 15 6l-.3-2.6h-4L10.4 6A7 7 0 0 0 9 7L6.5 6 4.6 9.5l2 1.5a7 7 0 0 0 0 2l-2 1.5L6.5 18l2.4-1a7 7 0 0 0 1.5 1l.3 2.6h4L15 18a7 7 0 0 0 1.5-1l2.4 1 2-3.5-2-1.5c.1-.3.1-.7.1-1Z" />
+    <path
+      d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1A7 7 0 0 0 15 6l-.3-2.6h-4L10.4 6A7 7 0 0 0 9 7L6.5 6 4.6 9.5l2 1.5a7 7 0 0 0 0 2l-2 1.5L6.5 18l2.4-1a7 7 0 0 0 1.5 1l.3 2.6h4L15 18a7 7 0 0 0 1.5-1l2.4 1 2-3.5-2-1.5c.1-.3.1-.7.1-1Z"
+    />
   {:else if name === 'diagnostics'}
     <path d="m14 7 3-3 3 3-3 3M10 17l-3 3-3-3 3-3" />
     <path d="M14 4H9a5 5 0 0 0-5 5v1M10 20h5a5 5 0 0 0 5-5v-1" />
@@ -99,7 +101,9 @@ let { name, size = 18, strokeWidth = 1.75, class: className = '' }: Props = $pro
     {/if}
   {:else if name === 'light'}
     <circle cx="12" cy="12" r="4" />
-    <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    <path
+      d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+    />
   {:else if name === 'dark'}
     <path d="M20.5 14.2A8 8 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z" />
   {:else if name === 'system'}
@@ -117,10 +121,18 @@ let { name, size = 18, strokeWidth = 1.75, class: className = '' }: Props = $pro
     <path d="m8 12 2.5 2.5L16 9" />
   {:else if name === 'pending' || name === 'activity'}
     <circle cx="12" cy="12" r="9" stroke-dasharray={name === 'pending' ? '3 3' : undefined} />
-    {#if name === 'activity'}<path d="M7 12h2l1.5-4 3 8 1.5-4h2" />{/if}
+    {#if name === 'activity'}
+      <path d="M7 12h2l1.5-4 3 8 1.5-4h2" />
+    {/if}
   {:else if name === 'search' || name === 'file-search'}
-    {#if name === 'file-search'}<path d="M6 3h8l4 4v5M14 3v5h5" />{/if}
-    <circle cx={name === 'search' ? 10.5 : 11} cy={name === 'search' ? 10.5 : 16} r={name === 'search' ? 6.5 : 3} />
+    {#if name === 'file-search'}
+      <path d="M6 3h8l4 4v5M14 3v5h5" />
+    {/if}
+    <circle
+      cx={name === 'search' ? 10.5 : 11}
+      cy={name === 'search' ? 10.5 : 16}
+      r={name === 'search' ? 6.5 : 3}
+    />
     <path d={name === 'search' ? 'm16 16 5 5' : 'm13.5 18.5 3 3'} />
   {:else if name === 'grid'}
     <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -153,7 +165,9 @@ let { name, size = 18, strokeWidth = 1.75, class: className = '' }: Props = $pro
     <path d="M3 9a14 14 0 0 1 18 0M6 13a9 9 0 0 1 12 0M9.5 17a4 4 0 0 1 5 0" />
     <circle cx="12" cy="20" r="1" fill="currentColor" stroke="none" />
   {:else if name === 'heart'}
-    <path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
+    <path
+      d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"
+    />
   {:else if name === 'copy'}
     <rect x="8" y="8" width="12" height="12" rx="2" />
     <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
@@ -163,9 +177,13 @@ let { name, size = 18, strokeWidth = 1.75, class: className = '' }: Props = $pro
     <path d="M20 7v5h-5M4 17v-5h5" />
     <path d="M6.1 8A7 7 0 0 1 18.5 6.5L20 9M4 15l1.5 2.5A7 7 0 0 0 18 16" />
   {:else if name === 'chevron-right' || name === 'arrow-right'}
-    {#if name === 'arrow-right'}<path d="M4 12h16" />{/if}
+    {#if name === 'arrow-right'}
+      <path d="M4 12h16" />
+    {/if}
     <path d={name === 'arrow-right' ? 'm15 7 5 5-5 5' : 'm9 5 7 7-7 7'} />
   {:else}
-    <path d="m12 3 1.3 4.7L18 9l-4.7 1.3L12 15l-1.3-4.7L6 9l4.7-1.3L12 3ZM19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7L19 15Z" />
+    <path
+      d="m12 3 1.3 4.7L18 9l-4.7 1.3L12 15l-1.3-4.7L6 9l4.7-1.3L12 3ZM19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7L19 15Z"
+    />
   {/if}
 </svg>

@@ -7,7 +7,7 @@ let { data }: { data: PageData } = $props();
 
 <svelte:head>
   <title>Video Studio · Poyo Local Studio</title>
-  <meta name="description" content="Compose documented Poyo video generation workflows." />
+  <meta name="description" content="Compose documented Poyo video generation workflows.">
 </svelte:head>
 
 <StudioWorkspace {data} />

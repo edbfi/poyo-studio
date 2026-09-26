@@ -385,7 +385,7 @@ async function setFavorite(jobId: string, favorite: boolean): Promise<void> {
           Live updates: {connection}
         </p>
       </div>
-      <div class="flex items-center gap-1 rounded bg-muted p-1" aria-label="Gallery view">
+      <div class="flex items-center gap-1 rounded bg-muted p-1" role="group" aria-label="Gallery view">
         <a href={href({ view: 'grid', cursor: null })} class="focus-ring grid size-8 place-items-center rounded" class:bg-background={data.filters.view === 'grid'} aria-label="Grid view" aria-current={data.filters.view === 'grid' ? 'page' : undefined}><AppIcon name="grid" size={16} /></a>
         <a href={href({ view: 'list', cursor: null })} class="focus-ring grid size-8 place-items-center rounded" class:bg-background={data.filters.view === 'list'} aria-label="List view" aria-current={data.filters.view === 'list' ? 'page' : undefined}><AppIcon name="list" size={16} /></a>
       </div>
@@ -449,7 +449,7 @@ async function setFavorite(jobId: string, favorite: boolean): Promise<void> {
             <div class={data.filters.view === 'grid' ? 'p-4' : 'min-w-0'}>
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">{#if representative?.mediaUrl}<button type="button" onclick={openViewer} class="focus-ring block max-w-full truncate rounded text-left text-sm font-semibold hover:underline" aria-label={viewerLabel} data-output-id={representative.outputId}>{group.displayName}</button>{:else}<p class="truncate text-sm font-semibold">{group.displayName}</p>{/if}<p class="mt-1 truncate text-xs text-muted-foreground">{group.provider} · {group.workflow}</p></div>
-                <button onclick={() => setFavorite(group.jobId, !group.favorite)} disabled={pendingFavorite === group.jobId} class="focus-ring shrink-0 rounded p-1.5" class:text-destructive={group.favorite} aria-label={group.favorite ? 'Remove from favorites' : 'Add to favorites'} aria-pressed={group.favorite}><AppIcon name="heart" size={16} /></button>
+                <button type="button" onclick={() => setFavorite(group.jobId, !group.favorite)} disabled={pendingFavorite === group.jobId} class="focus-ring shrink-0 rounded p-1.5" class:text-destructive={group.favorite} aria-label={group.favorite ? 'Remove from favorites' : 'Add to favorites'} aria-pressed={group.favorite}><AppIcon name="heart" size={16} /></button>
               </div>
               <p class="mt-3 line-clamp-2 min-h-10 text-sm leading-5 text-muted-foreground">{group.promptExcerpt ?? 'No prompt stored'}</p>
               <div class="mt-3 flex flex-wrap items-center gap-2"><Badge>{mediaKindLabel}</Badge><Badge tone={group.warning ? 'warning' : 'success'}>{group.verifiedOutputCount}/{group.outputCount} local</Badge>{#if group.aspectRatio}<Badge>{group.aspectRatio}</Badge>{/if}{#if group.pinned}<Badge tone="info">Pinned</Badge>{/if}</div>

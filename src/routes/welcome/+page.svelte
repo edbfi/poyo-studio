@@ -294,7 +294,7 @@ const setupStepLabels: Record<SetupStep, string> = {
 
 <svelte:head>
   <title>Welcome · Poyo Local Studio</title>
-  <meta name="description" content="Set up Poyo Local Studio for first use." />
+  <meta name="description" content="Set up Poyo Local Studio for first use.">
 </svelte:head>
 
 <div class="mx-auto flex min-h-[80vh] w-full max-w-2xl flex-col px-4 py-8 sm:py-12">
@@ -303,12 +303,11 @@ const setupStepLabels: Record<SetupStep, string> = {
     <ol class="mt-3 flex flex-wrap gap-2" aria-label="Setup progress">
       {#each setupSteps as setupStep, index (setupStep)}
         <li
-          class="flex min-h-6 items-center gap-1.5 rounded-full border px-2.5 text-[0.6875rem] font-semibold {index <
-          setupStepIndex
-            ? 'border-success/40 bg-success/10 text-foreground'
-            : index === setupStepIndex
-              ? 'border-primary bg-primary/10 text-foreground'
-              : 'border-border text-muted-foreground'}"
+          class="flex min-h-6 items-center gap-1.5 rounded-full border px-2.5 text-[0.6875rem] font-semibold {index < setupStepIndex
+  ? 'border-success/40 bg-success/10 text-foreground'
+  : index === setupStepIndex
+    ? 'border-primary bg-primary/10 text-foreground'
+    : 'border-border text-muted-foreground'}"
           aria-current={index === setupStepIndex ? 'step' : undefined}
         >
           <span class="tabular-nums">{index + 1}</span>
@@ -330,7 +329,10 @@ const setupStepLabels: Record<SetupStep, string> = {
     </h1>
 
     {#if message}
-      <p class="mt-4 rounded border border-success/30 bg-success/10 px-4 py-3 text-sm" role="status">
+      <p
+        class="mt-4 rounded border border-success/30 bg-success/10 px-4 py-3 text-sm"
+        role="status"
+      >
         {message}
       </p>
     {/if}
@@ -368,8 +370,8 @@ const setupStepLabels: Record<SetupStep, string> = {
         <p class="font-semibold">Local by design</p>
         <p class="mt-1 text-xs leading-5 text-muted-foreground">
           {settings.storage.source === 'environment'
-            ? 'The server administrator manages the local storage location.'
-            : 'The Studio uses its private local application storage.'}
+  ? 'The server administrator manages the local storage location.'
+  : 'The Studio uses its private local application storage.'}
         </p>
       </div>
     {:else if step === 'mediaPrivacy'}
@@ -387,7 +389,9 @@ const setupStepLabels: Record<SetupStep, string> = {
       </div>
       <p class="mt-3 text-sm leading-6 text-muted-foreground">{keyState.detail}</p>
       {#if settings.apiKey.environmentManaged}
-        <p class="mt-4 rounded border border-border bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
+        <p
+          class="mt-4 rounded border border-border bg-muted/60 px-4 py-3 text-sm text-muted-foreground"
+        >
           The Poyo API key is managed by the server environment. Browser-based key changes are
           disabled, but you can verify the connection below.
         </p>
@@ -395,8 +399,8 @@ const setupStepLabels: Record<SetupStep, string> = {
         <form onsubmit={saveApiKey} class="mt-5">
           <label for="onboard-key" class="text-xs font-semibold">Poyo API key</label>
           <p class="mt-1 text-xs leading-5 text-muted-foreground">
-            The local server stores the key in its account-scoped secret store. Its value is
-            never returned to the browser.
+            The local server stores the key in its account-scoped secret store. Its value is never
+            returned to the browser.
           </p>
           <div class="mt-1.5 flex flex-col gap-2 sm:flex-row">
             <input
@@ -404,14 +408,14 @@ const setupStepLabels: Record<SetupStep, string> = {
               type="password"
               value={apiKeyInput}
               oninput={(event) => {
-                apiKeyInput = event.currentTarget.value;
-                invalidateConnectivity();
-              }}
+  apiKeyInput = event.currentTarget.value;
+  invalidateConnectivity();
+}}
               autocomplete="off"
               spellcheck="false"
               placeholder="Stored securely; never shown again"
               class="focus-ring h-10 min-w-0 flex-1 rounded border border-input bg-background px-3 text-sm"
-            />
+            >
             <Button variant="primary" type="submit" disabled={busy || !apiKeyInput.trim()}>
               {settings.apiKey.status === 'configured' ? 'Replace key' : 'Store key'}
             </Button>
@@ -446,10 +450,7 @@ const setupStepLabels: Record<SetupStep, string> = {
       >
         {#each themePreferences as preference (preference)}
           <label
-            class="focus-within:ring-2 focus-within:ring-ring flex min-h-9 cursor-pointer items-center justify-center rounded px-2 text-sm font-semibold {themeChoice ===
-            preference
-              ? 'bg-background shadow-[var(--shadow-xs)]'
-              : 'text-muted-foreground'}"
+            class="focus-within:ring-2 focus-within:ring-ring flex min-h-9 cursor-pointer items-center justify-center rounded px-2 text-sm font-semibold {themeChoice === preference ? 'bg-background shadow-[var(--shadow-xs)]' : 'text-muted-foreground'}"
           >
             <input
               class="sr-only"
@@ -458,7 +459,7 @@ const setupStepLabels: Record<SetupStep, string> = {
               value={preference}
               checked={themeChoice === preference}
               onchange={() => applyTheme(preference)}
-            />
+            >
             {themeLabels[preference]}
           </label>
         {/each}
@@ -481,14 +482,26 @@ const setupStepLabels: Record<SetupStep, string> = {
       </dl>
     {:else if step === 'done'}
       <p class="mt-3 text-sm leading-6 text-muted-foreground">
-        Your local choices and verified connection are saved. Complete setup to enter the Studio,
-        or dismiss this guide and continue with the same choices.
+        Your local choices and verified connection are saved. Complete setup to enter the Studio, or
+        dismiss this guide and continue with the same choices.
       </p>
       <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-        <div><dt class="text-muted-foreground">Storage</dt><dd class="mt-1 font-semibold">Local</dd></div>
-        <div><dt class="text-muted-foreground">API key</dt><dd class="mt-1 font-semibold">Connected</dd></div>
-        <div><dt class="text-muted-foreground">Media cleanup</dt><dd class="mt-1 font-semibold">{mediaCleanupSummary}</dd></div>
-        <div><dt class="text-muted-foreground">Appearance</dt><dd class="mt-1 font-semibold capitalize">{settings.theme.defaultMode}</dd></div>
+        <div>
+          <dt class="text-muted-foreground">Storage</dt>
+          <dd class="mt-1 font-semibold">Local</dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground">API key</dt>
+          <dd class="mt-1 font-semibold">Connected</dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground">Media cleanup</dt>
+          <dd class="mt-1 font-semibold">{mediaCleanupSummary}</dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground">Appearance</dt>
+          <dd class="mt-1 font-semibold capitalize">{settings.theme.defaultMode}</dd>
+        </div>
       </dl>
     {/if}
   </div>
@@ -513,14 +526,21 @@ const setupStepLabels: Record<SetupStep, string> = {
           variant="primary"
           onclick={completeApiKeyStep}
           disabled={busy || connectivityState !== 'success' || Boolean(apiKeyInput.trim())}
-        >Continue</Button>
+          >Continue</Button
+        >
       {:else if step === 'theme'}
         <Button variant="primary" onclick={saveTheme} disabled={busy}>Save and continue</Button>
       {:else if step === 'defaults'}
-        <Button variant="primary" onclick={acceptDefaults} disabled={busy}>Use these defaults</Button>
+        <Button variant="primary" onclick={acceptDefaults} disabled={busy}
+          >Use these defaults</Button
+        >
       {:else if step === 'done'}
-        <Button variant="outline" onclick={() => leaveSetup(true)} disabled={busy}>Dismiss guide</Button>
-        <Button variant="primary" onclick={() => leaveSetup(false)} disabled={busy}>Enter the Studio</Button>
+        <Button variant="outline" onclick={() => leaveSetup(true)} disabled={busy}
+          >Dismiss guide</Button
+        >
+        <Button variant="primary" onclick={() => leaveSetup(false)} disabled={busy}
+          >Enter the Studio</Button
+        >
       {/if}
     </div>
   </nav>

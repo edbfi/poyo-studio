@@ -2123,7 +2123,7 @@ onMount(() => {
             {#if selectedEntry.inputRoles.length && selectedMediaKinds.length}
               <div
                 class="flex min-w-0 flex-wrap items-start gap-x-2.5 gap-y-1 text-[0.6875rem] leading-4"
-                aria-label="Media cleanup status"
+                role="group" aria-label="Media cleanup status"
               >
                 <AppIcon
                   name="shield"
@@ -2380,7 +2380,7 @@ onMount(() => {
   style={`--studio-inspector-width: ${inspectorWidth}px`}
 >
   <section class="min-w-0 px-3 py-4 sm:px-5 sm:py-5 xl:px-6" aria-labelledby={`${data.modality}-stage-heading`}>
-    <div class="mb-3 flex min-h-10 items-center justify-between gap-3 border-y border-border py-2 text-xs" aria-label="Generation lifecycle">
+    <div class="mb-3 flex min-h-10 items-center justify-between gap-3 border-y border-border py-2 text-xs" role="group" aria-label="Generation lifecycle">
       <div class="flex min-w-0 items-center gap-2">
         <Badge tone={activeJob ? 'info' : preview ? 'success' : 'neutral'}>
           <AppIcon name={activeJob ? 'activity' : preview ? 'success' : 'pending'} size={12} />
@@ -2403,7 +2403,7 @@ onMount(() => {
       {#if resultJob && outputs?.some((output) => output.mediaUrl) && !activeJobOwnsStage}
         {@const shown = outputs.filter((output) => output.mediaUrl)}
         {@const current = shown[Math.min(selectedOutput, shown.length - 1)]}
-        {#if current && current.mediaUrl}
+        {#if current?.mediaUrl}
           <div class="flex w-full max-w-4xl flex-col items-center gap-4">
             <h2 id={`${data.modality}-stage-heading`} class="sr-only">Generated {data.modality} result</h2>
             <div class="relative">
@@ -2424,7 +2424,7 @@ onMount(() => {
               {/if}
             </div>
             {#if shown.length > 1}
-              <div class="flex flex-wrap justify-center gap-2" aria-label="Generated outputs">
+              <div class="flex flex-wrap justify-center gap-2" role="group" aria-label="Generated outputs">
                 {#each shown as output, index (output.outputId)}
                   <button type="button" class="focus-ring size-14 overflow-hidden rounded border" class:border-primary={index === selectedOutput} class:border-stage-border={index !== selectedOutput} aria-label={`Show output ${index + 1} of ${shown.length}`} aria-pressed={index === selectedOutput} onclick={() => (selectedOutput = index)}>
                     {#if output.mediaKind === 'video'}
@@ -2623,7 +2623,7 @@ onMount(() => {
           </p>
         {/if}
         {#if recoveryExhausted}
-          <div class="mt-2 flex flex-wrap gap-2" aria-label="Unresolved paid action recovery">
+          <div class="mt-2 flex flex-wrap gap-2" role="group" aria-label="Unresolved paid action recovery">
             <Button variant="outline" size="sm" onclick={() => void reconcilePendingAction()}>
               Check action again
             </Button>

@@ -82,10 +82,10 @@ let preferenceHelp = $derived(
   <div
     id={`${componentId}-status`}
     class="rounded px-3 py-2.5 {mediaPrivacy.sanitizeLocalMedia && capabilityState === 'available'
-      ? 'bg-success/8'
-      : mediaPrivacy.sanitizeLocalMedia && capabilityState === 'partial'
-        ? 'bg-warning/8'
-        : 'bg-muted/55'}"
+  ? 'bg-success/8'
+  : mediaPrivacy.sanitizeLocalMedia && capabilityState === 'partial'
+    ? 'bg-warning/8'
+    : 'bg-muted/55'}"
     aria-live="polite"
   >
     <div class="flex items-start gap-2.5">
@@ -93,8 +93,8 @@ let preferenceHelp = $derived(
         name="shield"
         size={17}
         class={mediaPrivacy.sanitizeLocalMedia && capabilityState === 'available'
-          ? 'mt-0.5 text-success'
-          : 'mt-0.5 text-muted-foreground'}
+  ? 'mt-0.5 text-success'
+  : 'mt-0.5 text-muted-foreground'}
       />
       <div class="min-w-0 flex-1">
         <p class="text-sm font-semibold">{headline}</p>
@@ -130,14 +130,16 @@ let preferenceHelp = $derived(
     </details>
   </div>
 
-  <label class="focus-within:ring-2 focus-within:ring-ring flex items-start gap-3 rounded p-1 text-sm">
+  <label
+    class="focus-within:ring-2 focus-within:ring-ring flex items-start gap-3 rounded p-1 text-sm"
+  >
     <input
       type="checkbox"
       bind:checked={mediaPrivacy.sanitizeLocalMedia}
       disabled={disabled || !anyReady}
       aria-describedby={`${componentId}-status ${componentId}-preference-help`}
       class="focus-ring mt-0.5 size-4"
-    />
+    >
     <span>
       <strong>Sanitize supported local media when available</strong>
       <span
@@ -150,54 +152,64 @@ let preferenceHelp = $derived(
   </label>
 
   <div class="ml-4 grid gap-2 border-l border-border pl-4">
-    <label class="focus-within:ring-2 focus-within:ring-ring flex items-center gap-3 rounded p-1 text-sm">
+    <label
+      class="focus-within:ring-2 focus-within:ring-ring flex items-center gap-3 rounded p-1 text-sm"
+    >
       <input
         type="checkbox"
         bind:checked={mediaPrivacy.removeExif}
         disabled={disabled || !anyReady || !mediaPrivacy.sanitizeLocalMedia}
         aria-describedby={`${componentId}-status`}
         class="focus-ring size-4"
-      />
+      >
       Remove EXIF metadata
     </label>
-    <label class="focus-within:ring-2 focus-within:ring-ring flex items-center gap-3 rounded p-1 text-sm">
+    <label
+      class="focus-within:ring-2 focus-within:ring-ring flex items-center gap-3 rounded p-1 text-sm"
+    >
       <input
         type="checkbox"
         bind:checked={mediaPrivacy.removeIptc}
         disabled={disabled || !anyReady || !mediaPrivacy.sanitizeLocalMedia}
         aria-describedby={`${componentId}-status`}
         class="focus-ring size-4"
-      />
+      >
       Remove IPTC metadata
     </label>
-    <label class="focus-within:ring-2 focus-within:ring-ring flex items-center gap-3 rounded p-1 text-sm">
+    <label
+      class="focus-within:ring-2 focus-within:ring-ring flex items-center gap-3 rounded p-1 text-sm"
+    >
       <input
         type="checkbox"
         bind:checked={mediaPrivacy.removeXmp}
         disabled={disabled || !anyReady || !mediaPrivacy.sanitizeLocalMedia}
         aria-describedby={`${componentId}-status`}
         class="focus-ring size-4"
-      />
+      >
       Remove XMP metadata
     </label>
-    <label class="focus-within:ring-2 focus-within:ring-ring flex items-center gap-3 rounded p-1 text-sm">
+    <label
+      class="focus-within:ring-2 focus-within:ring-ring flex items-center gap-3 rounded p-1 text-sm"
+    >
       <input
         type="checkbox"
         bind:checked={mediaPrivacy.removePhotoshop8bim}
         disabled={disabled || !anyReady || !mediaPrivacy.sanitizeLocalMedia}
         aria-describedby={`${componentId}-status`}
         class="focus-ring size-4"
-      />
+      >
       Remove Photoshop/8BIM metadata
     </label>
-    <label class="focus-within:ring-2 focus-within:ring-ring flex items-center gap-3 rounded p-1 text-sm">
+    <label
+      class="focus-within:ring-2 focus-within:ring-ring flex items-center gap-3 rounded p-1 text-sm"
+    >
       <input
         type="checkbox"
         bind:checked={mediaPrivacy.removeColorProfile}
         disabled={disabled || !anyReady || !mediaPrivacy.sanitizeLocalMedia}
         aria-describedby={`${componentId}-status`}
         class="focus-ring size-4"
-      />
+      >
       Remove color profile
     </label>
   </div>

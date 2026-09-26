@@ -333,7 +333,7 @@ afterNavigate(() => {
   </aside>
 
   <div class="app-main">
-    <header class="context-bar" aria-label="Page context">
+    <header class="context-bar">
       <div class="min-w-0">
         <p class="hidden text-[0.6875rem] font-medium text-muted-foreground sm:block">Poyo Local Studio</p>
         <h1
