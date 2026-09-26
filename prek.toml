@@ -1,7 +1,12 @@
 # prek.toml — pre-commit hooks configuration
 # Docs: https://prek.j178.dev/configuration/
+#:schema https://www.schemastore.org/prek.json
 
-# Builtin hooks — fast, offline, Rust-native.
+minimum_prek_version = "0.3.2"
+default_install_hook_types = ["pre-commit", "commit-msg"]
+default_stages = ["pre-commit", "manual"]
+
+# Builtin hooks — fast, offline, Rust-native
 [[repos]]
 repo = "builtin"
 hooks = [
@@ -18,7 +23,7 @@ hooks = [
   { id = "no-commit-to-branch", args = ["--branch", "main"] },
 ]
 
-# Conventional Commits — enforce Conventional Commit message format.
+# Conventional Commits — enforce Conventional Commit message format
 [[repos]]
 repo = "https://github.com/compilerla/conventional-pre-commit"
 rev = "v4.4.0"
@@ -26,7 +31,7 @@ hooks = [
   { id = "conventional-pre-commit", stages = ["commit-msg"] },
 ]
 
-# Secret / credential leak guard.
+# Secret / credential leak guard — fixtures and dotfiles must never carry tokens
 [[repos]]
 repo = "https://github.com/gitleaks/gitleaks"
 rev = "v8.30.1"
@@ -34,55 +39,14 @@ hooks = [
   { id = "gitleaks" },
 ]
 
-# Local Bun/SvelteKit quality gates. These become active when application files are
-# introduced; package.json will define the scripts in the foundation milestone.
+# Local hooks — project-specific quality gates
 [[repos]]
 repo = "local"
-
-[[repos.hooks]]
-id = "bun-format-check"
-name = "bun format check"
-entry = "bun run format:check"
-language = "system"
-files = "^(src|tests|scripts|static)/|^(package\\.json|biome\\.json|components\\.json|svelte\\.config\\.(js|ts)|vite\\.config\\.(js|ts)|uno\\.config\\.(js|ts)|tsconfig\\.json)$"
-pass_filenames = false
-
-[[repos.hooks]]
-id = "bun-lint"
-name = "bun lint"
-entry = "bun run lint"
-language = "system"
-files = "^(src|tests|scripts)/|^(package\\.json|biome\\.json|svelte\\.config\\.(js|ts)|vite\\.config\\.(js|ts)|uno\\.config\\.(js|ts)|tsconfig\\.json)$"
-pass_filenames = false
-
-[[repos.hooks]]
-id = "svelte-check"
-name = "svelte check"
-entry = "bun run check"
-language = "system"
-files = "^(src|tests|scripts)/|^(package\\.json|svelte\\.config\\.(js|ts)|vite\\.config\\.(js|ts)|uno\\.config\\.(js|ts)|tsconfig\\.json)$"
-pass_filenames = false
-
-[[repos.hooks]]
-id = "bun-test"
-name = "bun test"
-entry = "bun run test"
-language = "system"
-files = "^(src|tests|scripts)/|^(package\\.json|bunfig\\.toml|tsconfig\\.json|svelte\\.config\\.(js|ts)|vite\\.config\\.(js|ts))$"
-pass_filenames = false
-
-[[repos.hooks]]
-id = "registry-validate"
-name = "model registry validation"
-entry = "bun run registry:validate"
-language = "system"
-files = "^(src/lib/features/registry|tests/.*/registry|scripts/.*registry|docs/model-audit)/|^package\\.json$"
-pass_filenames = false
-
-[[repos.hooks]]
-id = "bun-build"
-name = "bun production build"
-entry = "bun --bun run build"
-language = "system"
-files = "^(src|static)/|^(package\\.json|svelte\\.config\\.(js|ts)|vite\\.config\\.(js|ts)|uno\\.config\\.(js|ts)|tsconfig\\.json)$"
-pass_filenames = false
+hooks = [
+  { id = "bun-format-check", name = "bun format check", entry = "bun run format:check", language = "system", files = "^(src|tests|scripts|migrations|static)/|^(package\\.json|bun\\.lock|biome\\.json|components\\.json|svelte\\.config\\.(js|ts)|vite\\.config\\.(js|ts)|uno\\.config\\.(js|ts)|tsconfig\\.json)$", pass_filenames = false },
+  { id = "bun-lint", name = "bun lint", entry = "bun run lint", language = "system", files = "^(src|tests|scripts|migrations)/|^(package\\.json|bun\\.lock|biome\\.json|svelte\\.config\\.(js|ts)|vite\\.config\\.(js|ts)|uno\\.config\\.(js|ts)|tsconfig\\.json)$", pass_filenames = false },
+  { id = "svelte-check", name = "svelte check", entry = "bun run check", language = "system", files = "^(src|tests|scripts|migrations)/|^(package\\.json|bun\\.lock|svelte\\.config\\.(js|ts)|vite\\.config\\.(js|ts)|uno\\.config\\.(js|ts)|tsconfig\\.json)$", pass_filenames = false },
+  { id = "bun-test", name = "bun test", entry = "bun run test", language = "system", files = "^(src|tests|scripts|migrations)/|^(package\\.json|bun\\.lock|bunfig\\.toml|tsconfig\\.json|svelte\\.config\\.(js|ts)|vite\\.config\\.(js|ts))$", pass_filenames = false },
+  { id = "registry-validate", name = "model registry validation", entry = "bun run registry:validate", language = "system", files = "^(src/lib/features/registry/|tests/.*/registry/|tests/fixtures/pricing/|scripts/[^/]*registry[^/]*\\.ts$|evidence/|docs/model-audit/|package\\.json$|bun\\.lock$)", pass_filenames = false },
+  { id = "bun-build", name = "bun production build", entry = "bun --bun run build", language = "system", files = "^(src|migrations|static)/|^(package\\.json|bun\\.lock|svelte\\.config\\.(js|ts)|vite\\.config\\.(js|ts)|uno\\.config\\.(js|ts)|tsconfig\\.json)$", pass_filenames = false },
+]
