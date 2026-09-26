@@ -32,9 +32,8 @@ Bun `1.4.2` is the only runner; `tests/unit/foundation.test.ts` fails under any 
 - `bun run test:live` spends real credits; it is gated on `POYO_LIVE_TESTS=1`,
   `POYO_LIVE_APPROVED=YES`, `POYO_API_KEY` and a budget. Run it only when asked; every other
   suite uses loopback mocks.
-- `prek.toml` blocks local commits to `main` (`no-commit-to-branch`); commit on a branch. The PR
-  policy check requires `Signed-off-by` (`git commit -s`) and a Conventional Commit PR title;
-  see `CI.md`.
+- `prek.toml` blocks local commits to `main` (`no-commit-to-branch`); commit on a branch.
+  Use matching author sign-offs (`git commit -s`) and Conventional Commit titles.
 
 ## Where code goes
 
