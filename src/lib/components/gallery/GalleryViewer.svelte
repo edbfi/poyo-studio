@@ -992,8 +992,7 @@ $effect(() => {
               aria-live="polite"
               data-testid="gallery-viewer-item-status"
             >
-              {activeGroup.representative.mediaKind}, item {activeIndex + 1} of
-              {viewableGroups.length}: {activeGroup.displayName}
+              {`${activeGroup.representative.mediaKind}, item ${activeIndex + 1} of ${viewableGroups.length}: ${activeGroup.displayName}`}
             </p>
             <p
               class="sr-only"

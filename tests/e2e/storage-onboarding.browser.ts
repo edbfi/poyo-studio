@@ -299,7 +299,7 @@ test('fresh onboarding keeps storage informational and completes through one loc
     expect(await page.locator('input[type="password"]').count()).toBe(1);
     await expectNoLegacyStorageControls(page);
     await expectNoLegacyStorageLanguage(page);
-    await page.getByText(/never returned to the browser/i).waitFor();
+    await page.getByText('never returned to the browser').waitFor();
 
     const blockedStatuses = await page.evaluate(async () => {
       const updates = [{ complete: true }, { dismiss: true }, { steps: { connection: true } }];
