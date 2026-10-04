@@ -2510,6 +2510,11 @@ serial('E2E-01..15 production studios, recovery, library, settings and accessibi
       completed?: boolean;
       request?: Promise<APIResponse>;
     };
+    // When a page's last route expires, Playwright disables request interception, and a request the
+    // browser paused just before that is never continued. This one-shot route and the interrupted
+    // batch's below expire as the studio sends its first recovery poll, so keep a standing route for
+    // the rest of the test (as JOB-17 does).
+    await page.route('**/api/jobs', (route) => route.fallback());
     await page.route(
       '**/api/jobs',
       async (route) => {
