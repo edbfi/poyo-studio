@@ -16,6 +16,7 @@ interface Props {
 let { entries, selectedKey, favorites, onchange }: Props = $props();
 let query = $state('');
 let disclosureOpen = $state(false);
+let disclosure = $state<HTMLDetailsElement | null>(null);
 let summary = $state<HTMLElement | null>(null);
 let id = $props.id();
 let selectedEntry = $derived(entries.find((entry) => entry.key === selectedKey));
@@ -30,6 +31,10 @@ function supportsOptionalSafetyChecker(entry: StudioEntry | undefined): boolean 
 function selectEntry(entry: StudioEntry): void {
   onchange(entry);
   disclosureOpen = false;
+  // `bind:open` learns that the disclosure opened only from the asynchronous `toggle` event. A
+  // choice made before that event arrives leaves `disclosureOpen` false already, so assigning it
+  // changes nothing and the disclosure would stay open; close the element itself as well.
+  if (disclosure) disclosure.open = false;
   void tick().then(() => summary?.focus());
 }
 </script>
@@ -37,6 +42,7 @@ function selectEntry(entry: StudioEntry): void {
 <fieldset class="grid gap-2">
   <legend class="text-xs font-semibold">Audited model</legend>
   <details
+    bind:this={disclosure}
     class="rounded-[var(--radius)] border border-border bg-background"
     bind:open={disclosureOpen}
   >
