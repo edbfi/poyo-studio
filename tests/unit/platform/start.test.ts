@@ -627,6 +627,31 @@ describe('production start loopback front (process)', () => {
     expect(socketDirectories(app.temp)).toEqual([]);
   }, 30_000);
 
+  // A request the app is still working on when the drain deadline passes (a provider call) gets the
+  // front's 503, but the app's pending work kept the process alive past the deadline. The stand-in's
+  // /slow handler keeps a 15 s timer pending.
+  test('exits at the drain deadline while the app is still working on a request', async () => {
+    const app = await launch({ SHUTDOWN_TIMEOUT: '2' });
+    const pending = fetch(`http://127.0.0.1:${app.port}/slow?ms=15000`).then(
+      (response) => response.status,
+      (error: unknown) => error
+    );
+    await Bun.sleep(300);
+    const signalled = Date.now();
+    app.proc.kill('SIGTERM');
+    const exited = await Promise.race([
+      app.proc.exited,
+      Bun.sleep(8000).then(() => 'still running')
+    ]);
+    expect(exited).toBe(0);
+    const elapsed = (Date.now() - signalled) / 1000;
+    expect(elapsed).toBeGreaterThanOrEqual(1.5);
+    expect(elapsed).toBeLessThan(5);
+    const reply = await pending;
+    expect(reply instanceof Error || reply === 503).toBe(true);
+    expect(socketDirectories(app.temp)).toEqual([]);
+  }, 20_000);
+
   test('shuts down cleanly when SIGTERM arrives while the adapter is still loading', async () => {
     const app = await launch({ STANDIN_LOAD_DELAY_MS: '1500' }, 'none');
     // The public port is bound before the adapter loads; wait for a TCP connect, then signal.

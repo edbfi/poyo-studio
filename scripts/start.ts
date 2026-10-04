@@ -167,6 +167,10 @@ export async function start(
     clearTimeout(timer);
     if (!drained) await listener.stop(true);
     removeSocketDirectory();
+    // Work the app still has in flight (a provider call the drain answered with 503) would keep the
+    // process alive past the drain deadline. Exit at the deadline unless the process has ended by
+    // itself before then.
+    setTimeout(() => process.exit(), Math.max(0, deadline - Date.now())).unref();
   };
   process.on('SIGTERM', onSignal);
   process.on('SIGINT', onSignal);
