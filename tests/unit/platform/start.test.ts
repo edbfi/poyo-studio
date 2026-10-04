@@ -46,7 +46,7 @@ const fakeListen: Listen = ({ hostname, port }) => ({
   stop() {}
 });
 
-const startEvents = ['SIGTERM', 'SIGINT', 'sveltekit:shutdown'] as const;
+const startEvents = ['SIGTERM', 'SIGINT', 'sveltekit:shutdown', 'exit'] as const;
 
 /**
  * Runs `fn` and then removes the signal and shutdown listeners start() added, which it keeps for the
@@ -339,6 +339,31 @@ async function launch(
   return { proc, port, temp, output: () => output };
 }
 
+/**
+ * Waits until the public port accepts a TCP connection. start.ts binds it before loading the
+ * adapter and installs its signal handlers in the same turn, so they exist by then.
+ */
+async function waitForPort(started: Started, timeoutMs = 5000) {
+  const accepting = async () => {
+    try {
+      const socket = await Bun.connect({
+        hostname: '127.0.0.1',
+        port: started.port,
+        socket: { data() {} }
+      });
+      socket.end();
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const deadline = Date.now() + timeoutMs;
+  while (!(await accepting())) {
+    if (Date.now() > deadline) throw new Error(`port never opened:\n${started.output()}`);
+    await Bun.sleep(25);
+  }
+}
+
 async function waitForOutput(started: Started, text: string, timeoutMs = 10_000) {
   const deadline = Date.now() + timeoutMs;
   while (!started.output().includes(text)) {
@@ -542,30 +567,41 @@ describe('production start loopback front (process)', () => {
   test('shuts down cleanly when SIGTERM arrives while the adapter is still loading', async () => {
     const app = await launch({ STANDIN_LOAD_DELAY_MS: '1500' }, 'none');
     // The public port is bound before the adapter loads; wait for a TCP connect, then signal.
-    const accepting = async () => {
-      try {
-        const socket = await Bun.connect({
-          hostname: '127.0.0.1',
-          port: app.port,
-          socket: { data() {} }
-        });
-        socket.end();
-        return true;
-      } catch {
-        return false;
-      }
-    };
-    const deadline = Date.now() + 5000;
-    while (!(await accepting())) {
-      if (Date.now() > deadline) throw new Error(`port never opened:\n${app.output()}`);
-      await Bun.sleep(25);
-    }
+    await waitForPort(app);
     expect(app.output()).not.toContain('standin listening');
     app.proc.kill('SIGTERM');
     const exited = await Promise.race([app.proc.exited, Bun.sleep(8000).then(() => 'timeout')]);
     expect(exited).toBe(0);
     expect(app.output()).toContain('standin drained');
     expect(socketDirectories(app.temp)).toEqual([]);
+  }, 20_000);
+
+  test('exits 1 and removes the socket directory on a second signal while the adapter loads', async () => {
+    const app = await launch({ STANDIN_LOAD_DELAY_MS: '8000' }, 'none');
+    await waitForPort(app);
+    app.proc.kill('SIGTERM');
+    await Bun.sleep(200);
+    app.proc.kill('SIGINT');
+    const exited = await Promise.race([app.proc.exited, Bun.sleep(5000).then(() => 'timeout')]);
+    expect(exited).toBe(1);
+    expect(app.output()).not.toContain('standin listening');
+    expect(socketDirectories(app.temp)).toEqual([]);
+  }, 20_000);
+
+  test('removes the socket directory when the adapter exits on a second signal', async () => {
+    const app = await launch({ SHUTDOWN_TIMEOUT: '10' });
+    const response = await fetch(`http://127.0.0.1:${app.port}/sse-open`);
+    const body = response.text().catch(() => '');
+    expect(socketDirectories(app.temp)).toHaveLength(1);
+    app.proc.kill('SIGTERM');
+    await Bun.sleep(300);
+    // The open stream keeps the adapter draining; its second-signal exit skips sveltekit:shutdown.
+    app.proc.kill('SIGTERM');
+    const exited = await Promise.race([app.proc.exited, Bun.sleep(5000).then(() => 'timeout')]);
+    expect(exited).toBe(1);
+    expect(app.output()).not.toContain('standin drained');
+    expect(socketDirectories(app.temp)).toEqual([]);
+    await body;
   }, 20_000);
 
   test('exits non-zero and leaves no socket directory when the adapter fails to load', async () => {
