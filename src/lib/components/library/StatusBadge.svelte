@@ -1,6 +1,6 @@
 <script lang="ts">
-import Badge from '$lib/components/ui/Badge.svelte';
-import { statusLabel, statusTone } from '$lib/features/library/presentation';
+import Badge from '#lib/components/ui/Badge.svelte';
+import { statusLabel, statusTone } from '#lib/features/library/presentation.js';
 
 interface Props {
   localPhase: string;

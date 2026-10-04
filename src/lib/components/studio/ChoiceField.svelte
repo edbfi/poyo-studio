@@ -1,7 +1,7 @@
 <script lang="ts">
-import { coerceFieldValue } from '$lib/features/generation/studio-controller';
-import type { AutomaticFieldChoice } from '$lib/features/generation/studio-sizing';
-import type { FieldDefinition } from '$lib/features/registry/types';
+import { coerceFieldValue } from '#lib/features/generation/studio-controller.js';
+import type { AutomaticFieldChoice } from '#lib/features/generation/studio-sizing.js';
+import type { FieldDefinition } from '#lib/features/registry/types.js';
 
 interface Props {
   field: FieldDefinition;

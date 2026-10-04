@@ -1,13 +1,13 @@
-import { MediaRangeError } from '$lib/server/media/files';
+import { MediaRangeError } from '#lib/server/media/files.js';
 import {
   AttachmentRequestError,
   acceptVerifiedAttachmentRequest,
   authorizeAcceptedAttachmentRequest,
   MediaOutputError,
   serveVerifiedMediaOutput
-} from '$lib/server/media/verified-output';
-import { RequestSecurityError, readSameOriginJson } from '$lib/server/platform/request-security';
-import { getPlatformServices } from '$lib/server/platform/runtime';
+} from '#lib/server/media/verified-output.js';
+import { RequestSecurityError, readSameOriginJson } from '#lib/server/platform/request-security.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import type { RequestHandler } from './$types';
 
 const privateNoStore = {

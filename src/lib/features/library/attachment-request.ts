@@ -1,4 +1,4 @@
-import { isExactIsoUtcInstant } from '$lib/features/library/contracts';
+import { isExactIsoUtcInstant } from '#lib/features/library/contracts.js';
 
 interface DownloadCopyResult {
   requestedAt: string;

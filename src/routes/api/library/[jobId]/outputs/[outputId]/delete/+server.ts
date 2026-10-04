@@ -1,8 +1,8 @@
-import type { LocalDeleteChoice } from '$lib/features/library/contracts';
-import { jobHttpError } from '$lib/server/jobs/http';
-import { LibraryRepository } from '$lib/server/library/repository';
-import { readSameOriginJson } from '$lib/server/platform/request-security';
-import { getPlatformServices } from '$lib/server/platform/runtime';
+import type { LocalDeleteChoice } from '#lib/features/library/contracts.js';
+import { jobHttpError } from '#lib/server/jobs/http.js';
+import { LibraryRepository } from '#lib/server/library/repository.js';
+import { readSameOriginJson } from '#lib/server/platform/request-security.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request, params }) => {

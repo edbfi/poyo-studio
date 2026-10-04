@@ -1,11 +1,11 @@
-import { RegistryValidationError } from '$lib/features/registry/normalize';
-import { getJobRuntime } from '$lib/server/jobs/runtime';
-import { RequestSecurityError, readSameOriginJson } from '$lib/server/platform/request-security';
-import { getPlatformServices } from '$lib/server/platform/runtime';
+import { RegistryValidationError } from '#lib/features/registry/normalize.js';
+import { getJobRuntime } from '#lib/server/jobs/runtime.js';
+import { RequestSecurityError, readSameOriginJson } from '#lib/server/platform/request-security.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import {
   normalizeEstimatedRegistryRequest,
   type RegistryPreviewRequest
-} from '$lib/server/pricing/estimate-request';
+} from '#lib/server/pricing/estimate-request.js';
 import type { RequestHandler } from './$types';
 export const POST: RequestHandler = async ({ request }) => {
   try {

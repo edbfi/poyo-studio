@@ -1,7 +1,7 @@
-import { GALLERY_LIBRARY_DEPENDENCY } from '$lib/features/library/contracts';
-import { parseLibraryFilters } from '$lib/features/library/presentation';
-import { LibraryRepository } from '$lib/server/library/repository';
-import { getPlatformServices } from '$lib/server/platform/runtime';
+import { GALLERY_LIBRARY_DEPENDENCY } from '#lib/features/library/contracts.js';
+import { parseLibraryFilters } from '#lib/features/library/presentation.js';
+import { LibraryRepository } from '#lib/server/library/repository.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ depends, url }) => {

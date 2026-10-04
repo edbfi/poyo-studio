@@ -1,5 +1,5 @@
-import { createJobEventStream } from '$lib/server/jobs/events';
-import { getJobRuntime } from '$lib/server/jobs/runtime';
+import { createJobEventStream } from '#lib/server/jobs/events.js';
+import { getJobRuntime } from '#lib/server/jobs/runtime.js';
 import type { RequestHandler } from './$types';
 export const GET: RequestHandler = async ({ request }) => {
   const runtime = await getJobRuntime();

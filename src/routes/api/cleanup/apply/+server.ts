@@ -1,7 +1,7 @@
-import { getCleanupRuntime } from '$lib/server/cleanup/runtime';
-import { operationsHttpError } from '$lib/server/operations/http';
-import { maintenanceGate } from '$lib/server/platform/maintenance-gate';
-import { readSameOriginJson } from '$lib/server/platform/request-security';
+import { getCleanupRuntime } from '#lib/server/cleanup/runtime.js';
+import { operationsHttpError } from '#lib/server/operations/http.js';
+import { maintenanceGate } from '#lib/server/platform/maintenance-gate.js';
+import { readSameOriginJson } from '#lib/server/platform/request-security.js';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {

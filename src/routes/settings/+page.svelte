@@ -1,14 +1,14 @@
 <script lang="ts">
 import { untrack } from 'svelte';
 import { goto, invalidateAll } from '$app/navigation';
-import MediaPrivacyControls from '$lib/components/settings/MediaPrivacyControls.svelte';
-import SettingsNavigation from '$lib/components/settings/SettingsNavigation.svelte';
-import ThemeToggle from '$lib/components/shell/ThemeToggle.svelte';
-import AppIcon from '$lib/components/ui/AppIcon.svelte';
-import Badge from '$lib/components/ui/Badge.svelte';
-import type { CleanupConsequence, CleanupPreviewDto } from '$lib/features/cleanup/contracts';
-import { byteSizeLabel, dateTimeLabel } from '$lib/features/library/presentation';
-import type { SettingsDto } from '$lib/features/settings/contracts';
+import MediaPrivacyControls from '#lib/components/settings/MediaPrivacyControls.svelte';
+import SettingsNavigation from '#lib/components/settings/SettingsNavigation.svelte';
+import ThemeToggle from '#lib/components/shell/ThemeToggle.svelte';
+import AppIcon from '#lib/components/ui/AppIcon.svelte';
+import Badge from '#lib/components/ui/Badge.svelte';
+import type { CleanupConsequence, CleanupPreviewDto } from '#lib/features/cleanup/contracts.js';
+import { byteSizeLabel, dateTimeLabel } from '#lib/features/library/presentation.js';
+import type { SettingsDto } from '#lib/features/settings/contracts.js';
 import {
   apiKeyUiState,
   cleanupConsequenceLabel,
@@ -16,13 +16,13 @@ import {
   mediaPrivacyRequest,
   operationsRequest,
   settingsDraft
-} from '$lib/features/settings/controller';
+} from '#lib/features/settings/controller.js';
 import {
   type PublicIpv4GuardSettings,
   type PublicIpv4StatusDto,
   parsePublicIpv4
-} from '$lib/features/settings/public-ipv4-guard';
-import { resolveTheme, themeStorageKey } from '$lib/theme';
+} from '#lib/features/settings/public-ipv4-guard.js';
+import { resolveTheme, themeStorageKey } from '#lib/theme.js';
 import type { PageData } from './$types';
 
 type PublicIpv4GuardResponse = {

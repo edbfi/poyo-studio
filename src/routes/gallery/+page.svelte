@@ -1,34 +1,34 @@
 <script lang="ts">
 import { onMount, tick } from 'svelte';
 import { invalidate, invalidateAll } from '$app/navigation';
-import GalleryViewer from '$lib/components/gallery/GalleryViewer.svelte';
-import MediaPreview from '$lib/components/library/MediaPreview.svelte';
-import AppIcon from '$lib/components/ui/AppIcon.svelte';
-import Badge from '$lib/components/ui/Badge.svelte';
-import LinkButton from '$lib/components/ui/LinkButton.svelte';
+import GalleryViewer from '#lib/components/gallery/GalleryViewer.svelte';
+import MediaPreview from '#lib/components/library/MediaPreview.svelte';
+import AppIcon from '#lib/components/ui/AppIcon.svelte';
+import Badge from '#lib/components/ui/Badge.svelte';
+import LinkButton from '#lib/components/ui/LinkButton.svelte';
 import {
   createGalleryLiveLifecycle,
   type GalleryEventSource,
   type GalleryLiveLifecycle,
   type GalleryVisibility
-} from '$lib/features/gallery/live-lifecycle';
+} from '#lib/features/gallery/live-lifecycle.js';
 import {
   applyGalleryOutputChronology,
   createGalleryRefreshCoordinator,
   type GalleryLiveEvent,
   type GalleryRefreshCoordinator
-} from '$lib/features/gallery/live-refresh';
+} from '#lib/features/gallery/live-refresh.js';
 import {
   createViewerSequenceController,
   resolveViewerSelectionSeed,
   type ViewerSequenceState,
   viewerSequenceFilters,
   viewerSequenceItems
-} from '$lib/features/gallery/viewer-sequence';
+} from '#lib/features/gallery/viewer-sequence.js';
 import {
   GALLERY_LIBRARY_DEPENDENCY,
   type GalleryViewerItemDto
-} from '$lib/features/library/contracts';
+} from '#lib/features/library/contracts.js';
 import {
   createDownloadRequestReconciler,
   createDownloadRequestSync,
@@ -37,12 +37,12 @@ import {
   type DownloadRequestUpdate,
   latestDownloadRequestAt,
   mergeDownloadRequest
-} from '$lib/features/library/download-request-sync';
+} from '#lib/features/library/download-request-sync.js';
 import {
   byteSizeLabel,
   dateTimeLabel,
   mediaFrameAspectRatio
-} from '$lib/features/library/presentation';
+} from '#lib/features/library/presentation.js';
 import type { PageData } from './$types';
 
 let { data }: { data: PageData } = $props();

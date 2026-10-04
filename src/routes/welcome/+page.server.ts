@@ -1,6 +1,6 @@
-import { getPlatformServices } from '$lib/server/platform/runtime';
-import { loadOnboardingState } from '$lib/server/settings/onboarding-gate';
-import { OperationsSettingsService } from '$lib/server/settings/operations-settings';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
+import { loadOnboardingState } from '#lib/server/settings/onboarding-gate.js';
+import { OperationsSettingsService } from '#lib/server/settings/operations-settings.js';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {

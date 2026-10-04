@@ -1,6 +1,6 @@
-import { RequestSecurityError, readSameOriginJson } from '$lib/server/platform/request-security';
-import { getPlatformServices } from '$lib/server/platform/runtime';
-import { ModelPreferenceRepository } from '$lib/server/registry/preferences-repository';
+import { RequestSecurityError, readSameOriginJson } from '#lib/server/platform/request-security.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
+import { ModelPreferenceRepository } from '#lib/server/registry/preferences-repository.js';
 import type { RequestHandler } from './$types';
 
 type PreferenceBody = { entryKey: string; favorite?: boolean; used?: boolean };

@@ -1,6 +1,6 @@
-import { RequestSecurityError, readSameOriginJson } from '$lib/server/platform/request-security';
-import { getPlatformServices } from '$lib/server/platform/runtime';
-import { PresetRepository } from '$lib/server/presets/repository';
+import { RequestSecurityError, readSameOriginJson } from '#lib/server/platform/request-security.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
+import { PresetRepository } from '#lib/server/presets/repository.js';
 import type { RequestHandler } from './$types';
 
 export const DELETE: RequestHandler = async ({ request, params }) => {

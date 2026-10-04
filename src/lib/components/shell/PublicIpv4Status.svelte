@@ -1,8 +1,8 @@
 <script lang="ts">
-import AppIcon from '$lib/components/ui/AppIcon.svelte';
-import Badge from '$lib/components/ui/Badge.svelte';
-import { dateTimeLabel } from '$lib/features/library/presentation';
-import type { PublicIpv4StatusDto } from '$lib/features/settings/public-ipv4-guard';
+import AppIcon from '#lib/components/ui/AppIcon.svelte';
+import Badge from '#lib/components/ui/Badge.svelte';
+import { dateTimeLabel } from '#lib/features/library/presentation.js';
+import type { PublicIpv4StatusDto } from '#lib/features/settings/public-ipv4-guard.js';
 
 interface Props {
   status: PublicIpv4StatusDto;

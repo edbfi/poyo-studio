@@ -1,6 +1,6 @@
-import { getCleanupRuntime } from '$lib/server/cleanup/runtime';
-import { buildOperationsDiagnostics } from '$lib/server/diagnostics/operations';
-import { getPlatformServices } from '$lib/server/platform/runtime';
+import { getCleanupRuntime } from '#lib/server/cleanup/runtime.js';
+import { buildOperationsDiagnostics } from '#lib/server/diagnostics/operations.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ setHeaders }) => {

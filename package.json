@@ -37,23 +37,26 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.13",
-    "@sveltejs/kit": "2.70.3",
+    "@sveltejs/adapter-bun": "1.0.0",
+    "@sveltejs/kit": "3.0.0",
     "@sveltejs/vite-plugin-svelte": "7.3.1",
     "@types/bun": "1.4.2",
+    "@typescript/native": "npm:typescript@7.0.2",
     "@unocss/extractor-svelte": "66.10.5",
     "@unocss/preset-wind4": "66.10.5",
     "@unocss/vite": "66.10.5",
     "axe-core": "4.13.0",
     "playwright": "1.63.0",
     "svelte": "5.57.1",
-    "svelte-adapter-bun": "1.0.1",
     "svelte-check": "4.7.6",
     "typescript": "6.0.3",
     "unocss": "66.10.5",
-    "vite": "8.3.0",
-    "@typescript/native": "npm:typescript@7.0.2"
+    "vite": "8.3.0"
   },
   "dependencies": {
     "bits-ui": "2.19.3"
+  },
+  "imports": {
+    "#lib/*": "./src/lib/*"
   }
 }

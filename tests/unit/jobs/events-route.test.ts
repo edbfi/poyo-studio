@@ -5,7 +5,7 @@ describe('Jobs event route resume cursor', () => {
     const script = `
       import { mock } from 'bun:test';
       const cursors = [];
-      mock.module('$lib/server/jobs/events', () => ({
+      mock.module('#lib/server/jobs/events.js', () => ({
         createJobEventStream: (_repository, lastEventId) => {
           cursors.push(lastEventId);
           return new ReadableStream({
@@ -15,7 +15,7 @@ describe('Jobs event route resume cursor', () => {
           });
         }
       }));
-      mock.module('$lib/server/jobs/runtime', () => ({
+      mock.module('#lib/server/jobs/runtime.js', () => ({
         getJobRuntime: async () => ({ repository: {} })
       }));
       const { GET } = await import('./src/routes/api/events/jobs/+server.ts');

@@ -1,7 +1,7 @@
-import { latestBalance, refreshBalance } from '$lib/server/account/balance';
-import { jobHttpError } from '$lib/server/jobs/http';
-import { readSameOriginJson } from '$lib/server/platform/request-security';
-import { getPlatformServices } from '$lib/server/platform/runtime';
+import { latestBalance, refreshBalance } from '#lib/server/account/balance.js';
+import { jobHttpError } from '#lib/server/jobs/http.js';
+import { readSameOriginJson } from '#lib/server/platform/request-security.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import type { RequestHandler } from './$types';
 
 const noStore = { 'cache-control': 'private, no-store' };

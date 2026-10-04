@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
-import { buildHealthDto } from '$lib/server/diagnostics/health';
-import { getPlatformServices } from '$lib/server/platform/runtime';
+import { buildHealthDto } from '#lib/server/diagnostics/health.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ setHeaders }) => {

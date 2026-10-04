@@ -1,5 +1,5 @@
-import { REMOTE_CLEANUP_CAPABILITY } from '$lib/features/cleanup/contracts';
-import { getCleanupRuntime } from '$lib/server/cleanup/runtime';
+import { REMOTE_CLEANUP_CAPABILITY } from '#lib/features/cleanup/contracts.js';
+import { getCleanupRuntime } from '#lib/server/cleanup/runtime.js';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ setHeaders }) => {

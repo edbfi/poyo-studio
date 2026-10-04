@@ -1,5 +1,5 @@
-import { serveVerifiedMediaOutput } from '$lib/server/media/verified-output';
-import { getPlatformServices } from '$lib/server/platform/runtime';
+import { serveVerifiedMediaOutput } from '#lib/server/media/verified-output.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import type { RequestHandler } from './$types';
 
 async function serve(request: Request, outputId: string, head: boolean): Promise<Response> {

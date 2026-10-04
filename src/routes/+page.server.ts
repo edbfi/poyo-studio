@@ -2,13 +2,19 @@ import type {
   DashboardDto,
   JobFiltersDto,
   LibraryFiltersDto
-} from '$lib/features/library/contracts';
-import { IMAGE_REGISTRY_ENTRIES, IMAGE_VERIFIED_AT } from '$lib/features/registry/image-registry';
-import { VIDEO_REGISTRY_ENTRIES, VIDEO_VERIFIED_AT } from '$lib/features/registry/video-registry';
-import { latestBalance } from '$lib/server/account/balance';
-import { buildHealthDto } from '$lib/server/diagnostics/health';
-import { LibraryRepository } from '$lib/server/library/repository';
-import { getPlatformServices } from '$lib/server/platform/runtime';
+} from '#lib/features/library/contracts.js';
+import {
+  IMAGE_REGISTRY_ENTRIES,
+  IMAGE_VERIFIED_AT
+} from '#lib/features/registry/image-registry.js';
+import {
+  VIDEO_REGISTRY_ENTRIES,
+  VIDEO_VERIFIED_AT
+} from '#lib/features/registry/video-registry.js';
+import { latestBalance } from '#lib/server/account/balance.js';
+import { buildHealthDto } from '#lib/server/diagnostics/health.js';
+import { LibraryRepository } from '#lib/server/library/repository.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import type { PageServerLoad } from './$types';
 
 const jobFilters = (status: JobFiltersDto['status']): JobFiltersDto => ({

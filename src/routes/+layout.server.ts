@@ -1,8 +1,8 @@
 import { redirect } from '@sveltejs/kit';
-import { latestBalance } from '$lib/server/account/balance';
-import { getPlatformServices } from '$lib/server/platform/runtime';
-import { loadOnboardingState } from '$lib/server/settings/onboarding-gate';
-import type { OperationsSettings } from '$lib/server/settings/operations-settings';
+import { latestBalance } from '#lib/server/account/balance.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
+import { loadOnboardingState } from '#lib/server/settings/onboarding-gate.js';
+import type { OperationsSettings } from '#lib/server/settings/operations-settings.js';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ url, depends }) => {

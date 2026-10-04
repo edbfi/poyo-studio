@@ -1,19 +1,24 @@
 <script lang="ts">
 import { tick, untrack } from 'svelte';
 import { goto } from '$app/navigation';
-import MediaPrivacyControls from '$lib/components/settings/MediaPrivacyControls.svelte';
-import AppIcon from '$lib/components/ui/AppIcon.svelte';
-import Badge from '$lib/components/ui/Badge.svelte';
-import Button from '$lib/components/ui/Button.svelte';
-import type { OnboardingStateDto, SettingsDto } from '$lib/features/settings/contracts';
+import MediaPrivacyControls from '#lib/components/settings/MediaPrivacyControls.svelte';
+import AppIcon from '#lib/components/ui/AppIcon.svelte';
+import Badge from '#lib/components/ui/Badge.svelte';
+import Button from '#lib/components/ui/Button.svelte';
+import type { OnboardingStateDto, SettingsDto } from '#lib/features/settings/contracts.js';
 import {
   apiKeyUiState,
   mediaPrivacyRequest,
   operationsRequest,
   settingsDraft
-} from '$lib/features/settings/controller';
-import { mediaSanitizationCapabilityState } from '$lib/features/settings/media-privacy';
-import { resolveTheme, type ThemePreference, themePreferences, themeStorageKey } from '$lib/theme';
+} from '#lib/features/settings/controller.js';
+import { mediaSanitizationCapabilityState } from '#lib/features/settings/media-privacy.js';
+import {
+  resolveTheme,
+  type ThemePreference,
+  themePreferences,
+  themeStorageKey
+} from '#lib/theme.js';
 import type { PageData } from './$types';
 
 let { data }: { data: PageData } = $props();

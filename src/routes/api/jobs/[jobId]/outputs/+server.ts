@@ -1,7 +1,7 @@
-import type { StudioOutputDto } from '$lib/features/generation/contracts';
-import { getJobRuntime } from '$lib/server/jobs/runtime';
-import { LibraryRepository } from '$lib/server/library/repository';
-import { getPlatformServices } from '$lib/server/platform/runtime';
+import type { StudioOutputDto } from '#lib/features/generation/contracts.js';
+import { getJobRuntime } from '#lib/server/jobs/runtime.js';
+import { LibraryRepository } from '#lib/server/library/repository.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import type { RequestHandler } from './$types';
 
 /**

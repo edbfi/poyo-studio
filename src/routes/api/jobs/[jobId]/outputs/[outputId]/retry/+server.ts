@@ -1,7 +1,7 @@
-import { jobHttpError } from '$lib/server/jobs/http';
-import { getJobRuntime } from '$lib/server/jobs/runtime';
-import { maintenanceGate } from '$lib/server/platform/maintenance-gate';
-import { readSameOriginJson } from '$lib/server/platform/request-security';
+import { jobHttpError } from '#lib/server/jobs/http.js';
+import { getJobRuntime } from '#lib/server/jobs/runtime.js';
+import { maintenanceGate } from '#lib/server/platform/maintenance-gate.js';
+import { readSameOriginJson } from '#lib/server/platform/request-security.js';
 import type { RequestHandler } from './$types';
 export const POST: RequestHandler = async ({ request, params }) => {
   try {

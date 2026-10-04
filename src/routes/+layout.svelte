@@ -1,8 +1,8 @@
 <script lang="ts">
 import type { Snippet } from 'svelte';
 import { page } from '$app/state';
-import AppShell from '$lib/components/shell/AppShell.svelte';
-import { isThemePreference, resolveTheme, themeStorageKey } from '$lib/theme';
+import AppShell from '#lib/components/shell/AppShell.svelte';
+import { isThemePreference, resolveTheme, themeStorageKey } from '#lib/theme.js';
 import '../app.css';
 import type { LayoutData } from './$types';
 

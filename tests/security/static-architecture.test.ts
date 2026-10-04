@@ -22,7 +22,7 @@ describe('SEC-01/ARCH-01 static stack and browser-boundary enforcement', () => {
       expect(component.text, component.path).not.toMatch(/\bexport\s+let\b/);
       expect(component.text, component.path).not.toMatch(/\bon:[a-z][\w-]*\s*=/);
     }
-    expect(await Bun.file('svelte.config.ts').text()).toContain('runes: true');
+    expect(await Bun.file('vite.config.ts').text()).toContain('runes: true');
   });
 
   test('keeps Bun, adapter-bun and UnoCSS presetWind4 authoritative', async () => {
@@ -48,7 +48,7 @@ describe('SEC-01/ARCH-01 static stack and browser-boundary enforcement', () => {
     for (const [name, command] of Object.entries(packageJson.scripts)) {
       expect(command, name).not.toMatch(/(?:^|\s)(?:npm|pnpm|yarn|node)(?:\s|$)/);
     }
-    expect(await Bun.file('svelte.config.ts').text()).toContain('svelte-adapter-bun');
+    expect(await Bun.file('vite.config.ts').text()).toContain("from '@sveltejs/adapter-bun'");
     expect(await Bun.file('uno.config.ts').text()).toContain('presetWind4');
     expect(await Bun.file('src/app.css').text()).not.toContain('@tailwind');
     expect(await Bun.file('tailwind.config.js').exists()).toBe(false);

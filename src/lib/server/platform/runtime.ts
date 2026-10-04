@@ -1,4 +1,4 @@
-import { env } from '$env/dynamic/private';
+import * as env from '$app/env/private';
 import { StructuredLogger } from '../diagnostics/jsonl-logger';
 import { MediaToolReadinessService } from '../media/media-tool-readiness';
 import { recoverSourceIntakeTemporaries } from '../media/source-intake';

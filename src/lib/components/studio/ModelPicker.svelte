@@ -1,10 +1,10 @@
 <script lang="ts">
 import { tick } from 'svelte';
-import AppIcon from '$lib/components/ui/AppIcon.svelte';
-import Badge from '$lib/components/ui/Badge.svelte';
-import type { StudioEntry } from '$lib/features/generation/contracts';
-import { groupStudioEntries, studioProviderLabel } from '$lib/features/generation/model-groups';
-import { studioModeLabel } from '$lib/features/generation/studio-modes';
+import AppIcon from '#lib/components/ui/AppIcon.svelte';
+import Badge from '#lib/components/ui/Badge.svelte';
+import type { StudioEntry } from '#lib/features/generation/contracts.js';
+import { groupStudioEntries, studioProviderLabel } from '#lib/features/generation/model-groups.js';
+import { studioModeLabel } from '#lib/features/generation/studio-modes.js';
 
 interface Props {
   entries: StudioEntry[];

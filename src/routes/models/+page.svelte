@@ -1,7 +1,7 @@
 <script lang="ts">
-import AppIcon from '$lib/components/ui/AppIcon.svelte';
-import Badge from '$lib/components/ui/Badge.svelte';
-import LinkButton from '$lib/components/ui/LinkButton.svelte';
+import AppIcon from '#lib/components/ui/AppIcon.svelte';
+import Badge from '#lib/components/ui/Badge.svelte';
+import LinkButton from '#lib/components/ui/LinkButton.svelte';
 </script>
 
 <svelte:head>
