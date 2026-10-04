@@ -197,7 +197,6 @@ function serveLoopback({ hostname, port, socket, idleTimeout, ready }: Parameter
     maxRequestBodySize: Number.MAX_SAFE_INTEGER,
     async fetch(request, server) {
       await ready;
-      const url = new URL(request.url);
       const headers = new Headers(request.headers);
       headers.set(PROTOCOL_HEADER, 'http');
       headers.set(HOST_HEADER, authority);
@@ -205,7 +204,7 @@ function serveLoopback({ hostname, port, socket, idleTimeout, ready }: Parameter
       headers.set(PEER_HEADER, server.requestIP(request)?.address ?? '');
       let response: Response;
       try {
-        response = await fetch(`http://localhost${url.pathname}${url.search}`, {
+        response = await fetch(`http://localhost${forwardPath(request.url)}`, {
           method: request.method,
           headers,
           body: request.method === 'GET' || request.method === 'HEAD' ? null : request.body,
@@ -226,6 +225,17 @@ function serveLoopback({ hostname, port, socket, idleTimeout, ready }: Parameter
   });
   authority = server.url.host;
   return server;
+}
+
+/**
+ * The path and query of a request exactly as Bun received them, sliced after any authority. Never
+ * `new URL(request.url)`: Bun builds `request.url` from the client's Host header, and some Host
+ * values (for example `[::1` or `x:99999`) make it unparsable.
+ */
+export function forwardPath(requestUrl: string): string {
+  const scheme = requestUrl.indexOf('://');
+  const start = scheme === -1 ? 0 : requestUrl.indexOf('/', scheme + 3);
+  return start === -1 ? '/' : requestUrl.slice(start);
 }
 
 /**

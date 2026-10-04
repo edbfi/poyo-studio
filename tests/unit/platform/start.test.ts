@@ -5,6 +5,7 @@ import { join, resolve } from 'node:path';
 import {
   DEFAULT_BODY_SIZE_LIMIT,
   DEFAULT_SHUTDOWN_TIMEOUT,
+  forwardPath,
   HOST_HEADER,
   type Listen,
   PEER_HEADER,
@@ -239,6 +240,19 @@ describe('production start ORIGIN check', () => {
   });
 });
 
+describe('production start path forwarding', () => {
+  test('forwards the raw path and query, whatever the authority', () => {
+    expect(forwardPath('http://x/_app/immutable/a%2Db.js?v=%2F&q')).toBe(
+      '/_app/immutable/a%2Db.js?v=%2F&q'
+    );
+    expect(forwardPath('http://[::1/echo?x=1')).toBe('/echo?x=1');
+    expect(forwardPath('http://x:99999/echo')).toBe('/echo');
+    expect(forwardPath('/echo?x=1')).toBe('/echo?x=1');
+    expect(forwardPath('http://x//double')).toBe('//double');
+    expect(forwardPath('http://x')).toBe('/');
+  });
+});
+
 describe('production start failures leave nothing behind', () => {
   test('a failing server import rejects, frees the port, and removes the socket directory', async () => {
     const temp = scratch();
@@ -333,6 +347,49 @@ async function waitForOutput(started: Started, text: string, timeoutMs = 10_000)
   }
 }
 
+/** Sends a raw HTTP/1.1 GET with the given Host header, which fetch() would not send as is. */
+async function rawGet(port: number, host: string, target: string) {
+  const decoder = new TextDecoder();
+  let raw = '';
+  await new Promise<void>((resolveClosed, rejectClosed) => {
+    Bun.connect({
+      hostname: '127.0.0.1',
+      port,
+      socket: {
+        open(socket) {
+          socket.write(`GET ${target} HTTP/1.1\r\nHost: ${host}\r\nConnection: close\r\n\r\n`);
+        },
+        data(_socket, chunk) {
+          raw += decoder.decode(chunk);
+        },
+        close() {
+          resolveClosed();
+        },
+        error(_socket, error) {
+          rejectClosed(error);
+        }
+      }
+    }).catch(rejectClosed);
+  });
+  const [head = '', ...rest] = raw.split('\r\n\r\n');
+  const status = Number(/^HTTP\/1\.1 (\d+)/.exec(head)?.[1]);
+  const chunked = /^transfer-encoding: chunked$/im.test(head);
+  const body = rest.join('\r\n\r\n');
+  return { status, body: chunked ? dechunk(body) : body };
+}
+
+function dechunk(body: string): string {
+  let out = '';
+  let rest = body;
+  for (;;) {
+    const lineEnd = rest.indexOf('\r\n');
+    const size = Number.parseInt(rest.slice(0, lineEnd), 16);
+    if (!size) return out;
+    out += rest.slice(lineEnd + 2, lineEnd + 2 + size);
+    rest = rest.slice(lineEnd + 2 + size + 2);
+  }
+}
+
 /**
  * Reads a response body slowly, about `bytesPerSecond`, and reports what arrived. Once `hurry.now`
  * is set it reads whatever is left without pausing.
@@ -411,6 +468,20 @@ describe('production start loopback front (process)', () => {
     await fetch(`${base}/stop`).then((response) => response.text());
     await Bun.sleep(100);
     expect((await fetch(`${base}/echo`)).status).toBe(503);
+  });
+
+  test('forwards requests whose Host header is not a valid URL authority', async () => {
+    // The front must not parse request.url (500); the adapter answers such a request itself.
+    const app = await launch();
+    for (const host of ['[::1', 'x:99999', '%']) {
+      const response = await rawGet(app.port, host, '/echo?x=1');
+      expect(response.status, host).toBe(400);
+      expect(JSON.parse(response.body), host).toEqual({
+        error: 'Bad Request',
+        target: '/echo?x=1'
+      });
+    }
+    expect(app.output()).not.toContain('Invalid URL');
   });
 
   test('keeps an idle event stream open past the client idle timeout', async () => {

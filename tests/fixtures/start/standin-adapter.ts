@@ -25,7 +25,14 @@ const big = new Uint8Array(Number(env.STANDIN_BIG_BYTES || 8 * 1024 * 1024)).fil
 const encoder = new TextEncoder();
 
 async function handle(request: Request): Promise<Response> {
-  const url = new URL(request.url);
+  let url: URL;
+  try {
+    url = new URL(request.url);
+  } catch {
+    // Like the adapter, which answers 400 when the forwarded Host makes request.url unparsable.
+    const target = request.url.slice(request.url.indexOf('/', request.url.indexOf('://') + 3));
+    return Response.json({ error: 'Bad Request', target }, { status: 400 });
+  }
   switch (url.pathname) {
     case '/echo':
       return Response.json({
