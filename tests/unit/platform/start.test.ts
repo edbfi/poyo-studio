@@ -406,6 +406,31 @@ async function rawGet(port: number, host: string, target: string) {
   return { status, body: chunked ? dechunk(body) : body };
 }
 
+/** Sends `raw` on a new connection; the seconds until the server closes it (Infinity after 10 s). */
+function secondsUntilClosed(port: number, raw: string): Promise<number> {
+  return new Promise((done) => {
+    const started = Date.now();
+    const timer = setTimeout(() => done(Number.POSITIVE_INFINITY), 10_000);
+    const closed = () => {
+      clearTimeout(timer);
+      done((Date.now() - started) / 1000);
+    };
+    Bun.connect({
+      hostname: '127.0.0.1',
+      port,
+      socket: {
+        open(socket) {
+          cleanups.push(() => socket.end());
+          socket.write(raw);
+        },
+        data() {},
+        close: closed,
+        error: closed
+      }
+    }).catch(closed);
+  });
+}
+
 function dechunk(body: string): string {
   let out = '';
   let rest = body;
@@ -517,6 +542,41 @@ describe('production start loopback front (process)', () => {
     const response = await fetch(`http://127.0.0.1:${app.port}/sse?gap=2500`);
     expect(response.headers.get('content-type')).toBe('text/event-stream');
     expect(await response.text()).toBe('data: one\n\ndata: two\n\n');
+  }, 15_000);
+
+  // Bun 1.4.2 runs the listener's idle timer while the handler awaits fetch() to the adapter: without
+  // the fix, a request the app answered after the idle window got an empty reply (a closed connection).
+  test('answers requests the adapter takes longer than the client idle timeout to answer', async () => {
+    const app = await launch({ CONNECTION_IDLE_TIMEOUT: '1' });
+    const base = `http://127.0.0.1:${app.port}`;
+    const [get, post] = await Promise.all([
+      fetch(`${base}/slow?ms=4500`).then(async (r) => [r.status, await r.text()]),
+      fetch(`${base}/slow?ms=4500`, { method: 'POST', body: 'abc' }).then(async (r) => [
+        r.status,
+        await r.text()
+      ])
+    ]);
+    expect(get).toEqual([200, 'slow 0']);
+    expect(post).toEqual([200, 'slow 3']);
+  }, 15_000);
+
+  test('still closes a client that stalls before its request body is complete', async () => {
+    const app = await launch({ CONNECTION_IDLE_TIMEOUT: '1' });
+    const stalled = secondsUntilClosed(
+      app.port,
+      'POST /slow?ms=0 HTTP/1.1\r\nHost: 127.0.0.1\r\nContent-Length: 100\r\n\r\nhello'
+    );
+    expect(await stalled).toBeLessThan(8);
+  }, 15_000);
+
+  test('re-arms the client idle timeout once the adapter has answered', async () => {
+    const app = await launch({ CONNECTION_IDLE_TIMEOUT: '1' });
+    // A keep-alive connection that goes idle after a slow answer is closed like any other.
+    const idle = secondsUntilClosed(
+      app.port,
+      'GET /slow?ms=1500 HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n'
+    );
+    expect(await idle).toBeLessThan(8);
   }, 15_000);
 
   test('on SIGTERM a slow client still receives the full body before the listener stops', async () => {

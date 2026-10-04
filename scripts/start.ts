@@ -198,6 +198,8 @@ export async function start(
 
 function serveLoopback({ hostname, port, socket, idleTimeout, ready }: Parameters<Listen>[0]) {
   let authority = '';
+  // The client idle window (Bun's default is 10 s).
+  const idleSeconds = idleTimeout ?? 10;
   const server = Bun.serve({
     hostname,
     port,
@@ -211,12 +213,20 @@ function serveLoopback({ hostname, port, socket, idleTimeout, ready }: Parameter
       headers.set(HOST_HEADER, authority);
       // Replaces any client-sent copy.
       headers.set(PEER_HEADER, server.requestIP(request)?.address ?? '');
+      // Bun 1.4.2 keeps the idle timer running while this handler awaits fetch(), so a request the
+      // app answers after the idle window (a page waiting on an upstream) would get an empty reply.
+      // Waiting for the app is not client idleness: the timer is off from the end of the request
+      // body (at once without one) until the app answers, then re-armed. A client that stalls
+      // mid-body is still closed.
+      const waitForApp = () => server.timeout(request, 0);
+      const body = request.method === 'GET' || request.method === 'HEAD' ? null : request.body;
+      if (!body) waitForApp();
       let response: Response;
       try {
         response = await fetch(`http://localhost${forwardPath(request.url)}`, {
           method: request.method,
           headers,
-          body: request.method === 'GET' || request.method === 'HEAD' ? null : request.body,
+          body: body?.pipeThrough(new TransformStream({ flush: waitForApp })) ?? null,
           redirect: 'manual',
           decompress: false,
           signal: request.signal,
@@ -224,6 +234,8 @@ function serveLoopback({ hostname, port, socket, idleTimeout, ready }: Parameter
         });
       } catch {
         return new Response('Service Unavailable', { status: 503 });
+      } finally {
+        server.timeout(request, idleSeconds);
       }
       if (response.headers.get('content-type')?.startsWith('text/event-stream') && response.body) {
         server.timeout(request, 0);
