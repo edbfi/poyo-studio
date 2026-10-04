@@ -87,21 +87,24 @@ try {
   throw error;
 }
 const syntheticKey = ['sk', 'production_smoke_canary_never_real_123456'].join('-');
+// No ORIGIN: SvelteKit 3 has no runtime origin, and the loopback front must supply the listener
+// origin itself, so the same-origin writes below fail with 403 if it does not.
+const serverEnvironment: Record<string, string | undefined> = {
+  ...Bun.env,
+  HOST: host,
+  PORT: String(port),
+  POYO_API_KEY: syntheticKey,
+  PLS_APP_DATA_DIR: appData,
+  PLS_TEST_MODE: '1',
+  PLS_TEST_POYO_BASE_URL: mock.baseUrl,
+  PLS_TEST_PUBLIC_IPV4_URL: `${mock.baseUrl}/ip`
+};
+delete serverEnvironment.ORIGIN;
 let server: ReturnType<typeof Bun.spawn>;
 try {
   server = Bun.spawn({
     cmd: [process.execPath, 'run', 'start'],
-    env: {
-      ...Bun.env,
-      HOST: host,
-      ORIGIN: origin,
-      PORT: String(port),
-      POYO_API_KEY: syntheticKey,
-      PLS_APP_DATA_DIR: appData,
-      PLS_TEST_MODE: '1',
-      PLS_TEST_POYO_BASE_URL: mock.baseUrl,
-      PLS_TEST_PUBLIC_IPV4_URL: `${mock.baseUrl}/ip`
-    },
+    env: serverEnvironment,
     stdout: 'pipe',
     stderr: 'pipe'
   });

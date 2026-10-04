@@ -1,10 +1,10 @@
-import { jobHttpError } from '$lib/server/jobs/http';
-import { readVerifiedManagedSourceBlob } from '$lib/server/jobs/managed-source-upload';
-import { ManagedSourceRepository } from '$lib/server/media/managed-sources';
-import { intakeLocalSource, neutralSourceUploadName } from '$lib/server/media/source-intake';
-import { getPlatformServices } from '$lib/server/platform/runtime';
-import { createPoyoClient } from '$lib/server/poyo/factory';
-import { readMediaPrivacySettings } from '$lib/server/settings/media-privacy-settings';
+import { jobHttpError } from '#lib/server/jobs/http.js';
+import { readVerifiedManagedSourceBlob } from '#lib/server/jobs/managed-source-upload.js';
+import { ManagedSourceRepository } from '#lib/server/media/managed-sources.js';
+import { intakeLocalSource, neutralSourceUploadName } from '#lib/server/media/source-intake.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
+import { createPoyoClient } from '#lib/server/poyo/factory.js';
+import { readMediaPrivacySettings } from '#lib/server/settings/media-privacy-settings.js';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {

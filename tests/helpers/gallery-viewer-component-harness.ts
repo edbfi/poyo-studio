@@ -60,11 +60,6 @@ export async function startGalleryViewerComponentHarness(): Promise<GalleryViewe
       cacheDir: join(temporary.path, 'vite-cache'),
       configFile: false,
       plugins: [UnoCSS(join(repositoryRoot, 'uno.config.ts')), svelte()],
-      resolve: {
-        alias: {
-          $lib: join(repositoryRoot, 'src', 'lib')
-        }
-      },
       server: {
         host,
         port: 0,

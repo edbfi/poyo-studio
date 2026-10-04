@@ -9,13 +9,13 @@ interface PackageManifest {
 
 const pinnedPackages = [
   '@biomejs/biome',
+  '@sveltejs/adapter-bun',
   '@sveltejs/kit',
   '@sveltejs/vite-plugin-svelte',
   '@unocss/extractor-svelte',
   '@unocss/preset-wind4',
   '@unocss/vite',
   'svelte',
-  'svelte-adapter-bun',
   'svelte-check',
   'typescript',
   'unocss',
@@ -38,14 +38,14 @@ describe('Bun SvelteKit foundation', () => {
   });
 
   test('uses the Bun adapter and UnoCSS before SvelteKit', async () => {
-    const svelteConfig = await Bun.file('svelte.config.ts').text();
     const viteConfig = await Bun.file('vite.config.ts').text();
     const clientHook = await Bun.file('src/hooks.client.ts').text();
 
-    expect(svelteConfig).toContain("from 'svelte-adapter-bun'");
-    expect(svelteConfig).not.toContain('adapter-node');
+    expect(viteConfig).toContain("from '@sveltejs/adapter-bun'");
+    expect(viteConfig).not.toContain('adapter-node');
+    expect(await Bun.file('svelte.config.ts').exists()).toBe(false);
     expect(viteConfig.indexOf('UnoCSS()')).toBeGreaterThan(-1);
-    expect(viteConfig.indexOf('UnoCSS()')).toBeLessThan(viteConfig.indexOf('sveltekit()'));
+    expect(viteConfig.indexOf('UnoCSS()')).toBeLessThan(viteConfig.indexOf('sveltekit('));
     expect(clientHook).toContain("import 'uno.css'");
   });
 

@@ -2,16 +2,16 @@ import {
   isPaidActionId,
   JobRequestError,
   prepareJobCreateRequest
-} from '$lib/server/jobs/create-request';
-import { safeJobDto } from '$lib/server/jobs/events';
-import { jobHttpError } from '$lib/server/jobs/http';
-import { createManagedSourceResolver } from '$lib/server/jobs/managed-source-upload';
-import { getJobRuntime } from '$lib/server/jobs/runtime';
-import { runtimeJobCreateDelay } from '$lib/server/jobs/runtime-settings';
-import { maintenanceGate } from '$lib/server/platform/maintenance-gate';
-import { readSameOriginJson } from '$lib/server/platform/request-security';
-import { getPlatformServices } from '$lib/server/platform/runtime';
-import { withEstimatedJobCreateRequest } from '$lib/server/pricing/estimate-request';
+} from '#lib/server/jobs/create-request.js';
+import { safeJobDto } from '#lib/server/jobs/events.js';
+import { jobHttpError } from '#lib/server/jobs/http.js';
+import { createManagedSourceResolver } from '#lib/server/jobs/managed-source-upload.js';
+import { getJobRuntime } from '#lib/server/jobs/runtime.js';
+import { runtimeJobCreateDelay } from '#lib/server/jobs/runtime-settings.js';
+import { maintenanceGate } from '#lib/server/platform/maintenance-gate.js';
+import { readSameOriginJson } from '#lib/server/platform/request-security.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
+import { withEstimatedJobCreateRequest } from '#lib/server/pricing/estimate-request.js';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ url }) => {

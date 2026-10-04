@@ -1,13 +1,13 @@
 <script lang="ts">
-import Badge from '$lib/components/ui/Badge.svelte';
-import Button from '$lib/components/ui/Button.svelte';
-import LinkButton from '$lib/components/ui/LinkButton.svelte';
-import Sheet from '$lib/components/ui/Sheet.svelte';
+import Badge from '#lib/components/ui/Badge.svelte';
+import Button from '#lib/components/ui/Button.svelte';
+import LinkButton from '#lib/components/ui/LinkButton.svelte';
+import Sheet from '#lib/components/ui/Sheet.svelte';
 import {
   type StudioBatchItem,
   summarizeReadyBatchEstimates,
   summarizeSettledBatchCharges
-} from '$lib/features/generation/studio-batch';
+} from '#lib/features/generation/studio-batch.js';
 
 interface Props {
   modality: 'image' | 'video';

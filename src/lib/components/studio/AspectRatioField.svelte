@@ -1,10 +1,10 @@
 <script lang="ts">
-import AppIcon from '$lib/components/ui/AppIcon.svelte';
-import { parseAspectRatioPresentation } from '$lib/features/generation/aspect-ratio-presentation';
-import { coerceFieldValue } from '$lib/features/generation/studio-controller';
-import type { AutomaticFieldChoice } from '$lib/features/generation/studio-sizing';
-import { explicitRatioTokens } from '$lib/features/registry/ratio-resolver';
-import type { FieldDefinition } from '$lib/features/registry/types';
+import AppIcon from '#lib/components/ui/AppIcon.svelte';
+import { parseAspectRatioPresentation } from '#lib/features/generation/aspect-ratio-presentation.js';
+import { coerceFieldValue } from '#lib/features/generation/studio-controller.js';
+import type { AutomaticFieldChoice } from '#lib/features/generation/studio-sizing.js';
+import { explicitRatioTokens } from '#lib/features/registry/ratio-resolver.js';
+import type { FieldDefinition } from '#lib/features/registry/types.js';
 
 interface Props {
   field: FieldDefinition;

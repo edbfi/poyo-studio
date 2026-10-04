@@ -2,14 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Poyo Local Studio: a local-first SvelteKit 2 / Svelte 5 (runes) app on Bun with `bun:sqlite`,
+Poyo Local Studio: a local-first SvelteKit 3 / Svelte 5 (runes) app on Bun with `bun:sqlite`,
 driving the Poyo.ai image and video APIs. Single user, loopback-only by design.
 
 ## Commands
 
 Bun `1.4.2` is the only runner; `tests/unit/foundation.test.ts` fails under any other
-`Bun.version`. Tests and checks resolve `$lib` through `.svelte-kit/tsconfig.json`, which
-`bun install` generates (`prepare` runs `svelte-kit sync`).
+`Bun.version`. Library code is imported as `#lib/…` with an explicit `.js` extension (the
+`package.json` `imports` map; there is no `$lib`). `tsconfig.json` extends `$app/tsconfig`, which
+`bun install` generates (`prepare` runs `svelte-kit sync`). SvelteKit config lives in `sveltekit({…})`
+in `vite.config.ts`; there is no `svelte.config.ts`.
 
 | Task | Command |
 | --- | --- |
@@ -37,7 +39,7 @@ Bun `1.4.2` is the only runner; `tests/unit/foundation.test.ts` fails under any 
 
 ## Where code goes
 
-- `src/lib/features/**` — browser-safe logic and contracts. Never value-import `$lib/server`
+- `src/lib/features/**` — browser-safe logic and contracts. Never value-import `#lib/server`
   from here, `.svelte` files or `hooks.client.ts`; use `import type` for server types.
 - `src/lib/server/**` — server-only. Shared services come from `getPlatformServices()`
   (`src/lib/server/platform/runtime.ts`: database, settings, apiKey, logger, publicIpv4,
@@ -48,6 +50,27 @@ Bun `1.4.2` is the only runner; `tests/unit/foundation.test.ts` fails under any 
   form actions; every mutation is a JSON endpoint in `src/routes/api/**/+server.ts`.
 - `src/lib/components/ui/` — hand-written primitives over the CSS variables in `src/app.css`
   (mapped to UnoCSS colors in `uno.config.ts`); `bits-ui` only for headless primitives.
+
+## Production server (`scripts/start.ts`)
+
+`bun run start` is a loopback front for `@sveltejs/adapter-bun`. It listens on `HOST` (only
+`127.0.0.1` or `::1`) and `PORT` (read at runtime, default 3000), runs the adapter on a private
+Unix socket, and overwrites `x-poyo-listener-proto`/`x-poyo-listener-host` on every request, so
+same-origin writes work over plain HTTP on any port without `ORIGIN`. `ORIGIN`, if set, must equal
+the listener origin or startup fails.
+
+- `BODY_SIZE_LIMIT` defaults to `101M`, the source upload cap (`REQUEST_MAX_BYTES` in
+  `src/lib/server/media/source-intake.ts`); `SHUTDOWN_TIMEOUT` defaults to `1` second. Both are
+  adapter variables and an operator value wins.
+- `CONNECTION_IDLE_TIMEOUT` applies at the front; the adapter side always runs with `0`. The old
+  adapter's `IDLE_TIMEOUT` is not read.
+- `PROTOCOL_HEADER`, `HOST_HEADER`, `SOCKET_PATH` and `PORT_HEADER` belong to the front; operators
+  must not set them.
+- `ADDRESS_HEADER` always names the front's `x-poyo-listener-peer`, set on every request to the TCP
+  peer (`server.requestIP()`), replacing any client-sent copy. An operator `ADDRESS_HEADER` or
+  `XFF_DEPTH` is ignored: only a local process can sit in front of a loopback listener, so a
+  forwarded address could only come from the client.
+- Behaviour covered by `tests/unit/platform/start.test.ts`; keep it passing when touching the front.
 
 ## Mutating API routes
 
@@ -136,7 +159,9 @@ using conditional spreads as `src/lib/server/poyo/factory.ts` does:
 
 - `.agents/rules/svelte5-sveltekit-app.md` — generic Svelte 5 runes / SvelteKit / Bun reference.
   Read before writing new components. Its runes guidance applies, but where it conflicts with this
-  repo, this repo wins: `svelte-adapter-bun` (not adapter-node), `bun test` plus
+  repo, this repo wins: `@sveltejs/adapter-bun` (not adapter-node), `bun test` plus
   `scripts/test-browser.ts` (not Vitest), UnoCSS `presetWind4` with `src/lib/components/ui`
-  (no shadcn-svelte or `unocss-preset-shadcn`), `bun run start` (not `bun ./build/index.js`),
-  Vite under Bun (`bun --bun vite`), and JSON API routes instead of form actions.
+  (no shadcn-svelte or `unocss-preset-shadcn`), `bun run start` (not `bun ./build/index.js`: the
+  loopback front supplies the origin, because SvelteKit 3 has no runtime `ORIGIN`), the front's own
+  `ADDRESS_HEADER` (an operator value is not passed through on a loopback front), Vite under Bun
+  (`bun --bun vite`), and JSON API routes instead of form actions.

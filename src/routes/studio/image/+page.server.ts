@@ -1,4 +1,4 @@
-import { loadStudioData } from '$lib/server/generation/studio-data';
+import { loadStudioData } from '#lib/server/generation/studio-data.js';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = ({ url }) =>

@@ -1,25 +1,25 @@
 <script lang="ts">
 import { onMount, untrack } from 'svelte';
 import { invalidate } from '$app/navigation';
-import AppIcon from '$lib/components/ui/AppIcon.svelte';
-import Badge from '$lib/components/ui/Badge.svelte';
-import Button from '$lib/components/ui/Button.svelte';
-import LinkButton from '$lib/components/ui/LinkButton.svelte';
-import Sheet from '$lib/components/ui/Sheet.svelte';
-import { isBalanceSnapshotStale } from '$lib/features/account/balance-freshness';
+import AppIcon from '#lib/components/ui/AppIcon.svelte';
+import Badge from '#lib/components/ui/Badge.svelte';
+import Button from '#lib/components/ui/Button.svelte';
+import LinkButton from '#lib/components/ui/LinkButton.svelte';
+import Sheet from '#lib/components/ui/Sheet.svelte';
+import { isBalanceSnapshotStale } from '#lib/features/account/balance-freshness.js';
 import type {
   StudioEntry,
   StudioJobDto,
   StudioLoadData,
   StudioOutputDto,
   StudioRoleInput
-} from '$lib/features/generation/contracts';
+} from '#lib/features/generation/contracts.js';
 import {
   type BrowserMediaMetadata,
   mediaMetadataLabel,
   probeBrowserMedia,
   validateLocalFileSelection
-} from '$lib/features/generation/media-preflight';
+} from '#lib/features/generation/media-preflight.js';
 import {
   applyBatchJob,
   beginPaidBatchRetry,
@@ -31,7 +31,7 @@ import {
   type StudioBatch,
   type StudioBatchItem,
   writeStudioBatch
-} from '$lib/features/generation/studio-batch';
+} from '#lib/features/generation/studio-batch.js';
 import {
   createStudioSubmissionSnapshot,
   initialGuidedValues,
@@ -48,15 +48,15 @@ import {
   sizeModes,
   valuesWithRoleInputs,
   visibleFields
-} from '$lib/features/generation/studio-controller';
+} from '#lib/features/generation/studio-controller.js';
 import {
   clearStudioDraft,
   readStudioDraft,
   restoreStudioDraftRoleInputs,
   serializeStudioDraftRoleInputs,
   writeStudioDraft
-} from '$lib/features/generation/studio-draft';
-import { studioModeGroups, studioModeLabel } from '$lib/features/generation/studio-modes';
+} from '#lib/features/generation/studio-draft.js';
+import { studioModeGroups, studioModeLabel } from '#lib/features/generation/studio-modes.js';
 import {
   applyStudioJobEvent,
   compareStudioJobRecency,
@@ -66,7 +66,7 @@ import {
   type StudioResultCandidateStates,
   type StudioSessionJobs,
   upsertStudioSessionJob
-} from '$lib/features/generation/studio-session';
+} from '#lib/features/generation/studio-session.js';
 import {
   type AutomaticFieldKey,
   type AutomaticFieldState,
@@ -75,22 +75,22 @@ import {
   initialAutomaticFields,
   resolvedGuidedValues,
   restoreAutomaticFields
-} from '$lib/features/generation/studio-sizing';
-import { downloadCopy } from '$lib/features/library/attachment-request';
-import { dateTimeLabel } from '$lib/features/library/presentation';
-import type { Estimate, TaskCharge } from '$lib/features/pricing/contracts';
-import { fieldValue, validateFieldValue } from '$lib/features/registry/runtime-validation';
+} from '#lib/features/generation/studio-sizing.js';
+import { downloadCopy } from '#lib/features/library/attachment-request.js';
+import { dateTimeLabel } from '#lib/features/library/presentation.js';
+import type { Estimate, TaskCharge } from '#lib/features/pricing/contracts.js';
+import { fieldValue, validateFieldValue } from '#lib/features/registry/runtime-validation.js';
 import type {
   ExpertOverride,
   FieldDefinition,
   NormalizedPreview
-} from '$lib/features/registry/types';
+} from '#lib/features/registry/types.js';
 import type {
   MediaSanitizationCategory,
   MediaSanitizationReceiptDto,
   MediaToolReadinessDto
-} from '$lib/features/settings/contracts';
-import { mediaKindSanitizationReady } from '$lib/features/settings/media-privacy';
+} from '#lib/features/settings/contracts.js';
+import { mediaKindSanitizationReady } from '#lib/features/settings/media-privacy.js';
 import AspectRatioField from './AspectRatioField.svelte';
 import BatchReview from './BatchReview.svelte';
 import ChoiceField from './ChoiceField.svelte';

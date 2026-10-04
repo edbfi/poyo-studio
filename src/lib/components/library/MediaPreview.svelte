@@ -1,7 +1,7 @@
 <script lang="ts">
 import { Dialog } from 'bits-ui';
 import { onMount } from 'svelte';
-import AppIcon from '$lib/components/ui/AppIcon.svelte';
+import AppIcon from '#lib/components/ui/AppIcon.svelte';
 
 interface Props {
   mediaKind: 'image' | 'video';

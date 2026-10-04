@@ -1,9 +1,9 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import { invalidateAll } from '$app/navigation';
-import JobDetailView from '$lib/components/library/JobDetailView.svelte';
-import { nextMonotonicEventId } from '$lib/features/generation/studio-controller';
-import { shouldRefreshJobDetail } from '$lib/features/library/job-detail-events';
+import JobDetailView from '#lib/components/library/JobDetailView.svelte';
+import { nextMonotonicEventId } from '#lib/features/generation/studio-controller.js';
+import { shouldRefreshJobDetail } from '#lib/features/library/job-detail-events.js';
 import type { PageData } from './$types';
 
 let { data }: { data: PageData } = $props();

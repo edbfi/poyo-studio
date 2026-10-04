@@ -1,7 +1,7 @@
-import { operationsHttpError } from '$lib/server/operations/http';
-import { readSameOriginJson } from '$lib/server/platform/request-security';
-import { getPlatformServices } from '$lib/server/platform/runtime';
-import { OperationsSettingsService } from '$lib/server/settings/operations-settings';
+import { operationsHttpError } from '#lib/server/operations/http.js';
+import { readSameOriginJson } from '#lib/server/platform/request-security.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
+import { OperationsSettingsService } from '#lib/server/settings/operations-settings.js';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ setHeaders }) => {

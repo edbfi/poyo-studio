@@ -1,5 +1,5 @@
-import { getPlatformServices } from '$lib/server/platform/runtime';
-import { PresetRepository } from '$lib/server/presets/repository';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
+import { PresetRepository } from '#lib/server/presets/repository.js';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
@@ -14,5 +14,5 @@ export const load: PageServerLoad = async () => {
   };
 };
 
-import { IMAGE_REGISTRY_ENTRIES } from '$lib/features/registry/image-registry';
-import { VIDEO_REGISTRY_ENTRIES } from '$lib/features/registry/video-registry';
+import { IMAGE_REGISTRY_ENTRIES } from '#lib/features/registry/image-registry.js';
+import { VIDEO_REGISTRY_ENTRIES } from '#lib/features/registry/video-registry.js';

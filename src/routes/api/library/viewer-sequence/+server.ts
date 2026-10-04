@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from 'node:crypto';
-import { createViewerSequenceHandler } from '$lib/server/library/viewer-sequence-handler';
-import { getPlatformServices } from '$lib/server/platform/runtime';
+import { createViewerSequenceHandler } from '#lib/server/library/viewer-sequence-handler.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import type { RequestHandler } from './$types';
 
 const tokenContext = {

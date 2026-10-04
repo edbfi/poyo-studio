@@ -2,15 +2,15 @@
 import { onMount, type Snippet, untrack } from 'svelte';
 import { afterNavigate, invalidate, invalidateAll } from '$app/navigation';
 import { page } from '$app/state';
-import AppIcon from '$lib/components/ui/AppIcon.svelte';
-import Badge from '$lib/components/ui/Badge.svelte';
-import Sheet from '$lib/components/ui/Sheet.svelte';
+import AppIcon from '#lib/components/ui/AppIcon.svelte';
+import Badge from '#lib/components/ui/Badge.svelte';
+import Sheet from '#lib/components/ui/Sheet.svelte';
 import {
   isBalanceSnapshotStale,
   isExactBalanceTimestamp
-} from '$lib/features/account/balance-freshness';
-import { dateLabel } from '$lib/features/library/presentation';
-import type { PublicIpv4StatusDto } from '$lib/features/settings/public-ipv4-guard';
+} from '#lib/features/account/balance-freshness.js';
+import { dateLabel } from '#lib/features/library/presentation.js';
+import type { PublicIpv4StatusDto } from '#lib/features/settings/public-ipv4-guard.js';
 import {
   getRouteTitle,
   isPathActive,
@@ -18,7 +18,7 @@ import {
   mobileNavigation,
   moreNavigation,
   navigationGroups
-} from '$lib/navigation';
+} from '#lib/navigation.js';
 import PublicIpv4Status from './PublicIpv4Status.svelte';
 import ThemeToggle from './ThemeToggle.svelte';
 

@@ -1,11 +1,11 @@
 <script lang="ts">
 import { untrack } from 'svelte';
-import SettingsNavigation from '$lib/components/settings/SettingsNavigation.svelte';
-import AppIcon from '$lib/components/ui/AppIcon.svelte';
-import Badge from '$lib/components/ui/Badge.svelte';
-import type { OperationsDiagnosticsDto } from '$lib/features/diagnostics/contracts';
-import { byteSizeLabel, dateTimeLabel } from '$lib/features/library/presentation';
-import { diagnosticsReport } from '$lib/features/settings/controller';
+import SettingsNavigation from '#lib/components/settings/SettingsNavigation.svelte';
+import AppIcon from '#lib/components/ui/AppIcon.svelte';
+import Badge from '#lib/components/ui/Badge.svelte';
+import type { OperationsDiagnosticsDto } from '#lib/features/diagnostics/contracts.js';
+import { byteSizeLabel, dateTimeLabel } from '#lib/features/library/presentation.js';
+import { diagnosticsReport } from '#lib/features/settings/controller.js';
 import type { PageData } from './$types';
 
 let { data }: { data: PageData } = $props();

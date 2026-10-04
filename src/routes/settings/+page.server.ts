@@ -1,12 +1,12 @@
-import { latestBalance } from '$lib/server/account/balance';
-import { LibraryRepository } from '$lib/server/library/repository';
-import { getPlatformServices } from '$lib/server/platform/runtime';
+import { latestBalance } from '#lib/server/account/balance.js';
+import { LibraryRepository } from '#lib/server/library/repository.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import {
   APP_VERSION,
   DATABASE_SCHEMA_VERSION,
   REGISTRY_SCHEMA_VERSION
-} from '$lib/server/platform/version';
-import { OperationsSettingsService } from '$lib/server/settings/operations-settings';
+} from '#lib/server/platform/version.js';
+import { OperationsSettingsService } from '#lib/server/settings/operations-settings.js';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {

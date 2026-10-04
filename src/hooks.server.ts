@@ -1,17 +1,17 @@
-import type { Handle } from '@sveltejs/kit';
+import type { Handle } from '@sveltejs/kit/hooks';
 import {
   MaintenanceUnavailableError,
   maintenanceGate,
   requestRequiresWriterPermit,
   type WriterPermit
-} from '$lib/server/platform/maintenance-gate';
-import { getPlatformServices } from '$lib/server/platform/runtime';
-import type { OperationsSettings } from '$lib/server/settings/operations-settings';
-import { injectThemeDefault, isThemePreference, type ThemePreference } from '$lib/theme';
+} from '#lib/server/platform/maintenance-gate.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
+import type { OperationsSettings } from '#lib/server/settings/operations-settings.js';
+import { injectThemeDefault, isThemePreference, type ThemePreference } from '#lib/theme.js';
 
 export async function init(): Promise<void> {
-  const { startRuntimeJobWorker } = await import('$lib/server/jobs/runtime');
-  const { startRuntimeCleanupWorker } = await import('$lib/server/cleanup/runtime');
+  const { startRuntimeJobWorker } = await import('#lib/server/jobs/runtime.js');
+  const { startRuntimeCleanupWorker } = await import('#lib/server/cleanup/runtime.js');
   await Promise.all([startRuntimeJobWorker(), startRuntimeCleanupWorker()]);
 }
 

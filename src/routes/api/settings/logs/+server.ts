@@ -1,7 +1,7 @@
-import { operationsHttpError } from '$lib/server/operations/http';
-import { maintenanceGate } from '$lib/server/platform/maintenance-gate';
-import { readSameOriginJson } from '$lib/server/platform/request-security';
-import { getPlatformServices } from '$lib/server/platform/runtime';
+import { operationsHttpError } from '#lib/server/operations/http.js';
+import { maintenanceGate } from '#lib/server/platform/maintenance-gate.js';
+import { readSameOriginJson } from '#lib/server/platform/request-security.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import type { RequestHandler } from './$types';
 
 export const DELETE: RequestHandler = async ({ request }) => {

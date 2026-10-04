@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
-import { LibraryRepository } from '$lib/server/library/repository';
-import { getPlatformServices } from '$lib/server/platform/runtime';
+import { LibraryRepository } from '#lib/server/library/repository.js';
+import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {

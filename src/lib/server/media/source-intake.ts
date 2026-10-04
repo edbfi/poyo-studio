@@ -30,7 +30,7 @@ import {
 } from './media-sanitizer';
 
 const IMAGE_MAX_BYTES = 25 * 1024 * 1024;
-const REQUEST_MAX_BYTES = 101 * 1024 * 1024;
+export const REQUEST_MAX_BYTES = 101 * 1024 * 1024;
 
 export interface SourceIntakeOptions {
   maxRequestBytes?: number;

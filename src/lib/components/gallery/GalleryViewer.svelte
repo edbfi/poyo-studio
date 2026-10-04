@@ -7,7 +7,7 @@ import {
   reduceViewerLifecycle,
   type ViewerLifecycleCommand,
   type ViewerLifecycleEvent
-} from '$lib/features/gallery/viewer-lifecycle';
+} from '#lib/features/gallery/viewer-lifecycle.js';
 import {
   type CaptureIdentity,
   DISCRETE_ZOOM_FACTOR,
@@ -20,19 +20,19 @@ import {
   reduceViewerTransform,
   type ViewerSession,
   wheelZoomFactor
-} from '$lib/features/gallery/viewer-transform';
-import { downloadCopy } from '$lib/features/library/attachment-request';
+} from '#lib/features/gallery/viewer-transform.js';
+import { downloadCopy } from '#lib/features/library/attachment-request.js';
 import type {
   GalleryViewerItemDto,
   LibraryGroupDto,
   SafeMediaSummary
-} from '$lib/features/library/contracts';
+} from '#lib/features/library/contracts.js';
 import {
   type DownloadRequestUpdate,
   latestDownloadRequestAt,
   mergeDownloadRequest
-} from '$lib/features/library/download-request-sync';
-import { dateTimeLabel } from '$lib/features/library/presentation';
+} from '#lib/features/library/download-request-sync.js';
+import { dateTimeLabel } from '#lib/features/library/presentation.js';
 
 type ViewableGroup = LibraryGroupDto & {
   representative: SafeMediaSummary & { mediaUrl: string };

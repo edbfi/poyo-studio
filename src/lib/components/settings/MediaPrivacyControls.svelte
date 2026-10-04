@@ -1,12 +1,12 @@
 <script lang="ts">
-import AppIcon from '$lib/components/ui/AppIcon.svelte';
-import Badge from '$lib/components/ui/Badge.svelte';
+import AppIcon from '#lib/components/ui/AppIcon.svelte';
+import Badge from '#lib/components/ui/Badge.svelte';
 import type {
   MediaPrivacySettings,
   MediaToolReadinessDto,
   MediaToolsReadinessDto
-} from '$lib/features/settings/contracts';
-import { mediaSanitizationCapabilityState } from '$lib/features/settings/media-privacy';
+} from '#lib/features/settings/contracts.js';
+import { mediaSanitizationCapabilityState } from '#lib/features/settings/media-privacy.js';
 
 interface Props {
   mediaPrivacy: MediaPrivacySettings;
