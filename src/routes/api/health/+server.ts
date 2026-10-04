@@ -1,4 +1,3 @@
-import { json } from '@sveltejs/kit';
 import { buildHealthDto } from '#lib/server/diagnostics/health.js';
 import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import type { RequestHandler } from './$types';
@@ -9,11 +8,11 @@ export const GET: RequestHandler = async ({ setHeaders }) => {
   try {
     const services = await getPlatformServices();
     const apiKey = await services.apiKey.status();
-    return json(
+    return Response.json(
       await buildHealthDto({ database: services.database, apiKey, logger: services.logger })
     );
   } catch {
-    return json(
+    return Response.json(
       {
         status: 'degraded',
         checkedAt: new Date().toISOString(),
