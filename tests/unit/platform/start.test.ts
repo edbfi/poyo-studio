@@ -248,6 +248,9 @@ describe('production start path forwarding', () => {
     expect(forwardPath('http://[::1/echo?x=1')).toBe('/echo?x=1');
     expect(forwardPath('http://x:99999/echo')).toBe('/echo');
     expect(forwardPath('/echo?x=1')).toBe('/echo?x=1');
+    // What Bun gives for a Host it cannot parse: a bare path, whose query may hold a URL.
+    expect(forwardPath('/login?next=http://x/y')).toBe('/login?next=http://x/y');
+    expect(forwardPath('/p%2Fq?x=%20')).toBe('/p%2Fq?x=%20');
     expect(forwardPath('http://x//double')).toBe('//double');
     expect(forwardPath('http://x')).toBe('/');
   });

@@ -242,6 +242,8 @@ function serveLoopback({ hostname, port, socket, idleTimeout, ready }: Parameter
  * values (for example `[::1` or `x:99999`) make it unparsable.
  */
 export function forwardPath(requestUrl: string): string {
+  // For a Host Bun cannot parse, request.url is the bare path; its query may itself contain "://".
+  if (requestUrl.startsWith('/')) return requestUrl;
   const scheme = requestUrl.indexOf('://');
   const start = scheme === -1 ? 0 : requestUrl.indexOf('/', scheme + 3);
   return start === -1 ? '/' : requestUrl.slice(start);
