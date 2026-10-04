@@ -2,7 +2,8 @@ import { defineEnvVars } from '@sveltejs/kit/env';
 
 // SvelteKit 3 exposes only declared variables through `$app/env/private`; an undeclared name reads
 // as undefined. Each schema returns the raw value, so an unset variable stays undefined and the
-// existing defaults in the code keep applying.
+// existing defaults in the code keep applying. The env-declarations unit test keeps this list in
+// step with the names the server code reads.
 const optional = { schema: (value: string | undefined) => value };
 
 export const variables = defineEnvVars({
