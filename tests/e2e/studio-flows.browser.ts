@@ -1908,6 +1908,50 @@ serial('VIDEO-RATIO-01 video studio sizes a lone input image like image studio',
     await harness.cleanup();
   }
 });
+serial(
+  'MODEL-PICKER-01 a model chosen before the toggle event still closes the picker',
+  async () => {
+    const harness = await startBrowserAppHarness();
+    const browser = await chromium.launch({ headless: true });
+    const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const page = await context.newPage();
+    try {
+      await page.goto(`${harness.url}/studio/image`);
+      const picker = page.locator('fieldset:visible').filter({ hasText: 'Audited model' }).first();
+      const details = picker.locator('details');
+      const summary = details.locator('summary');
+      // Shown only once the studio has mounted, so the picker's handlers are attached.
+      await page.getByText('Live updates connected').waitFor({ timeout: 12_000 });
+      const alternateValue = await picker
+        .locator('input[type="radio"]:not(:checked)')
+        .first()
+        .getAttribute('value');
+      if (!alternateValue) throw new Error('The model picker did not expose an alternate model.');
+      // Open and choose in one task: the change event runs before the browser delivers the
+      // details toggle event, as it can under load with fast keyboard input.
+      await picker.evaluate((fieldset, value) => {
+        const radio = [...fieldset.querySelectorAll('input[type="radio"]')].find(
+          (element) => element instanceof HTMLInputElement && element.value === value
+        );
+        if (!(radio instanceof HTMLInputElement)) throw new Error('Alternate model radio missing.');
+        fieldset.querySelector('summary')?.click();
+        radio.click();
+      }, alternateValue);
+      await waitUntil(
+        async () => (await details.getAttribute('open')) === null,
+        'The model picker stayed open after a selection made before its toggle event.'
+      );
+      await summary.getByText('Change', { exact: true }).waitFor();
+      expect(await picker.locator('input[type="radio"]:checked').getAttribute('value')).toBe(
+        alternateValue
+      );
+    } finally {
+      await context.close().catch(() => undefined);
+      await browser.close().catch(() => undefined);
+      await harness.cleanup();
+    }
+  }
+);
 serial('E2E-01..15 production studios, recovery, library, settings and accessibility', async () => {
   const tracker: StageTracker = {};
   const stage = stageRunner(tracker);
