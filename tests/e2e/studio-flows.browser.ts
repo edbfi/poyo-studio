@@ -2253,7 +2253,7 @@ serial('E2E-01..15 production studios, recovery, library, settings and accessibi
     await page.waitForURL(
       (url) => url.pathname === '/jobs' && url.searchParams.get('status') === 'completed'
     );
-    await page.getByText(/^7 recorded activities\./).waitFor();
+    await page.getByText(/^7\s+recorded activities\./).waitFor();
 
     await page.goto(`${harness.url}/gallery`);
     await page.getByRole('heading', { name: 'Generation gallery' }).waitFor();
@@ -2721,7 +2721,7 @@ serial('E2E-01..15 production studios, recovery, library, settings and accessibi
     await page.getByRole('button', { name: 'Save automatic policy and preview' }).click();
     await page.getByText('Preview: 0 candidates').waitFor();
     await page.getByRole('heading', { name: 'Remote Poyo cleanup' }).scrollIntoViewIfNeeded();
-    expect(await page.getByText(/No toggle, schedule, or simulated remote deletion/).count()).toBe(
+    expect(await page.getByText('No toggle, schedule, or simulated remote deletion').count()).toBe(
       1
     );
     await page.goto(`${harness.url}/settings/diagnostics`);
