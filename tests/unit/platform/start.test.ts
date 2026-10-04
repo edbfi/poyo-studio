@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync 
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import {
+  DEFAULT_BODY_SIZE_LIMIT,
   DEFAULT_SHUTDOWN_TIMEOUT,
   HOST_HEADER,
   type Listen,
@@ -11,6 +12,8 @@ import {
   shutdownTimeoutSeconds,
   start
 } from '../../../scripts/start';
+import { REQUEST_MAX_BYTES } from '../../../src/lib/server/media/source-intake';
+import { POYO_STREAM_VIDEO_MAX_BYTES } from '../../../src/lib/server/poyo/uploads';
 
 const START = resolve('scripts/start.ts');
 const STANDIN = resolve('tests/fixtures/start/standin-adapter.ts');
@@ -66,6 +69,13 @@ async function prepared(environment: Record<string, string | undefined>) {
   const env: Record<string, string | undefined> = { TMPDIR: temp, ...environment };
   await withoutStartListeners(() => start(env, async () => {}, fakeListen));
   return { env, temp };
+}
+
+function parseBinaryBytes(value: string): number {
+  const match = /^(\d+)([KMG])$/.exec(value);
+  if (!match) throw new Error(`unexpected byte value ${value}`);
+  const exponent = { K: 1, M: 2, G: 3 }[match[2] as 'K' | 'M' | 'G'];
+  return Number(match[1]) * 1024 ** exponent;
 }
 
 describe('production start host policy', () => {
@@ -147,6 +157,17 @@ describe('production start adapter environment', () => {
     expect((await prepared({ SHUTDOWN_TIMEOUT: '30' })).env.SHUTDOWN_TIMEOUT).toBe('30');
     expect(shutdownTimeoutSeconds({})).toBe(30);
     expect(shutdownTimeoutSeconds({ SHUTDOWN_TIMEOUT: '5' })).toBe(5);
+  });
+
+  test('defaults BODY_SIZE_LIMIT to the source upload cap and keeps an operator value (M6)', async () => {
+    // The default must equal the app's own whole-request cap, so the app answers oversize uploads.
+    expect(parseBinaryBytes(DEFAULT_BODY_SIZE_LIMIT)).toBe(REQUEST_MAX_BYTES);
+    expect(REQUEST_MAX_BYTES).toBe(POYO_STREAM_VIDEO_MAX_BYTES + 1024 * 1024);
+
+    expect((await prepared({})).env.BODY_SIZE_LIMIT).toBe(DEFAULT_BODY_SIZE_LIMIT);
+    for (const operator of ['2M', '512K', 'Infinity', '104857600']) {
+      expect((await prepared({ BODY_SIZE_LIMIT: operator })).env.BODY_SIZE_LIMIT).toBe(operator);
+    }
   });
 
   test('rejects an invalid PORT or CONNECTION_IDLE_TIMEOUT before creating a socket directory', async () => {
@@ -355,7 +376,7 @@ describe('production start loopback front (process)', () => {
       PORT_HEADER: null,
       CONNECTION_IDLE_TIMEOUT: '0',
       SHUTDOWN_TIMEOUT: DEFAULT_SHUTDOWN_TIMEOUT,
-      BODY_SIZE_LIMIT: null
+      BODY_SIZE_LIMIT: DEFAULT_BODY_SIZE_LIMIT
     });
     expect(seen.env.SOCKET_PATH).toBe(
       join(app.temp, String(socketDirectories(app.temp)[0]), 'app.sock')

@@ -9,6 +9,13 @@ type Environment = Record<string, string | undefined>;
 export const PROTOCOL_HEADER = 'x-poyo-listener-proto';
 export const HOST_HEADER = 'x-poyo-listener-host';
 
+// Owner decision M6: the adapter's 512K default rejected source uploads the app accepts. Default to
+// the app's whole-request cap, REQUEST_MAX_BYTES in src/lib/server/media/source-intake.ts
+// (POYO_STREAM_VIDEO_MAX_BYTES, 100 MiB in src/lib/server/poyo/uploads.ts, plus 1 MiB of multipart
+// allowance), so the transport never rejects a request the app accepts. adapter-bun reads `M` as
+// 1024 * 1024.
+export const DEFAULT_BODY_SIZE_LIMIT = '101M';
+
 // Owner decision M4(a): browsers keep job event streams open, so bound the adapter's drain to 1 s
 // instead of its 30 s default. An operator-set value wins.
 export const DEFAULT_SHUTDOWN_TIMEOUT = '1';
@@ -97,6 +104,7 @@ export async function start(
   // its own idle timeout would cut idle job streams; this listener applies the client timeout.
   environment.CONNECTION_IDLE_TIMEOUT = '0';
   environment.SHUTDOWN_TIMEOUT ??= DEFAULT_SHUTDOWN_TIMEOUT;
+  environment.BODY_SIZE_LIMIT ??= DEFAULT_BODY_SIZE_LIMIT;
 
   let markReady = () => {};
   const ready = new Promise<void>((resolveReady) => {
