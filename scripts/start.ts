@@ -8,6 +8,8 @@ type Environment = Record<string, string | undefined>;
 
 export const PROTOCOL_HEADER = 'x-poyo-listener-proto';
 export const HOST_HEADER = 'x-poyo-listener-host';
+// The client address the adapter reports (ADDRESS_HEADER): the TCP peer of this listener.
+export const PEER_HEADER = 'x-poyo-listener-peer';
 
 // Owner decision M6: the adapter's 512K default rejected source uploads the app accepts. Default to
 // the app's whole-request cap, REQUEST_MAX_BYTES in src/lib/server/media/source-intake.ts
@@ -100,6 +102,11 @@ export async function start(
   environment.PROTOCOL_HEADER = PROTOCOL_HEADER;
   environment.HOST_HEADER = HOST_HEADER;
   delete environment.PORT_HEADER;
+  // Over the socket the adapter would see no client address, so this listener reports its TCP peer.
+  // An operator ADDRESS_HEADER is not honoured: only a local process can sit in front of a loopback
+  // listener, so a forwarded address (and XFF_DEPTH) could only ever come from the client itself.
+  environment.ADDRESS_HEADER = PEER_HEADER;
+  delete environment.XFF_DEPTH;
   // Over the socket the adapter's event-stream idle exemption does not take effect (Bun 1.4.2), so
   // its own idle timeout would cut idle job streams; this listener applies the client timeout.
   environment.CONNECTION_IDLE_TIMEOUT = '0';
@@ -194,6 +201,8 @@ function serveLoopback({ hostname, port, socket, idleTimeout, ready }: Parameter
       const headers = new Headers(request.headers);
       headers.set(PROTOCOL_HEADER, 'http');
       headers.set(HOST_HEADER, authority);
+      // Replaces any client-sent copy.
+      headers.set(PEER_HEADER, server.requestIP(request)?.address ?? '');
       let response: Response;
       try {
         response = await fetch(`http://localhost${url.pathname}${url.search}`, {

@@ -7,6 +7,7 @@ import {
   DEFAULT_SHUTDOWN_TIMEOUT,
   HOST_HEADER,
   type Listen,
+  PEER_HEADER,
   PROTOCOL_HEADER,
   resolveLoopbackHost,
   shutdownTimeoutSeconds,
@@ -133,6 +134,13 @@ describe('production start adapter environment', () => {
     expect(env.HOST_HEADER).toBe(HOST_HEADER);
     expect(env).not.toHaveProperty('PORT_HEADER');
     expect(env.CONNECTION_IDLE_TIMEOUT).toBe('0');
+  });
+
+  test('owns the address header and ignores an operator ADDRESS_HEADER and XFF_DEPTH', async () => {
+    expect((await prepared({})).env.ADDRESS_HEADER).toBe(PEER_HEADER);
+    const { env } = await prepared({ ADDRESS_HEADER: 'x-forwarded-for', XFF_DEPTH: '2' });
+    expect(env.ADDRESS_HEADER).toBe(PEER_HEADER);
+    expect(env).not.toHaveProperty('XFF_DEPTH');
   });
 
   test('passes the operator idle timeout to the listener, not the adapter', async () => {
@@ -346,8 +354,9 @@ async function slowRead(response: Response, bytesPerSecond: number, hurry = { no
 }
 
 describe('production start loopback front (process)', () => {
-  test('forwards requests and overwrites client-supplied origin headers', async () => {
-    const app = await launch();
+  test('forwards requests and overwrites client-supplied origin and peer headers', async () => {
+    // An operator address header is ignored: on a loopback listener it could only be client-sent.
+    const app = await launch({ ADDRESS_HEADER: 'x-forwarded-for', XFF_DEPTH: '2' });
     const base = `http://127.0.0.1:${app.port}`;
     const seen = (await (
       await fetch(`${base}/echo?x=1`, {
@@ -356,7 +365,9 @@ describe('production start loopback front (process)', () => {
         headers: {
           host: 'evil.example',
           [PROTOCOL_HEADER]: 'https',
-          [HOST_HEADER]: 'evil.example'
+          [HOST_HEADER]: 'evil.example',
+          [PEER_HEADER]: '203.0.113.7',
+          'x-forwarded-for': '203.0.113.7, 198.51.100.9'
         }
       })
     ).json()) as {
@@ -370,10 +381,13 @@ describe('production start loopback front (process)', () => {
     expect(seen).toMatchObject({ method: 'POST', path: '/echo', search: '?x=1', body: 'hello' });
     expect(seen.headers[PROTOCOL_HEADER]).toBe('http');
     expect(seen.headers[HOST_HEADER]).toBe(`127.0.0.1:${app.port}`);
+    expect(seen.headers[PEER_HEADER]).toBe('127.0.0.1');
     expect(seen.env).toMatchObject({
       PROTOCOL_HEADER,
       HOST_HEADER,
       PORT_HEADER: null,
+      ADDRESS_HEADER: PEER_HEADER,
+      XFF_DEPTH: null,
       CONNECTION_IDLE_TIMEOUT: '0',
       SHUTDOWN_TIMEOUT: DEFAULT_SHUTDOWN_TIMEOUT,
       BODY_SIZE_LIMIT: DEFAULT_BODY_SIZE_LIMIT

@@ -66,6 +66,10 @@ the listener origin or startup fails.
   adapter's `IDLE_TIMEOUT` is not read.
 - `PROTOCOL_HEADER`, `HOST_HEADER`, `SOCKET_PATH` and `PORT_HEADER` belong to the front; operators
   must not set them.
+- `ADDRESS_HEADER` always names the front's `x-poyo-listener-peer`, set on every request to the TCP
+  peer (`server.requestIP()`), replacing any client-sent copy. An operator `ADDRESS_HEADER` or
+  `XFF_DEPTH` is ignored: only a local process can sit in front of a loopback listener, so a
+  forwarded address could only come from the client.
 - Behaviour covered by `tests/unit/platform/start.test.ts`; keep it passing when touching the front.
 
 ## Mutating API routes
@@ -158,5 +162,6 @@ using conditional spreads as `src/lib/server/poyo/factory.ts` does:
   repo, this repo wins: `@sveltejs/adapter-bun` (not adapter-node), `bun test` plus
   `scripts/test-browser.ts` (not Vitest), UnoCSS `presetWind4` with `src/lib/components/ui`
   (no shadcn-svelte or `unocss-preset-shadcn`), `bun run start` (not `bun ./build/index.js`: the
-  loopback front supplies the origin, because SvelteKit 3 has no runtime `ORIGIN`), Vite under Bun
+  loopback front supplies the origin, because SvelteKit 3 has no runtime `ORIGIN`), the front's own
+  `ADDRESS_HEADER` (an operator value is not passed through on a loopback front), Vite under Bun
   (`bun --bun vite`), and JSON API routes instead of form actions.

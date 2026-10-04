@@ -14,6 +14,8 @@ const seen = Object.fromEntries(
     'PROTOCOL_HEADER',
     'HOST_HEADER',
     'PORT_HEADER',
+    'ADDRESS_HEADER',
+    'XFF_DEPTH',
     'CONNECTION_IDLE_TIMEOUT',
     'SHUTDOWN_TIMEOUT',
     'BODY_SIZE_LIMIT'
