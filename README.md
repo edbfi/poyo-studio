@@ -74,7 +74,7 @@ All optional; set them in the environment or in `.env`.
 | `PORT` | `3000` | Listen port, read when the server starts. |
 | `BODY_SIZE_LIMIT` | `101M` | Largest request body; `K`/`M`/`G` are binary units and `Infinity` disables the limit. The default fits the largest upload Studio accepts. |
 | `SHUTDOWN_TIMEOUT` | `1` | Seconds open requests get to finish after Ctrl+C or `SIGTERM`; a second Ctrl+C stops at once. |
-| `CONNECTION_IDLE_TIMEOUT` | `10` | Seconds before an idle connection is closed (0 to 255; 0 never closes). Live job updates are exempt. |
+| `CONNECTION_IDLE_TIMEOUT` | `10` | Seconds before an idle connection is closed (0 to 255; 0 never closes). Time the app takes to answer does not count, and live job updates are exempt. |
 | `ORIGIN` | unset | Not needed. If set, it must equal the address the server listens on, such as `http://127.0.0.1:3000`, or startup fails. |
 
 The server sets `PROTOCOL_HEADER`, `HOST_HEADER`, `PORT_HEADER`, `ADDRESS_HEADER`, `XFF_DEPTH` and

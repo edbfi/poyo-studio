@@ -63,7 +63,8 @@ the listener origin or startup fails.
   `src/lib/server/media/source-intake.ts`); `SHUTDOWN_TIMEOUT` defaults to `1` second. Both are
   adapter variables and an operator value wins.
 - `CONNECTION_IDLE_TIMEOUT` applies at the front; the adapter side always runs with `0`. The old
-  adapter's `IDLE_TIMEOUT` is not read.
+  adapter's `IDLE_TIMEOUT` is not read. The front's timer is off from the end of the request body
+  until the app answers, then re-armed (Bun 1.4.2 otherwise closes a request still waiting on the app).
 - `PROTOCOL_HEADER`, `HOST_HEADER`, `SOCKET_PATH` and `PORT_HEADER` belong to the front; operators
   must not set them.
 - `ADDRESS_HEADER` always names the front's `x-poyo-listener-peer`, set on every request to the TCP

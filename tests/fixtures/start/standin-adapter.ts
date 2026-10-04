@@ -70,6 +70,13 @@ async function handle(request: Request): Promise<Response> {
       });
       return new Response(stream, { headers: { 'content-type': 'text/event-stream' } });
     }
+    case '/slow': {
+      // Like a request waiting on an upstream (the provider, the public IPv4 lookup): reads the body,
+      // then answers after `ms`.
+      const body = await request.text();
+      await Bun.sleep(Number(url.searchParams.get('ms') || 3000));
+      return new Response(`slow ${body.length}`);
+    }
     case '/big':
       return new Response(big, { headers: { 'content-type': 'application/octet-stream' } });
     case '/stop':
