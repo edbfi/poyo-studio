@@ -52,6 +52,15 @@ async function handle(request: Request): Promise<Response> {
       });
       return new Response(stream, { headers: { 'content-type': 'text/event-stream' } });
     }
+    case '/sse-open': {
+      // One event, then idle until the client leaves or the server closes the connection.
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(encoder.encode('data: one\n\n'));
+        }
+      });
+      return new Response(stream, { headers: { 'content-type': 'text/event-stream' } });
+    }
     case '/big':
       return new Response(big, { headers: { 'content-type': 'application/octet-stream' } });
     case '/stop':

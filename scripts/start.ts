@@ -208,14 +208,41 @@ function serveLoopback({ hostname, port, socket, idleTimeout, ready }: Parameter
       } catch {
         return new Response('Service Unavailable', { status: 503 });
       }
-      if (response.headers.get('content-type')?.startsWith('text/event-stream')) {
+      if (response.headers.get('content-type')?.startsWith('text/event-stream') && response.body) {
         server.timeout(request, 0);
+        return new Response(endCleanlyOnUpstreamError(response.body), response);
       }
       return response;
     }
   });
   authority = server.url.host;
   return server;
+}
+
+/**
+ * Event streams have no length, so a stream the adapter closes (on shutdown it force-closes them after
+ * SHUTDOWN_TIMEOUT) ends here as a normal end of stream, and the browser's EventSource reconnects.
+ * Passing the upstream error on would reset the client connection instead. Other responses keep the
+ * error, so a truncated download never looks complete.
+ */
+function endCleanlyOnUpstreamError(
+  upstream: ReadableStream<Uint8Array>
+): ReadableStream<Uint8Array> {
+  const reader = upstream.getReader();
+  return new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      try {
+        const { done, value } = await reader.read();
+        if (done) controller.close();
+        else controller.enqueue(value);
+      } catch {
+        controller.close();
+      }
+    },
+    cancel(reason) {
+      return reader.cancel(reason);
+    }
+  });
 }
 
 if (import.meta.main) await start();

@@ -423,6 +423,19 @@ describe('production start loopback front (process)', () => {
     expect(socketDirectories(app.temp)).toEqual([]);
   }, 30_000);
 
+  test('on SIGTERM ends an open event stream cleanly when the adapter closes it', async () => {
+    const app = await launch({ SHUTDOWN_TIMEOUT: '1' });
+    const response = await fetch(`http://127.0.0.1:${app.port}/sse-open`);
+    expect(response.headers.get('content-type')).toBe('text/event-stream');
+    const body = response.text();
+    await Bun.sleep(300);
+    app.proc.kill('SIGTERM');
+    // A normal end of stream (EventSource reconnects), not a reset connection.
+    expect(await body).toBe('data: one\n\n');
+    expect(await app.proc.exited).toBe(0);
+    expect(socketDirectories(app.temp)).toEqual([]);
+  }, 15_000);
+
   test('force-closes a client that cannot finish within SHUTDOWN_TIMEOUT', async () => {
     const app = await launch({ SHUTDOWN_TIMEOUT: '2' });
     const response = await fetch(`http://127.0.0.1:${app.port}/big`);
