@@ -56,10 +56,29 @@ bun run build
 bun run start
 ```
 
+Open <http://127.0.0.1:3000>, the address the server listens on. Use the IP address rather than
+`http://localhost:3000`: pages load there too, but the browser reports a different origin, so
+saving changes fails.
+
 The supported production command validates the bind address before importing the built server.
-It binds to <http://127.0.0.1:3000> by default; `PORT` may be changed. `HOST` may be
-`127.0.0.1` or `::1` only. Wildcard, LAN, and hostname binds fail closed so the backend remains a
-private loopback service.
+`HOST` may be `127.0.0.1` or `::1` only. Wildcard, LAN, and hostname binds fail closed so the
+backend remains a private loopback service.
+
+### Runtime settings
+
+All optional; set them in the environment or in `.env`.
+
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `HOST` | `127.0.0.1` | Listen address, `127.0.0.1` or `::1` (then open `http://[::1]:3000`). |
+| `PORT` | `3000` | Listen port, read when the server starts. |
+| `BODY_SIZE_LIMIT` | `101M` | Largest request body; `K`/`M`/`G` are binary units and `Infinity` disables the limit. The default fits the largest upload Studio accepts. |
+| `SHUTDOWN_TIMEOUT` | `1` | Seconds open requests get to finish after Ctrl+C or `SIGTERM`; a second Ctrl+C stops at once. |
+| `CONNECTION_IDLE_TIMEOUT` | `10` | Seconds before an idle connection is closed (0 to 255; 0 never closes). Live job updates are exempt. |
+| `ORIGIN` | unset | Not needed. If set, it must equal the address the server listens on, such as `http://127.0.0.1:3000`, or startup fails. |
+
+The server sets `PROTOCOL_HEADER`, `HOST_HEADER`, `PORT_HEADER`, `ADDRESS_HEADER`, `XFF_DEPTH` and
+`SOCKET_PATH` itself; values you set for them are ignored.
 
 ## Privacy
 
