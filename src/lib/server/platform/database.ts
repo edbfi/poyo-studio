@@ -35,9 +35,10 @@ export class DatabasePreflightError extends Error {
       | 'database_pending_journal'
       | 'database_unknown'
       | 'database_incompatible',
-    message: string
+    message: string,
+    options?: ErrorOptions
   ) {
-    super(message);
+    super(message, options);
     this.name = 'DatabasePreflightError';
   }
 }
@@ -127,12 +128,20 @@ function recoverPendingJournal(path: string): void {
       const checkpoint = database
         .query<{ busy: number }, []>('PRAGMA wal_checkpoint(TRUNCATE)')
         .get();
-      if (checkpoint?.busy !== 0) throw new Error('checkpoint incomplete');
+      if (checkpoint?.busy !== 0) {
+        throw Object.assign(new Error('The WAL checkpoint was incomplete.'), {
+          code: 'SQLITE_BUSY'
+        });
+      }
     }
-  } catch {
+  } catch (error) {
+    const busy = String((error as { code?: unknown }).code).startsWith('SQLITE_BUSY');
     throw new DatabasePreflightError(
       'database_pending_journal',
-      'The selected database has pending recovery state that could not be applied; another process may be using it.'
+      busy
+        ? 'The selected database has pending recovery state that could not be applied because another process has it open.'
+        : 'The selected database has pending recovery state that could not be applied.',
+      { cause: error }
     );
   } finally {
     database?.close();

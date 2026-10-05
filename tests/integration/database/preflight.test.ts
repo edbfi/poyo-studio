@@ -474,7 +474,9 @@ describe('read-only database bootstrap preflight', () => {
       });
 
       await expect(preflightDatabase(databasePath)).rejects.toMatchObject({
-        code: 'database_pending_journal'
+        code: 'database_pending_journal',
+        message: expect.stringContaining('another process has it open'),
+        cause: expect.objectContaining({ code: expect.stringMatching(/^SQLITE_BUSY/) })
       });
 
       expect(await sizeOf(`${databasePath}-wal`)).toBeGreaterThan(0);
@@ -485,6 +487,30 @@ describe('read-only database bootstrap preflight', () => {
       other.close();
     }
 
+    await expect(preflightDatabase(databasePath)).resolves.toEqual({
+      state: 'compatible',
+      maxVersion: 3
+    });
+  });
+
+  test('fails closed with the SQLite error when recovery cannot write the database', async () => {
+    // The owner bypasses file modes when running as root, so the database stays writable there.
+    if (typeof process.getuid !== 'function' || process.getuid() === 0) return;
+    const databasePath = await path();
+    await crashAfterWriting(databasePath, 'wal');
+    await chmod(databasePath, 0o400);
+    try {
+      const rejection = await preflightDatabase(databasePath).then(
+        () => undefined,
+        (error: unknown) => error
+      );
+      expect(rejection).toMatchObject({ code: 'database_pending_journal' });
+      expect((rejection as Error).message).not.toContain('another process');
+      expect((rejection as Error).cause).toMatchObject({ code: expect.stringMatching(/^SQLITE_/) });
+      expect(await sizeOf(`${databasePath}-wal`)).toBeGreaterThan(0);
+    } finally {
+      await chmod(databasePath, 0o600);
+    }
     await expect(preflightDatabase(databasePath)).resolves.toEqual({
       state: 'compatible',
       maxVersion: 3
