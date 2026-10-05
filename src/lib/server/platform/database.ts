@@ -77,12 +77,65 @@ export function canonicalDatabaseSchemaSignature(
   }
 }
 
-async function fileSize(path: string): Promise<number | null> {
+async function fileDetails(path: string): Promise<Awaited<ReturnType<typeof lstat>> | null> {
   try {
-    return (await lstat(path)).size;
+    return await lstat(path);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
     throw error;
+  }
+}
+
+/**
+ * Whether a WAL or rollback journal beside the database holds bytes. A clean WAL-mode close may
+ * retain an SHM index beside an empty WAL; the SHM file contains no database changes, so only
+ * journal files that can carry unapplied pages make immutable inspection unsafe.
+ */
+async function hasPendingJournal(path: string): Promise<boolean> {
+  for (const sidecar of [`${path}-wal`, `${path}-journal`]) {
+    const size = (await fileDetails(sidecar))?.size;
+    if (size !== undefined && size !== 0) return true;
+  }
+  return false;
+}
+
+/**
+ * A process that ends without closing the database (killed, crashed, or stopped by a power loss)
+ * can leave committed transactions in the WAL, or an interrupted transaction's original pages in a hot
+ * rollback journal. The immutable inspection reads only the main file, so let SQLite run its own
+ * crash recovery first, as any first connection would: roll back a hot journal, or copy every
+ * committed WAL frame into the main file and truncate the WAL. Committed content is unchanged, but
+ * the main file is written before the inspection decides whether the app accepts it; that is
+ * acceptable for the app's own database path. A WAL that belongs to a different database cannot be
+ * detected here, nor by SQLite itself.
+ *
+ * The exclusive locking mode makes this fail while another connection has the database open (a
+ * second Studio on the same data), instead of recovering underneath it, and keeps the SHM index out
+ * of it. Any failure leaves the journal in place, and the preflight fails closed.
+ */
+function recoverPendingJournal(path: string): void {
+  let database: Database | undefined;
+  try {
+    database = new Database(path, constants.SQLITE_OPEN_READWRITE | constants.SQLITE_OPEN_NOMUTEX);
+    database.exec('PRAGMA locking_mode = EXCLUSIVE;');
+    // The first read takes the lock and runs the recovery.
+    database.query('SELECT COUNT(*) FROM sqlite_master').get();
+    const journalMode = database
+      .query<{ journal_mode: string }, []>('PRAGMA journal_mode')
+      .get()?.journal_mode;
+    if (journalMode === 'wal') {
+      const checkpoint = database
+        .query<{ busy: number }, []>('PRAGMA wal_checkpoint(TRUNCATE)')
+        .get();
+      if (checkpoint?.busy !== 0) throw new Error('checkpoint incomplete');
+    }
+  } catch {
+    throw new DatabasePreflightError(
+      'database_pending_journal',
+      'The selected database has pending recovery state that could not be applied; another process may be using it.'
+    );
+  } finally {
+    database?.close();
   }
 }
 
@@ -106,15 +159,13 @@ export async function preflightDatabase(
       'The selected database is not a regular file.'
     );
   }
-  // A clean WAL-mode close may retain an SHM index beside an empty WAL. The SHM file contains no
-  // database changes, so only journal files that can carry unapplied pages make immutable
-  // inspection unsafe.
-  for (const sidecar of [`${path}-wal`, `${path}-journal`]) {
-    const size = await fileSize(sidecar);
-    if (size !== null && size !== 0) {
+  // SQLite opens these beside the database; none of them may be a link or a special file.
+  for (const sidecar of [`${path}-wal`, `${path}-shm`, `${path}-journal`]) {
+    const sidecarDetails = await fileDetails(sidecar);
+    if (sidecarDetails && (!sidecarDetails.isFile() || sidecarDetails.isSymbolicLink())) {
       throw new DatabasePreflightError(
-        'database_pending_journal',
-        'The selected database has pending recovery state and cannot be inspected safely.'
+        'database_not_regular',
+        'The selected database has a journal or index file that is not a regular file.'
       );
     }
   }
@@ -129,6 +180,17 @@ export async function preflightDatabase(
       'database_unknown',
       'The selected database is not recognized.'
     );
+  }
+
+  if (await hasPendingJournal(path)) {
+    recoverPendingJournal(path);
+    // A journal that is still not empty (a persistent journal SQLite did not need) fails closed.
+    if (await hasPendingJournal(path)) {
+      throw new DatabasePreflightError(
+        'database_pending_journal',
+        'The selected database has pending recovery state and cannot be inspected safely.'
+      );
+    }
   }
 
   const uri = `${pathToFileURL(path).href}?mode=ro&immutable=1`;
