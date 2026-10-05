@@ -46,7 +46,7 @@ const fakeListen: Listen = ({ hostname, port }) => ({
   stop() {}
 });
 
-const startEvents = ['SIGTERM', 'SIGINT', 'sveltekit:shutdown', 'exit'] as const;
+const startEvents = ['SIGTERM', 'SIGINT', 'SIGHUP', 'sveltekit:shutdown', 'exit'] as const;
 
 /**
  * Runs `fn` and then removes the signal and shutdown listeners start() added, which it keeps for the
@@ -684,6 +684,78 @@ describe('production start loopback front (process)', () => {
     app.proc.kill('SIGTERM');
     await Bun.sleep(300);
     // The open stream keeps the adapter draining; its second-signal exit skips sveltekit:shutdown.
+    app.proc.kill('SIGTERM');
+    const exited = await Promise.race([app.proc.exited, Bun.sleep(5000).then(() => 'timeout')]);
+    expect(exited).toBe(1);
+    expect(app.output()).not.toContain('standin drained');
+    expect(socketDirectories(app.temp)).toEqual([]);
+    await body;
+  }, 20_000);
+
+  // Closing the terminal sends SIGHUP. Its default action kills the process without the drain or the
+  // exit cleanup, and leaves the database's write-ahead log unmerged. The stand-in, like the adapter,
+  // handles only SIGTERM and SIGINT.
+  test('on SIGHUP drains, lets the adapter emit sveltekit:shutdown, and exits at the deadline', async () => {
+    const app = await launch({ SHUTDOWN_TIMEOUT: '2' });
+    const pending = fetch(`http://127.0.0.1:${app.port}/slow?ms=15000`).then(
+      (response) => response.status,
+      (error: unknown) => error
+    );
+    await Bun.sleep(300);
+    const signalled = Date.now();
+    app.proc.kill('SIGHUP');
+    const exited = await Promise.race([
+      app.proc.exited,
+      Bun.sleep(8000).then(() => 'still running')
+    ]);
+    expect(app.proc.signalCode).toBeNull();
+    expect(exited).toBe(0);
+    const elapsed = (Date.now() - signalled) / 1000;
+    expect(elapsed).toBeGreaterThanOrEqual(1.5);
+    expect(elapsed).toBeLessThan(5);
+    expect(app.output()).toContain('standin drained');
+    const reply = await pending;
+    expect(reply instanceof Error || reply === 503).toBe(true);
+    expect(socketDirectories(app.temp)).toEqual([]);
+  }, 20_000);
+
+  // Under `bun run start` the terminal's hangup reaches the server twice: from the terminal and
+  // forwarded by `bun run`.
+  test('a repeated SIGHUP does not cut the drain short', async () => {
+    const app = await launch({ SHUTDOWN_TIMEOUT: '5' });
+    const response = await fetch(`http://127.0.0.1:${app.port}/big`);
+    const download = slowRead(response, 4 * 1024 * 1024);
+    await Bun.sleep(300);
+    app.proc.kill('SIGHUP');
+    app.proc.kill('SIGHUP');
+    await Bun.sleep(100);
+    app.proc.kill('SIGHUP');
+    const result = await download;
+    expect(result.error).toBeUndefined();
+    expect(result.bytes).toBe(8 * 1024 * 1024);
+    expect(await app.proc.exited).toBe(0);
+    expect(app.output()).toContain('standin drained');
+    expect(socketDirectories(app.temp)).toEqual([]);
+  }, 30_000);
+
+  test('shuts down cleanly when SIGHUP arrives while the adapter is still loading', async () => {
+    const app = await launch({ STANDIN_LOAD_DELAY_MS: '1500' }, 'none');
+    await waitForPort(app);
+    expect(app.output()).not.toContain('standin listening');
+    app.proc.kill('SIGHUP');
+    app.proc.kill('SIGHUP');
+    const exited = await Promise.race([app.proc.exited, Bun.sleep(8000).then(() => 'timeout')]);
+    expect(exited).toBe(0);
+    expect(app.output()).toContain('standin drained');
+    expect(socketDirectories(app.temp)).toEqual([]);
+  }, 20_000);
+
+  test('a SIGTERM after a SIGHUP is a second signal and exits at once', async () => {
+    const app = await launch({ SHUTDOWN_TIMEOUT: '10' });
+    const response = await fetch(`http://127.0.0.1:${app.port}/sse-open`);
+    const body = response.text().catch(() => '');
+    app.proc.kill('SIGHUP');
+    await Bun.sleep(300);
     app.proc.kill('SIGTERM');
     const exited = await Promise.race([app.proc.exited, Bun.sleep(5000).then(() => 'timeout')]);
     expect(exited).toBe(1);

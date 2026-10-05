@@ -146,12 +146,22 @@ export async function start(
   // sveltekit:shutdown instead of leaving a running app behind a stopped listener. A second signal
   // before then exits with status 1, as the adapter does for a second signal. These handlers stay
   // registered, so a later signal never falls back to the default handler, which skips the exit
-  // cleanup below.
+  // cleanup below and leaves the database's write-ahead log unmerged.
+  //
+  // SIGHUP (the terminal was closed) shuts down the same way. The adapter does not handle it, so it
+  // reaches the adapter as SIGTERM. Only the first SIGHUP counts and it never counts as a second
+  // signal: nobody closes a terminal twice, and under `bun run start` the hangup arrives twice (from
+  // the terminal and forwarded by `bun run`), which would otherwise exit at once without the drain.
   let loaded = false;
   let earlySignal: NodeJS.Signals | undefined;
+  const adapterSignal = (signal: NodeJS.Signals) => (signal === 'SIGHUP' ? 'SIGTERM' : signal);
   const onSignal = (signal: NodeJS.Signals) => {
+    if (signal === 'SIGHUP' && publicDrain) return;
     startDrain();
-    if (loaded) return;
+    if (loaded) {
+      if (signal === 'SIGHUP') process.kill(process.pid, adapterSignal(signal));
+      return;
+    }
     if (earlySignal) process.exit(1);
     earlySignal = signal;
   };
@@ -174,6 +184,7 @@ export async function start(
   };
   process.on('SIGTERM', onSignal);
   process.on('SIGINT', onSignal);
+  process.on('SIGHUP', onSignal);
   process.once('sveltekit:shutdown', onShutdown);
   // Every exit, including the adapter's process.exit(1) on a second signal, removes the socket
   // directory (synchronously, as exit handlers must).
@@ -187,6 +198,7 @@ export async function start(
   } catch (error) {
     process.off('SIGTERM', onSignal);
     process.off('SIGINT', onSignal);
+    process.off('SIGHUP', onSignal);
     process.off('sveltekit:shutdown', onShutdown);
     process.off('exit', removeSocketDirectory);
     await listener.stop(true);
@@ -195,7 +207,7 @@ export async function start(
   }
   loaded = true;
   markReady();
-  if (earlySignal) process.kill(process.pid, earlySignal);
+  if (earlySignal) process.kill(process.pid, adapterSignal(earlySignal));
   console.log(`Listening on ${origin}`);
   return listener;
 }

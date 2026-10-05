@@ -63,6 +63,8 @@ the listener origin or startup fails.
   `src/lib/server/media/source-intake.ts`); `SHUTDOWN_TIMEOUT` defaults to `1` second. Both are
   adapter variables and an operator value wins. The front exits at the `SHUTDOWN_TIMEOUT` deadline
   even if the app still has work in flight (such as a provider call).
+- `SIGHUP` (the terminal closed) shuts down like `SIGTERM`/`SIGINT` and reaches the adapter as
+  `SIGTERM`. A repeated `SIGHUP` is not a second signal: under `bun run start` it arrives twice.
 - `CONNECTION_IDLE_TIMEOUT` applies at the front; the adapter side always runs with `0`. The old
   adapter's `IDLE_TIMEOUT` is not read. The front's timer is off from the end of the request body
   until the app answers, then re-armed (Bun 1.4.2 otherwise closes a request still waiting on the app).
