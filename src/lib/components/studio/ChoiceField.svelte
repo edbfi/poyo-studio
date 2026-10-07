@@ -84,7 +84,8 @@ let compact = $derived(options.length <= 12);
           {id}
           class="focus-ring h-9 w-full rounded-[var(--radius)] border border-input bg-background px-2.5 text-sm"
           value={automatic ? '' : String(value ?? '')}
-          onchange={(event) => onchange(field.key, coerceFieldValue(field, event.currentTarget.value), false)}
+          onchange={(event) =>
+            onchange(field.key, coerceFieldValue(field, event.currentTarget.value), false)}
         >
           <option value="" disabled>Select a value</option>
           {#each options as option (option)}

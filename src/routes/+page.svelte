@@ -46,8 +46,8 @@ let { data }: { data: PageData } = $props();
         <dd class="mt-1 flex items-center gap-2 text-sm font-semibold">
           <AppIcon name="wallet" size={15} />
           {data.dashboard.balance
-  ? `${data.dashboard.balance.credits.toLocaleString()} credits`
-  : 'Not refreshed'}
+            ? `${data.dashboard.balance.credits.toLocaleString()} credits`
+            : 'Not refreshed'}
         </dd>
         {#if data.dashboard.balance}
           <dd class="mt-1 text-[0.6875rem] text-muted-foreground">
@@ -157,7 +157,11 @@ let { data }: { data: PageData } = $props();
                 >{job.displayName}</a
               >
               <p class="mt-1 text-xs leading-5 text-muted-foreground">
-                {attentionDescription(job.attentionCode, job.ipGuardReason ?? null, job.failureDomain === 'poll')}
+                {attentionDescription(
+                  job.attentionCode,
+                  job.ipGuardReason ?? null,
+                  job.failureDomain === 'poll'
+                )}
               </p>
             </li>
           {/each}

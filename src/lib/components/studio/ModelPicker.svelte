@@ -161,8 +161,8 @@ function selectEntry(entry: StudioEntry): void {
                     <span aria-hidden="true">·</span>
                     <span
                       >{entry.inputRoles.length
-  ? `${entry.inputRoles.length} media role${entry.inputRoles.length === 1 ? '' : 's'}`
-  : 'Prompt only'}</span
+                        ? `${entry.inputRoles.length} media role${entry.inputRoles.length === 1 ? '' : 's'}`
+                        : 'Prompt only'}</span
                     >
                   </span>
                 </label>

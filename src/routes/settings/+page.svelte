@@ -1,6 +1,5 @@
 <script lang="ts">
 import { untrack } from 'svelte';
-import { goto, invalidateAll } from '$app/navigation';
 import MediaPrivacyControls from '#lib/components/settings/MediaPrivacyControls.svelte';
 import SettingsNavigation from '#lib/components/settings/SettingsNavigation.svelte';
 import ThemeToggle from '#lib/components/shell/ThemeToggle.svelte';
@@ -23,6 +22,7 @@ import {
   parsePublicIpv4
 } from '#lib/features/settings/public-ipv4-guard.js';
 import { resolveTheme, themeStorageKey } from '#lib/theme.js';
+import { goto, invalidateAll } from '$app/navigation';
 import type { PageData } from './$types';
 
 type PublicIpv4GuardResponse = {
@@ -376,10 +376,10 @@ function applyCleanup(): void {
               <dt class="text-muted-foreground">Credential source</dt>
               <dd class="mt-1 font-semibold">
                 {settings.apiKey.environmentManaged
-  ? 'Server environment'
-  : settings.apiKey.source === 'local'
-    ? 'Local secret store'
-    : 'Not configured'}
+                  ? 'Server environment'
+                  : settings.apiKey.source === 'local'
+                    ? 'Local secret store'
+                    : 'Not configured'}
               </dd>
             </div>
             <div>
@@ -400,7 +400,9 @@ function applyCleanup(): void {
           {#if keyState.canConfigure}
             <form onsubmit={configureApiKey} class="mt-5 max-w-xl">
               <label for="local-api-key" class="text-xs font-semibold"
-                >{settings.apiKey.source === 'local' ? 'Replace local key' : 'Add a local server-side key'}</label
+                >{settings.apiKey.source === 'local'
+                  ? 'Replace local key'
+                  : 'Add a local server-side key'}</label
               >
               <p class="mt-1 text-xs leading-5 text-muted-foreground">
                 This field is cleared immediately after submission. The value is never stored in
@@ -447,8 +449,8 @@ function applyCleanup(): void {
             {/if}
             <span class="text-xs text-muted-foreground"
               >{connectivity.checkedAt
-  ? `${connectivity.status === 'ok' ? 'Passed' : 'Failed'} ${dateTimeLabel(connectivity.checkedAt)}`
-  : 'Not checked'}{account ? ` · ${account}` : ''}</span
+                ? `${connectivity.status === 'ok' ? 'Passed' : 'Failed'} ${dateTimeLabel(connectivity.checkedAt)}`
+                : 'Not checked'}{account ? ` · ${account}` : ''}</span
             >
           </div>
         </section>
@@ -530,15 +532,15 @@ function applyCleanup(): void {
             class={`mt-2 text-xs leading-5 ${homeIpv4Validation ? 'text-warning' : 'text-muted-foreground'}`}
           >
             {homeIpv4Validation ||
-  (homeIpv4Dirty
-    ? homeIpv4CanonicalDraft
-      ? 'Unsaved changes. Save this address before enabling the guard.'
-      : publicIpv4Guard.enabled
-        ? 'Disable the guard before clearing the saved home public IPv4.'
-        : 'Unsaved change. Save to clear the stored home public IPv4.'
-    : homeIpv4Draft.trim()
-      ? 'Saved in canonical dotted-decimal form. “Use current IP” changes only this draft until you save.'
-      : 'No home public IPv4 is saved. Enter one before enabling the guard.')}
+              (homeIpv4Dirty
+                ? homeIpv4CanonicalDraft
+                  ? 'Unsaved changes. Save this address before enabling the guard.'
+                  : publicIpv4Guard.enabled
+                    ? 'Disable the guard before clearing the saved home public IPv4.'
+                    : 'Unsaved change. Save to clear the stored home public IPv4.'
+                : homeIpv4Draft.trim()
+                  ? 'Saved in canonical dotted-decimal form. “Use current IP” changes only this draft until you save.'
+                  : 'No home public IPv4 is saved. Enter one before enabling the guard.')}
           </p>
 
           <label class="mt-5 flex items-start gap-3 text-sm">
@@ -576,7 +578,9 @@ function applyCleanup(): void {
               </p>
             </div>
             <Badge tone="neutral"
-              >{settings.storage.source === 'environment' ? 'Server configured' : 'Local default'}</Badge
+              >{settings.storage.source === 'environment'
+                ? 'Server configured'
+                : 'Local default'}</Badge
             >
           </div>
           <dl class="mt-4 grid gap-3 text-xs sm:grid-cols-2">
@@ -590,7 +594,9 @@ function applyCleanup(): void {
             <div>
               <dt class="text-muted-foreground">Disk free</dt>
               <dd class="mt-1 font-semibold">
-                {data.storage.freeBytes === null ? 'Unavailable' : byteSizeLabel(data.storage.freeBytes)}
+                {data.storage.freeBytes === null
+                  ? 'Unavailable'
+                  : byteSizeLabel(data.storage.freeBytes)}
               </dd>
             </div>
           </dl>
@@ -664,7 +670,9 @@ function applyCleanup(): void {
               </p>
             </div>
             <Badge tone={draft.cleanupMode === 'never' ? 'success' : 'warning'}
-              >{draft.cleanupMode === 'never' ? 'Never delete automatically' : 'Opt-in policy'}</Badge
+              >{draft.cleanupMode === 'never'
+                ? 'Never delete automatically'
+                : 'Opt-in policy'}</Badge
             >
           </div>
           <label class="mt-4 block text-xs font-semibold"
@@ -781,7 +789,9 @@ function applyCleanup(): void {
                   </p>
                 </div>
                 <Badge tone={preview.candidates.length ? 'warning' : 'success'}
-                  >{preview.candidates.length ? 'Immediate run optional' : 'Nothing selected'}</Badge
+                  >{preview.candidates.length
+                    ? 'Immediate run optional'
+                    : 'Nothing selected'}</Badge
                 >
               </div>
               {#if preview.candidates.length}

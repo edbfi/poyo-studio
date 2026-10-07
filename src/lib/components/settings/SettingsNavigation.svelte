@@ -1,7 +1,7 @@
 <script lang="ts">
-import { goto } from '$app/navigation';
 import AppIcon from '#lib/components/ui/AppIcon.svelte';
 import { settingsNavigation } from '#lib/navigation.js';
+import { goto } from '$app/navigation';
 
 interface Props {
   current: '/settings' | '/settings/diagnostics';

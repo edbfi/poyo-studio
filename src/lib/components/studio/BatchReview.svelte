@@ -103,8 +103,8 @@ function summary(item: StudioBatchItem): string {
         <p class="mt-1">
           Actual batch total:
           {settledCharges.actionCount === 0
-  ? 'no settled Poyo task charges'
-  : `${settledCharges.credits} credits · ${settledCharges.actionCount} settled Poyo task${settledCharges.actionCount === 1 ? '' : 's'}`}
+            ? 'no settled Poyo task charges'
+            : `${settledCharges.credits} credits · ${settledCharges.actionCount} settled Poyo task${settledCharges.actionCount === 1 ? '' : 's'}`}
         </p>
       </div>
       <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
@@ -134,7 +134,9 @@ function summary(item: StudioBatchItem): string {
                 {:else}
                   <p class="mt-1 text-xs text-muted-foreground">Estimated credits unavailable</p>
                 {/if}
-                {#if item.job?.progress !== null && item.job?.progress !== undefined && item.state !== 'complete'}
+                {#if item.job?.progress !== null &&
+                  item.job?.progress !== undefined &&
+                  item.state !== 'complete'}
                   <div class="mt-2">
                     <div class="flex justify-between text-[0.6875rem] text-muted-foreground">
                       <span>Reported progress</span><span>{item.job.progress}%</span>
@@ -150,7 +152,9 @@ function summary(item: StudioBatchItem): string {
                 {/if}
                 {#if item.outputs.some((output) => output.mediaUrl)}
                   <div class="mt-3 flex gap-2 overflow-x-auto">
-                    {#each item.outputs.filter((output) => output.mediaUrl) as output (output.outputId)}
+                    {#each item.outputs.filter(
+                      (output) => output.mediaUrl
+                    ) as output (output.outputId)}
                       <a
                         href={output.mediaUrl ?? '#'}
                         target="_blank"
@@ -228,8 +232,8 @@ function summary(item: StudioBatchItem): string {
           onclick={onsubmit}
         >
           {submitting
-  ? 'Submitting billed jobs in order…'
-  : `Submit ${draftCount} separate billed job${draftCount === 1 ? '' : 's'}`}
+            ? 'Submitting billed jobs in order…'
+            : `Submit ${draftCount} separate billed job${draftCount === 1 ? '' : 's'}`}
         </Button>
         {#if !canSubmit}
           <p class="mt-2 text-center text-xs text-muted-foreground">

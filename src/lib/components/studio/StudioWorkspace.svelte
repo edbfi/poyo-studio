@@ -1,6 +1,5 @@
 <script lang="ts">
 import { onMount, untrack } from 'svelte';
-import { invalidate } from '$app/navigation';
 import AppIcon from '#lib/components/ui/AppIcon.svelte';
 import Badge from '#lib/components/ui/Badge.svelte';
 import Button from '#lib/components/ui/Button.svelte';
@@ -91,6 +90,7 @@ import type {
   MediaToolReadinessDto
 } from '#lib/features/settings/contracts.js';
 import { mediaKindSanitizationReady } from '#lib/features/settings/media-privacy.js';
+import { invalidate } from '$app/navigation';
 import AspectRatioField from './AspectRatioField.svelte';
 import BatchReview from './BatchReview.svelte';
 import ChoiceField from './ChoiceField.svelte';
@@ -1792,7 +1792,9 @@ onMount(() => {
 });
 </script>
 
-{#snippet sanitizationReceipt(receipt: MediaSanitizationReceiptDto | undefined)}
+{#snippet sanitizationReceipt(
+  receipt: MediaSanitizationReceiptDto | undefined
+)}
   {#if receipt}
     <div class="col-span-full mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.6875rem]">
       <span
@@ -1826,7 +1828,9 @@ onMount(() => {
   {/if}
 {/snippet}
 
-{#snippet inspectorContent(mobile: boolean)}
+{#snippet inspectorContent(
+  mobile: boolean
+)}
   {@const surface = mobile ? 'mobile' : 'desktop'}
   <div class="flex min-h-full flex-col">
     <div class="border-b border-border px-4 py-3">
@@ -1843,7 +1847,9 @@ onMount(() => {
             aria-expanded={showPresetForm}
             aria-controls={`${data.modality}-${surface}-preset-form`}
             onclick={() => (showPresetForm = !showPresetForm)}
-          >Save as preset</button>
+          >
+            Save as preset
+          </button>
         </div>
       </div>
       {#if showPresetForm}
@@ -1861,7 +1867,7 @@ onMount(() => {
               class="focus-ring h-9 rounded-[var(--radius)] border border-input bg-background px-2.5 text-sm"
               maxlength="120"
               bind:value={presetName}
-            />
+            >
           </label>
           <label
             class="grid gap-1 text-xs font-semibold"
@@ -1877,7 +1883,9 @@ onMount(() => {
             ></textarea>
           </label>
           <div class="flex justify-end gap-2">
-            <Button size="sm" variant="ghost" onclick={() => (showPresetForm = false)}>Cancel</Button>
+            <Button size="sm" variant="ghost" onclick={() => (showPresetForm = false)}
+              >Cancel</Button
+            >
             <Button size="sm" variant="primary" onclick={savePreset}>Save preset</Button>
           </div>
         </div>
@@ -1927,359 +1935,121 @@ onMount(() => {
         tabindex="0"
         hidden={activeInspectorSection !== 'setup'}
       >
-          <p class="eyebrow-label">Essential</p>
-          <div class="mt-1 flex items-center justify-between gap-3">
-            <h2
-              id={`${data.modality}-${surface}-workflow-heading`}
-              class="text-base font-semibold tracking-tight"
-            >Workflow and model</h2>
-            <button
-              type="button"
-              class="focus-ring grid size-8 place-items-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
-              aria-label={favorites.includes(entryKey) ? 'Remove model from favorites' : 'Add model to favorites'}
-              aria-pressed={favorites.includes(entryKey)}
-              onclick={toggleFavorite}
-            >
-              <AppIcon name="heart" size={17} class={favorites.includes(entryKey) ? 'text-primary' : ''} />
-            </button>
-          </div>
-          <div class="mt-4 grid gap-4">
-            {#if data.modality === 'image'}
-              <fieldset class="grid gap-2">
-                <legend class="text-xs font-semibold">Creative intent</legend>
-                <div class="grid grid-cols-2 gap-1 rounded-[var(--radius)] bg-muted p-1">
-                  {#each [
-                    { workflow: 'text-to-image', label: 'Text to image' },
-                    { workflow: 'image-edit', label: 'Edit image' }
-                  ] as intent (intent.workflow)}
-                    <label
-                      class="focus-within:ring-2 focus-within:ring-ring flex min-h-10 cursor-pointer items-center justify-center rounded px-2 text-center text-xs font-semibold"
-                      class:bg-background={
-                        intent.workflow === 'text-to-image'
-                          ? selectedEntry.workflow === 'text-to-image'
-                          : selectedEntry.workflow !== 'text-to-image'
-                      }
-                      class:shadow-[var(--shadow-xs)]={
-                        intent.workflow === 'text-to-image'
-                          ? selectedEntry.workflow === 'text-to-image'
-                          : selectedEntry.workflow !== 'text-to-image'
-                      }
-                    >
-                      <input
-                        class="sr-only"
-                        type="radio"
-                        name={`${data.modality}-${surface}-creative-intent`}
-                        value={intent.workflow}
-                        checked={
-                          intent.workflow === 'text-to-image'
-                            ? selectedEntry.workflow === 'text-to-image'
-                            : selectedEntry.workflow !== 'text-to-image'
-                        }
-                        onchange={() => switchWorkflow(intent.workflow)}
-                      />
-                      {intent.label}
-                    </label>
-                  {/each}
-                </div>
-              </fieldset>
-            {:else}
-              <fieldset class="grid gap-3">
-                <legend class="text-xs font-semibold">Creative intent</legend>
-                {#each modeGroups as group (group.key)}
-                  <div class="grid gap-1.5" role="group" aria-label={group.label}>
-                    <div class="flex flex-wrap items-baseline gap-x-2">
-                      <p class="eyebrow-label">{group.label}</p>
-                      <p class="text-[0.6875rem] text-muted-foreground">{group.description}</p>
-                    </div>
-                    <div class="grid gap-1 rounded-[var(--radius)] bg-muted p-1">
-                      {#each group.modes as mode (mode.workflow)}
-                        {@const active = selectedEntry.workflow === mode.workflow}
-                        <label
-                          class="focus-within:ring-2 focus-within:ring-ring flex min-h-10 cursor-pointer items-center justify-between gap-2 rounded px-2 text-xs font-semibold"
-                          class:bg-background={active}
-                          class:shadow-[var(--shadow-xs)]={active}
-                        >
-                          <input
-                            class="sr-only"
-                            type="radio"
-                            name={`${data.modality}-${surface}-creative-intent`}
-                            value={mode.workflow}
-                            checked={active}
-                            onchange={() => switchWorkflow(mode.workflow)}
-                          />
-                          <span class="min-w-0 truncate">{mode.label}</span>
-                          <span
-                            class="shrink-0 font-mono text-[0.625rem] font-normal text-muted-foreground"
-                            >{mode.tag}</span
-                          >
-                        </label>
-                      {/each}
-                    </div>
-                  </div>
-                {/each}
-              </fieldset>
-            {/if}
-            <ModelPicker
-              entries={modelEntries}
-              selectedKey={entryKey}
-              {favorites}
-              onchange={switchEntry}
+        <p class="eyebrow-label">Essential</p>
+        <div class="mt-1 flex items-center justify-between gap-3">
+          <h2
+            id={`${data.modality}-${surface}-workflow-heading`}
+            class="text-base font-semibold tracking-tight"
+          >
+            Workflow and model
+          </h2>
+          <button
+            type="button"
+            class="focus-ring grid size-8 place-items-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label={favorites.includes(entryKey)
+              ? 'Remove model from favorites'
+              : 'Add model to favorites'}
+            aria-pressed={favorites.includes(entryKey)}
+            onclick={toggleFavorite}
+          >
+            <AppIcon
+              name="heart"
+              size={17}
+              class={favorites.includes(entryKey) ? 'text-primary' : ''}
             />
-          </div>
-          <p class="mt-3 font-mono text-[0.6875rem] text-muted-foreground">{selectedEntry.publicModelId}</p>
-          {#if selectedEntry.limitations.length}
-            <details class="mt-3 text-xs leading-5 text-muted-foreground">
-              <summary class="focus-ring w-fit cursor-pointer rounded font-semibold text-foreground">Verified note for this model</summary>
-              <p class="mt-1.5">{selectedEntry.limitations[0]}</p>
-            </details>
-          {/if}
-          {#if setupFields.length}
-            <div class="mt-5 grid gap-4">
-              {#each setupFields as field (field.key)}
-                {#if isAutomaticField(field)}
-                  {#if field.key === 'aspectRatio'}
-                    <AspectRatioField
-                      {field}
-                      value={guided[field.key]}
-                      automatic={automaticFields[field.key]}
-                      automaticChoice={automaticFieldChoice(selectedEntry, field.key, roleInputs)}
-                      onchange={updateChoice}
-                    />
-                  {:else}
-                    <ChoiceField
-                      {field}
-                      value={guided[field.key]}
-                      automatic={automaticFields[field.key]}
-                      automaticChoice={automaticFieldChoice(selectedEntry, field.key, roleInputs)}
-                      onchange={updateChoice}
-                    />
-                  {/if}
-                {:else}
-                  <FieldControl {field} value={guided[field.key]} onchange={updateGuided} />
-                {/if}
-              {/each}
-            </div>
-          {/if}
-      </div>
-
-      <div
-        id={inspectorPanelId(surface, 'prompt')}
-        role="tabpanel"
-        aria-labelledby={inspectorTabId(surface, 'prompt')}
-        tabindex="0"
-        hidden={activeInspectorSection !== 'prompt'}
-      >
-          <p class="eyebrow-label">Essential</p>
-          <h2
-            id={`${data.modality}-${surface}-prompt-heading`}
-            class="mt-1 text-sm font-semibold"
-          >Prompt</h2>
-          {#if promptFields.length}
-            <div class="mt-3 grid gap-4">
-              {#each promptFields as field (field.key)}
-                <FieldControl {field} value={guided[field.key]} onchange={updateGuided} />
-              {/each}
-            </div>
-          {:else}
-            <p class="mt-2 text-sm leading-6 text-muted-foreground">This workflow is controlled by its media roles and does not accept a prompt.</p>
-          {/if}
-      </div>
-
-      <div
-        id={inspectorPanelId(surface, 'inputs')}
-        role="tabpanel"
-        aria-labelledby={inspectorTabId(surface, 'inputs')}
-        tabindex="0"
-        hidden={activeInspectorSection !== 'inputs'}
-      >
-          <p class="eyebrow-label">Essential</p>
-          <div class="mt-1 grid gap-1.5">
-            <div class="flex items-center justify-between gap-3">
-              <h2
-                id={`${data.modality}-${surface}-inputs-heading`}
-                class="text-sm font-semibold"
-              >Required media</h2>
-              {#if selectedEntry.inputRoles.length && selectedMediaKinds.length}
-                <details class="min-w-0 text-[0.6875rem] text-muted-foreground">
-                  <summary class="focus-ring w-fit cursor-pointer rounded font-semibold text-foreground">
-                    Details
-                  </summary>
-                  <ul class="mt-2 grid min-w-56 list-none gap-2 rounded bg-muted/70 p-2.5">
-                    {#each selectedRelevantTools as tool (tool.name)}
-                      <li class="grid gap-1">
-                        <span class="flex flex-wrap items-baseline justify-between gap-x-3">
-                          <strong class="text-foreground">{tool.label}</strong>
-                          <span class="tabular-nums">{studioToolStatus(tool)}</span>
-                        </span>
-                        {#if tool.status !== 'ready'}
-                          <span class="text-foreground">{studioToolIssue(tool)}</span>
-                        {/if}
-                      </li>
-                    {/each}
-                  </ul>
-                </details>
-              {/if}
-            </div>
-            {#if selectedEntry.inputRoles.length && selectedMediaKinds.length}
-              <div
-                class="flex min-w-0 flex-wrap items-start gap-x-2.5 gap-y-1 text-[0.6875rem] leading-4"
-                role="group" aria-label="Media cleanup status"
-              >
-                <AppIcon
-                  name="shield"
-                  size={14}
-                  class={data.sanitizeLocalMedia && selectedMediaKinds.every(mediaKindReady)
-                    ? 'shrink-0 text-success'
-                    : 'shrink-0 text-muted-foreground'}
-                />
-                {#if data.sanitizeLocalMedia}
-                  {#each selectedMediaKinds as mediaKind (mediaKind)}
-                    <span class="inline-flex min-w-0 items-center gap-1.5">
-                      <span
-                        class="size-1.5 shrink-0 rounded-full {mediaKindReady(mediaKind)
-                          ? 'bg-success'
-                          : 'bg-warning'}"
-                        aria-hidden="true"
-                      ></span>
-                      <span>
-                        <strong>{mediaKind === 'image' ? 'Image' : 'Video'} cleanup</strong> · {mediaKindReady(
-                          mediaKind
-                        )
-                          ? 'Ready'
-                          : 'Optional tools unavailable — upload continues without cleanup'}
-                      </span>
-                    </span>
-                  {/each}
-                {:else}
-                  <span><strong>Media cleanup</strong> · Off</span>
-                {/if}
-              </div>
-            {/if}
-          </div>
-          {#if selectedEntry.inputRoles.length}
-            <div class="mt-3 grid gap-4">
-              {#each selectedEntry.inputRoles as role (role.role)}
-                <div class="rounded-[var(--radius)] bg-muted px-3 py-3">
-                  <div class="flex items-start justify-between gap-3">
-                    <div>
-                      <p class="text-sm font-semibold">{roleLabel(role.role)}{role.required ? ' *' : ''}</p>
-                      <p class="mt-0.5 text-xs text-muted-foreground">
-                        {role.mediaKind} · {role.formats.join(', ')} · {role.max === null ? `${role.min}+` : `${role.min}–${role.max}`}
-                      </p>
-                    </div>
-                    <Badge tone={role.required ? 'info' : 'neutral'}>{role.required ? 'Required' : 'Optional'}</Badge>
-                  </div>
-                  {#if (roleInputs[role.role] ?? []).length}
-                    <ul class="mt-3 grid list-none gap-2 p-0">
-                      {#each roleInputs[role.role] ?? [] as input, index (input.id)}
-                        <li class="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 rounded bg-background px-2.5 py-2 text-xs">
-                          <span class="grid size-5 shrink-0 place-items-center rounded bg-stage text-stage-foreground">{index + 1}</span>
-                          <span class="min-w-0 flex-1">
-                            <span class="block truncate">{input.name}</span>
-                            {#if input.width && input.height}
-                              <span class="mt-0.5 block text-[0.6875rem] text-muted-foreground">
-                                {mediaMetadataLabel({ width: input.width, height: input.height, ...(input.durationSeconds === undefined ? {} : { durationSeconds: input.durationSeconds }) })}
-                              </span>
-                            {:else if input.metadataProbe === 'unavailable'}
-                              <span class="mt-0.5 block text-[0.6875rem] leading-4 text-warning">Browser metadata unavailable; verify model dimensions and duration manually.</span>
-                            {/if}
-                          </span>
-                          <Badge tone={input.source === 'uploaded' ? 'success' : 'neutral'}>{input.source}</Badge>
-                          <button type="button" class="focus-ring rounded px-1 text-muted-foreground hover:text-destructive" aria-label={`Remove ${input.name}`} onclick={() => removeRoleInput(role.role, input.id)}>Remove</button>
-                          {@render sanitizationReceipt(sanitizationReceipts[input.id])}
-                        </li>
-                      {/each}
-                    </ul>
-                  {/if}
-                  <div class="mt-3 grid gap-2">
-                    {#if role.mediaKind !== 'audio'}
-                      <label
-                        class="focus-ring flex min-h-9 items-center justify-center gap-2 rounded-[var(--radius)] border border-border bg-background px-3 text-xs font-semibold shadow-[var(--shadow-xs)] {uploadingRole !== null || !hasApiKey
-                          ? 'cursor-not-allowed opacity-50'
-                          : 'cursor-pointer hover:bg-muted'}"
-                      >
-                        <AppIcon name="upload" size={15} />
-                        {uploadingRole === role.role ? 'Uploading…' : 'Add local file'}
-                        <input
-                          class="sr-only"
-                          type="file"
-                          accept={mediaAccept(role)}
-                          multiple={role.max !== 1}
-                          disabled={uploadingRole !== null || !hasApiKey}
-                          onchange={(event) => void uploadFiles(role.role, event.currentTarget.files)}
-                        />
-                      </label>
-                      {#if !hasApiKey}<p class="text-xs text-muted-foreground">Configure the API key before streaming a local source to Poyo.</p>{/if}
-                    {/if}
-                    <div class="flex gap-2">
-                      <label
-                        class="sr-only"
-                        for={`${entryKey}-${surface}-${role.role}-url`}
-                      >{roleLabel(role.role)} remote URL</label>
-                      <input
-                        id={`${entryKey}-${surface}-${role.role}-url`}
-                        type="url"
-                        class="focus-ring h-9 min-w-0 flex-1 rounded-[var(--radius)] border border-input bg-background px-2.5 text-xs"
-                        placeholder="https://…"
-                        value={remoteDrafts[role.role] ?? ''}
-                        oninput={(event) => (remoteDrafts[role.role] = event.currentTarget.value)}
-                      />
-                      <button type="button" class="focus-ring min-h-9 rounded-[var(--radius)] border border-border bg-background px-2.5 text-xs font-semibold" onclick={() => addRemote(role.role)}>Add URL</button>
-                    </div>
-                  </div>
-                  {#if uploadProgress[role.role]}
-                    <div
-                      class="mt-2 rounded bg-background px-2.5 py-2"
-                      role={uploadProgress[role.role]?.phase === 'complete' ? undefined : 'status'}
-                      aria-live={uploadProgress[role.role]?.phase === 'complete' ? undefined : 'polite'}
+          </button>
+        </div>
+        <div class="mt-4 grid gap-4">
+          {#if data.modality === 'image'}
+            <fieldset class="grid gap-2">
+              <legend class="text-xs font-semibold">Creative intent</legend>
+              <div class="grid grid-cols-2 gap-1 rounded-[var(--radius)] bg-muted p-1">
+                {#each [
+                  { workflow: 'text-to-image', label: 'Text to image' },
+                  { workflow: 'image-edit', label: 'Edit image' }
+                ] as intent (intent.workflow)}
+                  <label
+                    class="focus-within:ring-2 focus-within:ring-ring flex min-h-10 cursor-pointer items-center justify-center rounded px-2 text-center text-xs font-semibold"
+                    class:bg-background={intent.workflow === 'text-to-image'
+                      ? selectedEntry.workflow === 'text-to-image'
+                      : selectedEntry.workflow !== 'text-to-image'}
+                    class:shadow-[var(--shadow-xs)]={intent.workflow === 'text-to-image'
+                      ? selectedEntry.workflow === 'text-to-image'
+                      : selectedEntry.workflow !== 'text-to-image'}
+                  >
+                    <input
+                      class="sr-only"
+                      type="radio"
+                      name={`${data.modality}-${surface}-creative-intent`}
+                      value={intent.workflow}
+                      checked={intent.workflow === 'text-to-image'
+                        ? selectedEntry.workflow === 'text-to-image'
+                        : selectedEntry.workflow !== 'text-to-image'}
+                      onchange={() => switchWorkflow(intent.workflow)}
                     >
-                      <div class="flex items-center justify-between gap-3 text-[0.6875rem] font-semibold">
-                        <span>Local browser upload</span>
-                        {#if uploadProgress[role.role]?.percent !== null}<span>{uploadProgress[role.role]?.percent}%</span>{/if}
-                      </div>
-                      {#if uploadProgress[role.role]?.percent !== null}
-                        <progress class="mt-1.5 h-1.5 w-full accent-primary" max="100" value={uploadProgress[role.role]?.percent ?? 0}>{uploadProgress[role.role]?.percent}%</progress>
-                      {/if}
-                      <p class="mt-1 text-[0.6875rem] leading-4 text-muted-foreground">{uploadProgress[role.role]?.message}</p>
-                    </div>
-                  {/if}
-                  {#if uploadError[role.role]}<p class="mt-2 text-xs leading-5 text-destructive" role="alert">{uploadError[role.role]}</p>{/if}
-                </div>
-              {/each}
-            </div>
-            <p class="mt-3 text-xs leading-5 text-muted-foreground">Dimensions and duration are measured by this browser when its media decoder supports the file. The server independently rechecks bytes, type and signature, but cannot probe visual metadata before Poyo upload.</p>
-          {:else}
-            <p class="mt-2 text-sm text-muted-foreground">No source media is required for this workflow.</p>
-          {/if}
-      </div>
-
-      <div
-        id={inspectorPanelId(surface, 'output')}
-        role="tabpanel"
-        aria-labelledby={inspectorTabId(surface, 'output')}
-        tabindex="0"
-        hidden={activeInspectorSection !== 'output'}
-      >
-          <p class="eyebrow-label">Common</p>
-          <h2
-            id={`${data.modality}-${surface}-output-heading`}
-            class="mt-1 text-sm font-semibold"
-          >Output and common options</h2>
-          {#if availableSizeModes.length > 1}
-            <fieldset class="mt-3">
-              <legend class="text-xs font-semibold">Size mode</legend>
-              <div class="mt-2 grid grid-cols-2 gap-1 rounded-[var(--radius)] bg-muted p-1">
-                {#each availableSizeModes as mode (mode)}
-                  <label class="focus-within:ring-2 focus-within:ring-ring flex min-h-8 cursor-pointer items-center justify-center rounded px-2 text-xs font-semibold" class:bg-background={sizeMode === mode} class:shadow-[var(--shadow-xs)]={sizeMode === mode}>
-                    <input class="sr-only" type="radio" name={`${entryKey}-${surface}-size-mode`} value={mode} checked={sizeMode === mode} onchange={() => chooseSizeMode(mode)} />
-                    {mode === 'aspect-ratio' ? 'Aspect ratio' : mode[0]?.toUpperCase() + mode.slice(1)}
+                    {intent.label}
                   </label>
                 {/each}
               </div>
             </fieldset>
+          {:else}
+            <fieldset class="grid gap-3">
+              <legend class="text-xs font-semibold">Creative intent</legend>
+              {#each modeGroups as group (group.key)}
+                <div class="grid gap-1.5" role="group" aria-label={group.label}>
+                  <div class="flex flex-wrap items-baseline gap-x-2">
+                    <p class="eyebrow-label">{group.label}</p>
+                    <p class="text-[0.6875rem] text-muted-foreground">{group.description}</p>
+                  </div>
+                  <div class="grid gap-1 rounded-[var(--radius)] bg-muted p-1">
+                    {#each group.modes as mode (mode.workflow)}
+                      {@const active = selectedEntry.workflow === mode.workflow}
+                      <label
+                        class="focus-within:ring-2 focus-within:ring-ring flex min-h-10 cursor-pointer items-center justify-between gap-2 rounded px-2 text-xs font-semibold"
+                        class:bg-background={active}
+                        class:shadow-[var(--shadow-xs)]={active}
+                      >
+                        <input
+                          class="sr-only"
+                          type="radio"
+                          name={`${data.modality}-${surface}-creative-intent`}
+                          value={mode.workflow}
+                          checked={active}
+                          onchange={() => switchWorkflow(mode.workflow)}
+                        >
+                        <span class="min-w-0 truncate">{mode.label}</span>
+                        <span
+                          class="shrink-0 font-mono text-[0.625rem] font-normal text-muted-foreground"
+                          >{mode.tag}</span
+                        >
+                      </label>
+                    {/each}
+                  </div>
+                </div>
+              {/each}
+            </fieldset>
           {/if}
-          <div class="mt-4 grid gap-4">
-            {#each commonFields as field (field.key)}
+          <ModelPicker
+            entries={modelEntries}
+            selectedKey={entryKey}
+            {favorites}
+            onchange={switchEntry}
+          />
+        </div>
+        <p class="mt-3 font-mono text-[0.6875rem] text-muted-foreground">
+          {selectedEntry.publicModelId}
+        </p>
+        {#if selectedEntry.limitations.length}
+          <details class="mt-3 text-xs leading-5 text-muted-foreground">
+            <summary class="focus-ring w-fit cursor-pointer rounded font-semibold text-foreground">
+              Verified note for this model
+            </summary>
+            <p class="mt-1.5">{selectedEntry.limitations[0]}</p>
+          </details>
+        {/if}
+        {#if setupFields.length}
+          <div class="mt-5 grid gap-4">
+            {#each setupFields as field (field.key)}
               {#if isAutomaticField(field)}
                 {#if field.key === 'aspectRatio'}
                   <AspectRatioField
@@ -2299,17 +2069,346 @@ onMount(() => {
                   />
                 {/if}
               {:else}
-                <FieldControl {field} value={field.key === 'dimensions' ? { width: guided.width, height: guided.height } : guided[field.key]} onchange={updateGuided} />
+                <FieldControl {field} value={guided[field.key]} onchange={updateGuided} />
               {/if}
             {/each}
-            {#each dimensionFields as field (field.key)}
-              <FieldControl
-                {field}
-                value={{ width: guided.width, height: guided.height }}
-                onchange={updateGuided}
-              />
+          </div>
+        {/if}
+      </div>
+
+      <div
+        id={inspectorPanelId(surface, 'prompt')}
+        role="tabpanel"
+        aria-labelledby={inspectorTabId(surface, 'prompt')}
+        tabindex="0"
+        hidden={activeInspectorSection !== 'prompt'}
+      >
+        <p class="eyebrow-label">Essential</p>
+        <h2 id={`${data.modality}-${surface}-prompt-heading`} class="mt-1 text-sm font-semibold">
+          Prompt
+        </h2>
+        {#if promptFields.length}
+          <div class="mt-3 grid gap-4">
+            {#each promptFields as field (field.key)}
+              <FieldControl {field} value={guided[field.key]} onchange={updateGuided} />
             {/each}
           </div>
+        {:else}
+          <p class="mt-2 text-sm leading-6 text-muted-foreground">
+            This workflow is controlled by its media roles and does not accept a prompt.
+          </p>
+        {/if}
+      </div>
+
+      <div
+        id={inspectorPanelId(surface, 'inputs')}
+        role="tabpanel"
+        aria-labelledby={inspectorTabId(surface, 'inputs')}
+        tabindex="0"
+        hidden={activeInspectorSection !== 'inputs'}
+      >
+        <p class="eyebrow-label">Essential</p>
+        <div class="mt-1 grid gap-1.5">
+          <div class="flex items-center justify-between gap-3">
+            <h2 id={`${data.modality}-${surface}-inputs-heading`} class="text-sm font-semibold">
+              Required media
+            </h2>
+            {#if selectedEntry.inputRoles.length && selectedMediaKinds.length}
+              <details class="min-w-0 text-[0.6875rem] text-muted-foreground">
+                <summary
+                  class="focus-ring w-fit cursor-pointer rounded font-semibold text-foreground"
+                >
+                  Details
+                </summary>
+                <ul class="mt-2 grid min-w-56 list-none gap-2 rounded bg-muted/70 p-2.5">
+                  {#each selectedRelevantTools as tool (tool.name)}
+                    <li class="grid gap-1">
+                      <span class="flex flex-wrap items-baseline justify-between gap-x-3">
+                        <strong class="text-foreground">{tool.label}</strong>
+                        <span class="tabular-nums">{studioToolStatus(tool)}</span>
+                      </span>
+                      {#if tool.status !== 'ready'}
+                        <span class="text-foreground">{studioToolIssue(tool)}</span>
+                      {/if}
+                    </li>
+                  {/each}
+                </ul>
+              </details>
+            {/if}
+          </div>
+          {#if selectedEntry.inputRoles.length && selectedMediaKinds.length}
+            <div
+              class="flex min-w-0 flex-wrap items-start gap-x-2.5 gap-y-1 text-[0.6875rem] leading-4"
+              role="group"
+              aria-label="Media cleanup status"
+            >
+              <AppIcon
+                name="shield"
+                size={14}
+                class={data.sanitizeLocalMedia && selectedMediaKinds.every(mediaKindReady)
+                  ? 'shrink-0 text-success'
+                  : 'shrink-0 text-muted-foreground'}
+              />
+              {#if data.sanitizeLocalMedia}
+                {#each selectedMediaKinds as mediaKind (mediaKind)}
+                  <span class="inline-flex min-w-0 items-center gap-1.5">
+                    <span
+                      class="size-1.5 shrink-0 rounded-full {mediaKindReady(mediaKind)
+                        ? 'bg-success'
+                        : 'bg-warning'}"
+                      aria-hidden="true"
+                    ></span>
+                    <span>
+                      <strong>{mediaKind === 'image' ? 'Image' : 'Video'} cleanup</strong>
+                      ·
+                      {mediaKindReady(mediaKind)
+                        ? 'Ready'
+                        : 'Optional tools unavailable — upload continues without cleanup'}
+                    </span>
+                  </span>
+                {/each}
+              {:else}
+                <span><strong>Media cleanup</strong> · Off</span>
+              {/if}
+            </div>
+          {/if}
+        </div>
+        {#if selectedEntry.inputRoles.length}
+          <div class="mt-3 grid gap-4">
+            {#each selectedEntry.inputRoles as role (role.role)}
+              <div class="rounded-[var(--radius)] bg-muted px-3 py-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <p class="text-sm font-semibold">
+                      {roleLabel(role.role)}{role.required ? ' *' : ''}
+                    </p>
+                    <p class="mt-0.5 text-xs text-muted-foreground">
+                      {role.mediaKind}
+                      · {role.formats.join(', ')} ·
+                      {role.max === null ? `${role.min}+` : `${role.min}–${role.max}`}
+                    </p>
+                  </div>
+                  <Badge tone={role.required ? 'info' : 'neutral'}
+                    >{role.required ? 'Required' : 'Optional'}</Badge
+                  >
+                </div>
+                {#if (roleInputs[role.role] ?? []).length}
+                  <ul class="mt-3 grid list-none gap-2 p-0">
+                    {#each roleInputs[role.role] ?? [] as input, index (input.id)}
+                      <li
+                        class="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 rounded bg-background px-2.5 py-2 text-xs"
+                      >
+                        <span
+                          class="grid size-5 shrink-0 place-items-center rounded bg-stage text-stage-foreground"
+                          >{index + 1}</span
+                        >
+                        <span class="min-w-0 flex-1">
+                          <span class="block truncate">{input.name}</span>
+                          {#if input.width && input.height}
+                            <span class="mt-0.5 block text-[0.6875rem] text-muted-foreground">
+                              {mediaMetadataLabel({
+                                width: input.width,
+                                height: input.height,
+                                ...(input.durationSeconds === undefined
+                                  ? {}
+                                  : { durationSeconds: input.durationSeconds })
+                              })}
+                            </span>
+                          {:else if input.metadataProbe === 'unavailable'}
+                            <span class="mt-0.5 block text-[0.6875rem] leading-4 text-warning"
+                              >Browser metadata unavailable; verify model dimensions and duration
+                              manually.</span
+                            >
+                          {/if}
+                        </span>
+                        <Badge tone={input.source === 'uploaded' ? 'success' : 'neutral'}
+                          >{input.source}</Badge
+                        >
+                        <button
+                          type="button"
+                          class="focus-ring rounded px-1 text-muted-foreground hover:text-destructive"
+                          aria-label={`Remove ${input.name}`}
+                          onclick={() => removeRoleInput(role.role, input.id)}
+                        >
+                          Remove
+                        </button>
+                        {@render sanitizationReceipt(sanitizationReceipts[input.id])}
+                      </li>
+                    {/each}
+                  </ul>
+                {/if}
+                <div class="mt-3 grid gap-2">
+                  {#if role.mediaKind !== 'audio'}
+                    <label
+                      class="focus-ring flex min-h-9 items-center justify-center gap-2 rounded-[var(--radius)] border border-border bg-background px-3 text-xs font-semibold shadow-[var(--shadow-xs)] {uploadingRole !==
+                        null || !hasApiKey
+                        ? 'cursor-not-allowed opacity-50'
+                        : 'cursor-pointer hover:bg-muted'}"
+                    >
+                      <AppIcon name="upload" size={15} />
+                      {uploadingRole === role.role ? 'Uploading…' : 'Add local file'}
+                      <input
+                        class="sr-only"
+                        type="file"
+                        accept={mediaAccept(role)}
+                        multiple={role.max !== 1}
+                        disabled={uploadingRole !== null || !hasApiKey}
+                        onchange={(event) => void uploadFiles(role.role, event.currentTarget.files)}
+                      >
+                    </label>
+                    {#if !hasApiKey}
+                      <p class="text-xs text-muted-foreground">
+                        Configure the API key before streaming a local source to Poyo.
+                      </p>
+                    {/if}
+                  {/if}
+                  <div class="flex gap-2">
+                    <label class="sr-only" for={`${entryKey}-${surface}-${role.role}-url`}
+                      >{roleLabel(role.role)}
+                      remote URL</label
+                    >
+                    <input
+                      id={`${entryKey}-${surface}-${role.role}-url`}
+                      type="url"
+                      class="focus-ring h-9 min-w-0 flex-1 rounded-[var(--radius)] border border-input bg-background px-2.5 text-xs"
+                      placeholder="https://…"
+                      value={remoteDrafts[role.role] ?? ''}
+                      oninput={(event) => (remoteDrafts[role.role] = event.currentTarget.value)}
+                    >
+                    <button
+                      type="button"
+                      class="focus-ring min-h-9 rounded-[var(--radius)] border border-border bg-background px-2.5 text-xs font-semibold"
+                      onclick={() => addRemote(role.role)}
+                    >
+                      Add URL
+                    </button>
+                  </div>
+                </div>
+                {#if uploadProgress[role.role]}
+                  <div
+                    class="mt-2 rounded bg-background px-2.5 py-2"
+                    role={uploadProgress[role.role]?.phase === 'complete' ? undefined : 'status'}
+                    aria-live={uploadProgress[role.role]?.phase === 'complete'
+                      ? undefined
+                      : 'polite'}
+                  >
+                    <div
+                      class="flex items-center justify-between gap-3 text-[0.6875rem] font-semibold"
+                    >
+                      <span>Local browser upload</span>
+                      {#if uploadProgress[role.role]?.percent !== null}
+                        <span>{uploadProgress[role.role]?.percent}%</span>
+                      {/if}
+                    </div>
+                    {#if uploadProgress[role.role]?.percent !== null}
+                      <progress
+                        class="mt-1.5 h-1.5 w-full accent-primary"
+                        max="100"
+                        value={uploadProgress[role.role]?.percent ?? 0}
+                      >
+                        {uploadProgress[role.role]?.percent}%
+                      </progress>
+                    {/if}
+                    <p class="mt-1 text-[0.6875rem] leading-4 text-muted-foreground">
+                      {uploadProgress[role.role]?.message}
+                    </p>
+                  </div>
+                {/if}
+                {#if uploadError[role.role]}
+                  <p class="mt-2 text-xs leading-5 text-destructive" role="alert">
+                    {uploadError[role.role]}
+                  </p>
+                {/if}
+              </div>
+            {/each}
+          </div>
+          <p class="mt-3 text-xs leading-5 text-muted-foreground">
+            Dimensions and duration are measured by this browser when its media decoder supports the
+            file. The server independently rechecks bytes, type and signature, but cannot probe
+            visual metadata before Poyo upload.
+          </p>
+        {:else}
+          <p class="mt-2 text-sm text-muted-foreground">
+            No source media is required for this workflow.
+          </p>
+        {/if}
+      </div>
+
+      <div
+        id={inspectorPanelId(surface, 'output')}
+        role="tabpanel"
+        aria-labelledby={inspectorTabId(surface, 'output')}
+        tabindex="0"
+        hidden={activeInspectorSection !== 'output'}
+      >
+        <p class="eyebrow-label">Common</p>
+        <h2 id={`${data.modality}-${surface}-output-heading`} class="mt-1 text-sm font-semibold">
+          Output and common options
+        </h2>
+        {#if availableSizeModes.length > 1}
+          <fieldset class="mt-3">
+            <legend class="text-xs font-semibold">Size mode</legend>
+            <div class="mt-2 grid grid-cols-2 gap-1 rounded-[var(--radius)] bg-muted p-1">
+              {#each availableSizeModes as mode (mode)}
+                <label
+                  class="focus-within:ring-2 focus-within:ring-ring flex min-h-8 cursor-pointer items-center justify-center rounded px-2 text-xs font-semibold"
+                  class:bg-background={sizeMode === mode}
+                  class:shadow-[var(--shadow-xs)]={sizeMode === mode}
+                >
+                  <input
+                    class="sr-only"
+                    type="radio"
+                    name={`${entryKey}-${surface}-size-mode`}
+                    value={mode}
+                    checked={sizeMode === mode}
+                    onchange={() => chooseSizeMode(mode)}
+                  >
+                  {mode === 'aspect-ratio'
+                    ? 'Aspect ratio'
+                    : mode[0]?.toUpperCase() + mode.slice(1)}
+                </label>
+              {/each}
+            </div>
+          </fieldset>
+        {/if}
+        <div class="mt-4 grid gap-4">
+          {#each commonFields as field (field.key)}
+            {#if isAutomaticField(field)}
+              {#if field.key === 'aspectRatio'}
+                <AspectRatioField
+                  {field}
+                  value={guided[field.key]}
+                  automatic={automaticFields[field.key]}
+                  automaticChoice={automaticFieldChoice(selectedEntry, field.key, roleInputs)}
+                  onchange={updateChoice}
+                />
+              {:else}
+                <ChoiceField
+                  {field}
+                  value={guided[field.key]}
+                  automatic={automaticFields[field.key]}
+                  automaticChoice={automaticFieldChoice(selectedEntry, field.key, roleInputs)}
+                  onchange={updateChoice}
+                />
+              {/if}
+            {:else}
+              <FieldControl
+                {field}
+                value={field.key === 'dimensions'
+                  ? { width: guided.width, height: guided.height }
+                  : guided[field.key]}
+                onchange={updateGuided}
+              />
+            {/if}
+          {/each}
+          {#each dimensionFields as field (field.key)}
+            <FieldControl
+              {field}
+              value={{ width: guided.width, height: guided.height }}
+              onchange={updateGuided}
+            />
+          {/each}
+        </div>
       </div>
 
       <div
@@ -2319,58 +2418,78 @@ onMount(() => {
         tabindex="0"
         hidden={activeInspectorSection !== 'review'}
       >
-          <p class="eyebrow-label">Review</p>
-          <h2
-            id={`${data.modality}-${surface}-review-heading`}
-            class="mt-1 text-sm font-semibold"
-          >Advanced and expert request</h2>
-          {#if reviewFields.length}
-            <details class="mt-3 border-y border-border py-3">
-              <summary class="focus-ring flex cursor-pointer items-center justify-between rounded text-sm font-semibold">
-                Advanced settings
-                <Badge tone={advancedChanged ? 'info' : 'neutral'}>{advancedChanged} changed</Badge>
-              </summary>
-              <div class="mt-4 grid gap-4">
-                {#each reviewFields as field (field.key)}
-                  <FieldControl {field} value={field.key === 'dimensions' ? { width: guided.width, height: guided.height } : guided[field.key]} onchange={updateGuided} />
-                {/each}
-              </div>
-            </details>
-          {/if}
+        <p class="eyebrow-label">Review</p>
+        <h2 id={`${data.modality}-${surface}-review-heading`} class="mt-1 text-sm font-semibold">
+          Advanced and expert request
+        </h2>
+        {#if reviewFields.length}
           <details class="mt-3 border-y border-border py-3">
-            <summary class="focus-ring cursor-pointer rounded text-sm font-semibold">Expert request</summary>
-            <p class="mt-3 text-xs leading-5 text-muted-foreground">Overrides are unverified, cannot replace guided or protected fields, and never include credentials or local media bodies.</p>
-            <label
-              for={`${data.modality}-${surface}-expert-json`}
-              class="mt-3 block text-xs font-semibold"
-            >Unverified override object</label>
-            <textarea
-              id={`${data.modality}-${surface}-expert-json`}
-              class="focus-ring mt-1.5 w-full rounded-[var(--radius)] border border-input bg-stage px-3 py-2 font-mono text-xs leading-5 text-stage-foreground"
-              rows="5"
-              placeholder={'{\n  "new_parameter": "value"\n}'}
-              value={expertText}
-              oninput={(event) => {
-                expertText = event.currentTarget.value;
-                previewRevision += 1;
-              }}
-            ></textarea>
-            {#if preview?.expertDiff.length}
-              <div class="mt-2 flex flex-wrap gap-1">
-                {#each preview.expertDiff as item (item.key)}<Badge tone="experimental">{item.key} · Unverified</Badge>{/each}
-              </div>
-            {/if}
-            <div class="mt-3">
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-xs font-semibold">Normalized payload</span>
-                <Badge tone={preview ? 'success' : 'neutral'}>{preview ? 'Validated' : 'Unavailable'}</Badge>
-              </div>
-              <pre class="mt-2 max-h-56 overflow-auto rounded-[var(--radius)] bg-stage p-3 text-left font-mono text-[0.6875rem] leading-5 text-stage-foreground">{preview ? JSON.stringify(preview.request, null, 2) : 'Fix validation issues to inspect the final request.'}</pre>
+            <summary
+              class="focus-ring flex cursor-pointer items-center justify-between rounded text-sm font-semibold"
+            >
+              Advanced settings
+              <Badge tone={advancedChanged ? 'info' : 'neutral'}>{advancedChanged} changed</Badge>
+            </summary>
+            <div class="mt-4 grid gap-4">
+              {#each reviewFields as field (field.key)}
+                <FieldControl
+                  {field}
+                  value={field.key === 'dimensions'
+                    ? { width: guided.width, height: guided.height }
+                    : guided[field.key]}
+                  onchange={updateGuided}
+                />
+              {/each}
             </div>
           </details>
+        {/if}
+        <details class="mt-3 border-y border-border py-3">
+          <summary class="focus-ring cursor-pointer rounded text-sm font-semibold">
+            Expert request
+          </summary>
+          <p class="mt-3 text-xs leading-5 text-muted-foreground">
+            Overrides are unverified, cannot replace guided or protected fields, and never include
+            credentials or local media bodies.
+          </p>
+          <label
+            for={`${data.modality}-${surface}-expert-json`}
+            class="mt-3 block text-xs font-semibold"
+            >Unverified override object</label
+          >
+          <textarea
+            id={`${data.modality}-${surface}-expert-json`}
+            class="focus-ring mt-1.5 w-full rounded-[var(--radius)] border border-input bg-stage px-3 py-2 font-mono text-xs leading-5 text-stage-foreground"
+            rows="5"
+            placeholder={'{\n  "new_parameter": "value"\n}'}
+            value={expertText}
+            oninput={(event) => {
+              expertText = event.currentTarget.value;
+              previewRevision += 1;
+            }}
+          ></textarea>
+          {#if preview?.expertDiff.length}
+            <div class="mt-2 flex flex-wrap gap-1">
+              {#each preview.expertDiff as item (item.key)}
+                <Badge tone="experimental">{item.key} · Unverified</Badge>
+              {/each}
+            </div>
+          {/if}
+          <div class="mt-3">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-semibold">Normalized payload</span>
+              <Badge tone={preview ? 'success' : 'neutral'}
+                >{preview ? 'Validated' : 'Unavailable'}</Badge
+              >
+            </div>
+            <pre
+              class="mt-2 max-h-56 overflow-auto rounded-[var(--radius)] bg-stage p-3 text-left font-mono text-[0.6875rem] leading-5 text-stage-foreground"
+            >{preview
+  ? JSON.stringify(preview.request, null, 2)
+  : 'Fix validation issues to inspect the final request.'}</pre>
+          </div>
+        </details>
       </div>
     </div>
-
   </div>
 {/snippet}
 
@@ -2379,20 +2498,43 @@ onMount(() => {
   data-inspector-collapsed={inspectorCollapsed ? 'true' : 'false'}
   style={`--studio-inspector-width: ${inspectorWidth}px`}
 >
-  <section class="min-w-0 px-3 py-4 sm:px-5 sm:py-5 xl:px-6" aria-labelledby={`${data.modality}-stage-heading`}>
-    <div class="mb-3 flex min-h-10 items-center justify-between gap-3 border-y border-border py-2 text-xs" role="group" aria-label="Generation lifecycle">
+  <section
+    class="min-w-0 px-3 py-4 sm:px-5 sm:py-5 xl:px-6"
+    aria-labelledby={`${data.modality}-stage-heading`}
+  >
+    <div
+      class="mb-3 flex min-h-10 items-center justify-between gap-3 border-y border-border py-2 text-xs"
+      role="group"
+      aria-label="Generation lifecycle"
+    >
       <div class="flex min-w-0 items-center gap-2">
         <Badge tone={activeJob ? 'info' : preview ? 'success' : 'neutral'}>
           <AppIcon name={activeJob ? 'activity' : preview ? 'success' : 'pending'} size={12} />
-          {submissionUnknown ? 'Outcome unknown' : activeJob ? activeJob.localPhase.replaceAll('_', ' ') : preview ? 'Ready' : 'Compose'}
+          {submissionUnknown
+            ? 'Outcome unknown'
+            : activeJob
+              ? activeJob.localPhase.replaceAll('_', ' ')
+              : preview
+                ? 'Ready'
+                : 'Compose'}
         </Badge>
         <span class="truncate text-muted-foreground">
-          {activeJob ? `${activeJob.remoteStatus.replaceAll('_', ' ')} · ${activeJob.publicModelId}` : studioModeLabel(selectedEntry.workflow)}
+          {activeJob
+            ? `${activeJob.remoteStatus.replaceAll('_', ' ')} · ${activeJob.publicModelId}`
+            : studioModeLabel(selectedEntry.workflow)}
         </span>
       </div>
       <div class="flex items-center gap-2">
-        <Badge tone={connection === 'connected' ? 'success' : 'warning'}>{connection === 'connected' ? 'Live updates connected' : 'Live updates reconnecting'}</Badge>
-        <button type="button" class="focus-ring hidden min-h-8 items-center gap-1.5 rounded px-2 text-xs font-semibold hover:bg-muted xl:inline-flex" onclick={() => (inspectorCollapsed = !inspectorCollapsed)}>
+        <Badge tone={connection === 'connected' ? 'success' : 'warning'}
+          >{connection === 'connected'
+            ? 'Live updates connected'
+            : 'Live updates reconnecting'}</Badge
+        >
+        <button
+          type="button"
+          class="focus-ring hidden min-h-8 items-center gap-1.5 rounded px-2 text-xs font-semibold hover:bg-muted xl:inline-flex"
+          onclick={() => (inspectorCollapsed = !inspectorCollapsed)}
+        >
           <AppIcon name={inspectorCollapsed ? 'panel-open' : 'panel-close'} size={15} />
           {inspectorCollapsed ? 'Show setup' : 'Hide setup'}
         </button>
@@ -2405,54 +2547,125 @@ onMount(() => {
         {@const current = shown[Math.min(selectedOutput, shown.length - 1)]}
         {#if current?.mediaUrl}
           <div class="flex w-full max-w-4xl flex-col items-center gap-4">
-            <h2 id={`${data.modality}-stage-heading`} class="sr-only">Generated {data.modality} result</h2>
+            <h2 id={`${data.modality}-stage-heading`} class="sr-only">
+              Generated {data.modality} result
+            </h2>
             <div class="relative">
               {#if current.mediaKind === 'video'}
                 <!-- svelte-ignore a11y_media_has_caption -->
-                <video src={current.mediaUrl} controls class="max-h-[68vh] max-w-full rounded-[var(--radius)] shadow-[var(--shadow-sm)]"></video>
+                <video
+                  src={current.mediaUrl}
+                  controls
+                  class="max-h-[68vh] max-w-full rounded-[var(--radius)] shadow-[var(--shadow-sm)]"
+                ></video>
               {:else}
-                <img src={current.mediaUrl} alt={`Generated ${data.modality} for ${resultJob.publicModelId}`} class="max-h-[68vh] w-auto max-w-full rounded-[var(--radius)] object-contain shadow-[var(--shadow-sm)]" />
+                <img
+                  src={current.mediaUrl}
+                  alt={`Generated ${data.modality} for ${resultJob.publicModelId}`}
+                  class="max-h-[68vh] w-auto max-w-full rounded-[var(--radius)] object-contain shadow-[var(--shadow-sm)]"
+                >
               {/if}
               {#if downloadRequests.get(current.outputId) ?? current.downloadCopyRequestedAt}
-                {@const copyRequestedAt = downloadRequests.get(current.outputId) ?? current.downloadCopyRequestedAt}
+                {@const copyRequestedAt =
+                  downloadRequests.get(current.outputId) ?? current.downloadCopyRequestedAt}
                 <span
                   class="absolute right-2 bottom-2 inline-flex size-7 items-center justify-center rounded-full border border-success/40 bg-background/90 text-success shadow-[var(--shadow-sm)]"
                   role="img"
                   aria-label={`Download copy requested ${dateTimeLabel(copyRequestedAt ?? '')}`}
                   title={`Download copy requested ${dateTimeLabel(copyRequestedAt ?? '')}`}
-                >✓<span class="sr-only">Download</span></span>
+                  >✓<span class="sr-only">Download</span></span
+                >
               {/if}
             </div>
             {#if shown.length > 1}
-              <div class="flex flex-wrap justify-center gap-2" role="group" aria-label="Generated outputs">
+              <div
+                class="flex flex-wrap justify-center gap-2"
+                role="group"
+                aria-label="Generated outputs"
+              >
                 {#each shown as output, index (output.outputId)}
-                  <button type="button" class="focus-ring size-14 overflow-hidden rounded border" class:border-primary={index === selectedOutput} class:border-stage-border={index !== selectedOutput} aria-label={`Show output ${index + 1} of ${shown.length}`} aria-pressed={index === selectedOutput} onclick={() => (selectedOutput = index)}>
+                  <button
+                    type="button"
+                    class="focus-ring size-14 overflow-hidden rounded border"
+                    class:border-primary={index === selectedOutput}
+                    class:border-stage-border={index !== selectedOutput}
+                    aria-label={`Show output ${index + 1} of ${shown.length}`}
+                    aria-pressed={index === selectedOutput}
+                    onclick={() => (selectedOutput = index)}
+                  >
                     {#if output.mediaKind === 'video'}
                       <!-- svelte-ignore a11y_media_has_caption -->
-                      <video src={output.mediaUrl ?? ''} muted class="size-full object-cover"></video>
+                      <video
+                        src={output.mediaUrl ?? ''}
+                        muted
+                        class="size-full object-cover"
+                      ></video>
                     {:else}
-                      <img src={output.mediaUrl ?? ''} alt="" class="size-full object-cover" />
+                      <img src={output.mediaUrl ?? ''} alt="" class="size-full object-cover">
                     {/if}
                   </button>
                 {/each}
               </div>
             {/if}
             <div class="flex flex-wrap items-center justify-center gap-2">
-              <LinkButton href={`/jobs?selected=${resultJob.id}`} target="_blank" rel="noopener noreferrer" variant="outline" class="border-stage-border bg-stage-elevated text-stage-foreground hover:bg-stage-border">View job</LinkButton>
-              <a href={current.mediaUrl} target="_blank" rel="noopener" class="focus-ring inline-flex min-h-9 items-center gap-2 rounded-[var(--radius)] border border-stage-border bg-stage-elevated px-3.5 text-sm font-semibold text-stage-foreground hover:bg-stage-border">Open</a>
-              <button type="button" onclick={() => requestStudioDownload(current)} disabled={downloadPending !== null} class="focus-ring inline-flex min-h-9 items-center gap-2 rounded-[var(--radius)] border border-stage-border bg-stage-elevated px-3.5 text-sm font-semibold text-stage-foreground hover:bg-stage-border">Download copy</button>
-              <Button variant="ghost" class="text-stage-muted hover:bg-stage-elevated hover:text-stage-foreground" onclick={dismissResultPreview}>Remix</Button>
+              <LinkButton
+                href={`/jobs?selected=${resultJob.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="outline"
+                class="border-stage-border bg-stage-elevated text-stage-foreground hover:bg-stage-border"
+                >View job</LinkButton
+              >
+              <a
+                href={current.mediaUrl}
+                target="_blank"
+                rel="noopener"
+                class="focus-ring inline-flex min-h-9 items-center gap-2 rounded-[var(--radius)] border border-stage-border bg-stage-elevated px-3.5 text-sm font-semibold text-stage-foreground hover:bg-stage-border"
+                >Open</a
+              >
+              <button
+                type="button"
+                onclick={() => requestStudioDownload(current)}
+                disabled={downloadPending !== null}
+                class="focus-ring inline-flex min-h-9 items-center gap-2 rounded-[var(--radius)] border border-stage-border bg-stage-elevated px-3.5 text-sm font-semibold text-stage-foreground hover:bg-stage-border"
+              >
+                Download copy
+              </button>
+              <Button
+                variant="ghost"
+                class="text-stage-muted hover:bg-stage-elevated hover:text-stage-foreground"
+                onclick={dismissResultPreview}
+                >Remix</Button
+              >
             </div>
-            <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">{downloadCopyFeedback}</p>
+            <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+              {downloadCopyFeedback}
+            </p>
           </div>
         {/if}
       {:else if activeJob}
         <div class="max-w-xl">
-          <div class="mx-auto grid size-12 place-items-center rounded-lg bg-stage-elevated text-stage-foreground">
-            <AppIcon name={activeJob.remoteStatus === 'failed' ? 'pending' : activeJob.localPhase === 'complete' ? 'success' : activeJob.failureDomain !== 'none' ? 'pending' : 'activity'} size={23} />
+          <div
+            class="mx-auto grid size-12 place-items-center rounded-lg bg-stage-elevated text-stage-foreground"
+          >
+            <AppIcon
+              name={activeJob.remoteStatus === 'failed'
+                ? 'pending'
+                : activeJob.localPhase === 'complete'
+                  ? 'success'
+                  : activeJob.failureDomain !== 'none'
+                    ? 'pending'
+                    : 'activity'}
+              size={23}
+            />
           </div>
-          <p class="mt-5 text-xs font-semibold tracking-[0.12em] text-stage-muted uppercase">{activeJob.publicModelId}</p>
-          <h2 id={`${data.modality}-stage-heading`} class="mt-2 text-xl font-semibold tracking-tight text-stage-foreground">
+          <p class="mt-5 text-xs font-semibold tracking-[0.12em] text-stage-muted uppercase">
+            {activeJob.publicModelId}
+          </p>
+          <h2
+            id={`${data.modality}-stage-heading`}
+            class="mt-2 text-xl font-semibold tracking-tight text-stage-foreground"
+          >
             {submissionUnknown
               ? 'Submission outcome needs reconciliation'
               : activeJob.attentionCode === 'ip_guard_blocked'
@@ -2461,17 +2674,17 @@ onMount(() => {
                   : activeJob.ipGuardReason === 'misconfigured'
                     ? 'IP guard settings invalid'
                     : 'Blocked by IP guard'
-              : activeJob.remoteStatus === 'failed'
-                ? 'Poyo generation failed'
-                : activeJob.localPhase === 'complete'
-                  ? 'Generation verified locally'
-                  : activeJob.localPhase === 'requires_attention'
-                    ? 'Job needs attention'
-                    : activeJob.localPhase === 'downloading'
-                      ? 'Downloading and verifying'
-                      : activeJob.remoteStatus === 'running'
-                        ? 'Poyo is generating'
-                        : 'Job submitted and persisted'}
+                : activeJob.remoteStatus === 'failed'
+                  ? 'Poyo generation failed'
+                  : activeJob.localPhase === 'complete'
+                    ? 'Generation verified locally'
+                    : activeJob.localPhase === 'requires_attention'
+                      ? 'Job needs attention'
+                      : activeJob.localPhase === 'downloading'
+                        ? 'Downloading and verifying'
+                        : activeJob.remoteStatus === 'running'
+                          ? 'Poyo is generating'
+                          : 'Job submitted and persisted'}
           </h2>
           <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-stage-muted">
             {submissionUnknown
@@ -2484,38 +2697,69 @@ onMount(() => {
                     : activeJob.ipGuardReason === 'misconfigured'
                       ? 'Poyo was not contacted because the saved IP guard settings are invalid. Disable or correct the guard in Settings, then create a new run.'
                       : 'Poyo was not contacted. Change networks or update the IP guard in Settings, then create a new run.'
-              : activeJob.remoteStatus === 'failed'
-                ? 'Poyo authoritatively reported that the remote generation failed. No local download was attempted.'
-                : activeJob.failureDomain === 'poll'
-                  ? `Status check delayed. Last successful check ${activeJob.lastPolledAt ?? 'is not available'}.`
-                  : activeJob.localPhase === 'complete'
-                    ? outputsError
+                : activeJob.remoteStatus === 'failed'
+                  ? 'Poyo authoritatively reported that the remote generation failed. No local download was attempted.'
+                  : activeJob.failureDomain === 'poll'
+                    ? `Status check delayed. Last successful check ${activeJob.lastPolledAt ?? 'is not available'}.`
+                    : activeJob.localPhase === 'complete'
                       ? outputsError
-                      : loadingOutputs
-                        ? 'Loading the generated media…'
-                        : 'The Poyo task finished and its downloaded outputs passed local verification.'
-                    : activeJob.localPhase === 'downloading'
-                      ? 'Poyo finished. The output is downloading and being verified locally before it appears here.'
-                      : `Real state: ${activeJob.localPhase.replaceAll('_', ' ')} · ${activeJob.remoteStatus.replaceAll('_', ' ')}.`}
+                        ? outputsError
+                        : loadingOutputs
+                          ? 'Loading the generated media…'
+                          : 'The Poyo task finished and its downloaded outputs passed local verification.'
+                      : activeJob.localPhase === 'downloading'
+                        ? 'Poyo finished. The output is downloading and being verified locally before it appears here.'
+                        : `Real state: ${activeJob.localPhase.replaceAll('_', ' ')} · ${activeJob.remoteStatus.replaceAll('_', ' ')}.`}
           </p>
           {#if activeJob.progress !== null}
             <div class="mx-auto mt-5 max-w-sm text-left">
-              <div class="flex justify-between text-xs text-stage-muted"><span>Reported Poyo progress</span><span>{activeJob.progress}%</span></div>
-              <progress class="mt-2 h-1.5 w-full accent-primary" value={activeJob.progress} max="100">{activeJob.progress}%</progress>
+              <div class="flex justify-between text-xs text-stage-muted">
+                <span>Reported Poyo progress</span><span>{activeJob.progress}%</span>
+              </div>
+              <progress
+                class="mt-2 h-1.5 w-full accent-primary"
+                value={activeJob.progress}
+                max="100"
+              >
+                {activeJob.progress}%
+              </progress>
             </div>
           {/if}
           <div class="mt-6 flex flex-wrap justify-center gap-2">
-            <LinkButton href={`/jobs?selected=${activeJob.id}`} target="_blank" rel="noopener noreferrer" variant="outline" class="border-stage-border bg-stage-elevated text-stage-foreground hover:bg-stage-border">View job details</LinkButton>
-            {#if activeJob.localPhase === 'complete'}<Button variant="ghost" class="text-stage-muted hover:bg-stage-elevated hover:text-stage-foreground" onclick={() => (activeJob = null)}>Remix settings</Button>{/if}
+            <LinkButton
+              href={`/jobs?selected=${activeJob.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="outline"
+              class="border-stage-border bg-stage-elevated text-stage-foreground hover:bg-stage-border"
+              >View job details</LinkButton
+            >
+            {#if activeJob.localPhase === 'complete'}
+              <Button
+                variant="ghost"
+                class="text-stage-muted hover:bg-stage-elevated hover:text-stage-foreground"
+                onclick={() => (activeJob = null)}
+                >Remix settings</Button
+              >
+            {/if}
           </div>
         </div>
       {:else}
         <div class="max-w-xl">
-          <div class="mx-auto grid size-12 place-items-center rounded-lg bg-stage-elevated text-stage-foreground">
+          <div
+            class="mx-auto grid size-12 place-items-center rounded-lg bg-stage-elevated text-stage-foreground"
+          >
             <AppIcon name={data.modality} size={23} />
           </div>
-          <p class="mt-5 text-xs font-semibold tracking-[0.12em] text-stage-muted uppercase">{selectedEntry.provider}</p>
-          <h2 id={`${data.modality}-stage-heading`} class="mt-2 text-xl font-semibold tracking-tight text-stage-foreground">{selectedEntry.displayName}</h2>
+          <p class="mt-5 text-xs font-semibold tracking-[0.12em] text-stage-muted uppercase">
+            {selectedEntry.provider}
+          </p>
+          <h2
+            id={`${data.modality}-stage-heading`}
+            class="mt-2 text-xl font-semibold tracking-tight text-stage-foreground"
+          >
+            {selectedEntry.displayName}
+          </h2>
           <p class="mx-auto mt-2 max-w-md font-serif text-base leading-7 text-stage-muted">
             {preview
               ? 'The guided request is valid. Review the exact normalized payload or generate when ready.'
@@ -2523,8 +2767,12 @@ onMount(() => {
           </p>
           <div class="mt-5 flex flex-wrap justify-center gap-2">
             <Badge tone="stage">{selectedEntry.status}</Badge>
-            <Badge tone="neutral">Verified {new Date(selectedEntry.provenance.verifiedAt).toLocaleDateString()}</Badge>
-            {#if selectedEntry.output.safetyChecker}<Badge tone="info">Safety checker: {guided.enableSafetyChecker ? 'On' : 'Off'}</Badge>{/if}
+            <Badge tone="neutral"
+              >Verified {new Date(selectedEntry.provenance.verifiedAt).toLocaleDateString()}</Badge
+            >
+            {#if selectedEntry.output.safetyChecker}
+              <Badge tone="info">Safety checker: {guided.enableSafetyChecker ? 'On' : 'Off'}</Badge>
+            {/if}
           </div>
         </div>
       {/if}
@@ -2571,7 +2819,9 @@ onMount(() => {
           >
             {#if currentEstimate?.availability === 'available' && currentEstimate.credits !== null}
               <strong class="font-semibold text-foreground">Estimated credits:</strong>
-              {creditsLabel(currentEstimate.credits)} · {estimateBasisLabel(currentEstimate)} · {estimateProvenanceLabel(currentEstimate)} · {currentEstimate.freshness}
+              {creditsLabel(currentEstimate.credits)}
+              · {estimateBasisLabel(currentEstimate)} · {estimateProvenanceLabel(currentEstimate)} ·
+              {currentEstimate.freshness}
             {:else}
               <strong class="font-semibold text-foreground">Estimated credits:</strong>
               unavailable · {preview ? 'generation remains enabled' : 'complete setup to generate'}
@@ -2580,7 +2830,8 @@ onMount(() => {
           {#if displayedTaskCharge}
             <span class="text-muted-foreground">
               <strong class="font-semibold text-foreground">Charged:</strong>
-              {creditsLabel(displayedTaskCharge.credits)} credits · Poyo task
+              {creditsLabel(displayedTaskCharge.credits)}
+              credits · Poyo task
             </span>
           {/if}
           <span class="text-muted-foreground">
@@ -2594,7 +2845,9 @@ onMount(() => {
               <span
                 class:text-warning={balanceStale}
                 title={`Balance as of ${new Date(balance.fetchedAt).toLocaleString()}`}
-              >{balance.credits} credits{balanceStale ? ' · stale' : ''}</span>
+                >{balance.credits}
+                credits{balanceStale ? ' · stale' : ''}</span
+              >
             {:else}
               <span class="text-muted-foreground">
                 {hasApiKey ? 'Balance unavailable' : 'API key required'}
@@ -2623,7 +2876,11 @@ onMount(() => {
           </p>
         {/if}
         {#if recoveryExhausted}
-          <div class="mt-2 flex flex-wrap gap-2" role="group" aria-label="Unresolved paid action recovery">
+          <div
+            class="mt-2 flex flex-wrap gap-2"
+            role="group"
+            aria-label="Unresolved paid action recovery"
+          >
             <Button variant="outline" size="sm" onclick={() => void reconcilePendingAction()}>
               Check action again
             </Button>
@@ -2674,14 +2931,32 @@ onMount(() => {
       </p>
     </section>
 
-    <div class="studio-mobile-setup mt-3 items-center justify-between gap-4 rounded-[var(--radius)] bg-muted px-4 py-3">
+    <div
+      class="studio-mobile-setup mt-3 items-center justify-between gap-4 rounded-[var(--radius)] bg-muted px-4 py-3"
+    >
       <div class="min-w-0">
         <p class="text-sm font-semibold">{selectedEntry.displayName}</p>
-        <p class="truncate text-xs text-muted-foreground">{studioModeLabel(selectedEntry.workflow)} · {preview ? 'valid' : 'needs review'}</p>
+        <p class="truncate text-xs text-muted-foreground">
+          {studioModeLabel(selectedEntry.workflow)}
+          · {preview ? 'valid' : 'needs review'}
+        </p>
       </div>
-      <Sheet bind:open={setupOpen} title={`${data.modality === 'image' ? 'Image' : 'Video'} setup`} description="Setup, prompt, inputs, output and review." side="right" triggerClass="focus-ring inline-flex min-h-9 shrink-0 items-center gap-2 rounded-[var(--radius)] border border-border bg-background px-3 text-sm font-semibold shadow-[var(--shadow-xs)] hover:bg-muted" contentClass="p-0" studioSheet>
-        {#snippet trigger()}<AppIcon name="filters" size={16} /> Edit setup{/snippet}
-        <div id="parameter-inspector-mobile" class="min-h-[calc(100dvh-5rem)]">{@render inspectorContent(true)}</div>
+      <Sheet
+        bind:open={setupOpen}
+        title={`${data.modality === 'image' ? 'Image' : 'Video'} setup`}
+        description="Setup, prompt, inputs, output and review."
+        side="right"
+        triggerClass="focus-ring inline-flex min-h-9 shrink-0 items-center gap-2 rounded-[var(--radius)] border border-border bg-background px-3 text-sm font-semibold shadow-[var(--shadow-xs)] hover:bg-muted"
+        contentClass="p-0"
+        studioSheet
+      >
+        {#snippet trigger()}
+          <AppIcon name="filters" size={16} />
+          Edit setup
+        {/snippet}
+        <div id="parameter-inspector-mobile" class="min-h-[calc(100dvh-5rem)]">
+          {@render inspectorContent(true)}
+        </div>
       </Sheet>
     </div>
   </section>

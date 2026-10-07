@@ -164,8 +164,8 @@ async function refresh(): Promise<void> {
               <dt class="text-muted-foreground">Last API test</dt>
               <dd class="mt-1 font-semibold">
                 {diagnostics.connectivity.checkedAt
-  ? `${diagnostics.connectivity.status} · ${dateTimeLabel(diagnostics.connectivity.checkedAt)}`
-  : 'Not checked'}
+                  ? `${diagnostics.connectivity.status} · ${dateTimeLabel(diagnostics.connectivity.checkedAt)}`
+                  : 'Not checked'}
               </dd>
             </div>
           </dl>
@@ -218,16 +218,16 @@ async function refresh(): Promise<void> {
               <dt class="text-muted-foreground">Disk capacity</dt>
               <dd class="mt-1 font-semibold">
                 {diagnostics.storage.capacityBytes === null
-  ? 'Unavailable'
-  : byteSizeLabel(diagnostics.storage.capacityBytes)}
+                  ? 'Unavailable'
+                  : byteSizeLabel(diagnostics.storage.capacityBytes)}
               </dd>
             </div>
             <div>
               <dt class="text-muted-foreground">Disk free</dt>
               <dd class="mt-1 font-semibold">
                 {diagnostics.storage.freeBytes === null
-  ? 'Unavailable'
-  : byteSizeLabel(diagnostics.storage.freeBytes)}
+                  ? 'Unavailable'
+                  : byteSizeLabel(diagnostics.storage.freeBytes)}
               </dd>
             </div>
           </dl>
@@ -247,13 +247,18 @@ async function refresh(): Promise<void> {
             <div>
               <dt class="text-muted-foreground">Cleanup worker</dt>
               <dd class="mt-1 font-semibold">
-                {diagnostics.cleanup.scheduled ? 'Scheduled' : 'Not scheduled'}{diagnostics.cleanup.running ? ' · running now' : ''}
+                {diagnostics.cleanup.scheduled ? 'Scheduled' : 'Not scheduled'}{diagnostics.cleanup
+                  .running
+                  ? ' · running now'
+                  : ''}
               </dd>
             </div>
             <div>
               <dt class="text-muted-foreground">Last run</dt>
               <dd class="mt-1 font-semibold">
-                {diagnostics.cleanup.lastRunAt ? dateTimeLabel(diagnostics.cleanup.lastRunAt) : 'Not yet run'}
+                {diagnostics.cleanup.lastRunAt
+                  ? dateTimeLabel(diagnostics.cleanup.lastRunAt)
+                  : 'Not yet run'}
               </dd>
             </div>
             <div>

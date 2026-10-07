@@ -1,6 +1,5 @@
 <script lang="ts">
 import { onMount, tick } from 'svelte';
-import { invalidate, invalidateAll } from '$app/navigation';
 import GalleryViewer from '#lib/components/gallery/GalleryViewer.svelte';
 import MediaPreview from '#lib/components/library/MediaPreview.svelte';
 import AppIcon from '#lib/components/ui/AppIcon.svelte';
@@ -43,6 +42,7 @@ import {
   dateTimeLabel,
   mediaFrameAspectRatio
 } from '#lib/features/library/presentation.js';
+import { invalidate, invalidateAll } from '$app/navigation';
 import type { PageData } from './$types';
 
 let { data }: { data: PageData } = $props();
