@@ -1,8 +1,10 @@
-// Production entry (`bun run start`). SvelteKit 3 has no runtime ORIGIN, and the official Bun adapter
-// treats a request as HTTPS unless a trusted proxy names the scheme. This loopback listener is that
-// proxy: it owns the public port, reaches the adapter over a private Unix socket, and overwrites the
-// adapter's protocol and host headers with its own origin on every request, so client-supplied
-// values are never trusted. One build therefore serves any loopback host and runtime port.
+// Production entry: `bun scripts/start.ts`, which is what the `start` script runs. Run it directly:
+// under `bun run start` one Ctrl+C reaches it twice and the second one skips the drain (see the
+// README). SvelteKit 3 has no runtime ORIGIN, and the official Bun adapter treats a request as
+// HTTPS unless a trusted proxy names the scheme. This loopback listener is that proxy: it owns the
+// public port, reaches the adapter over a private Unix socket, and overwrites the adapter's
+// protocol and host headers with its own origin on every request, so client-supplied values are
+// never trusted. One build therefore serves any loopback host and runtime port.
 export type LoopbackHost = '127.0.0.1' | '::1';
 type Environment = Record<string, string | undefined>;
 
