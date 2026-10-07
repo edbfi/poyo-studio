@@ -41,10 +41,13 @@ let options = $derived(explicitRatioTokens(field.enum ?? []));
           checked={automatic}
           required={field.required}
           onchange={() => onchange(field.key, undefined, true)}
-        />
+        >
         <span>{automaticChoice.label}</span>
         <!-- The check slot is always laid out so selecting a tile never reflows the wrapped rows. -->
-        <span class="flex size-3.5 shrink-0 items-center justify-center" class:invisible={!automatic}>
+        <span
+          class="flex size-3.5 shrink-0 items-center justify-center"
+          class:invisible={!automatic}
+        >
           <AppIcon name="success" size={14} />
         </span>
       </label>
@@ -67,7 +70,7 @@ let options = $derived(explicitRatioTokens(field.enum ?? []));
           checked={selected}
           required={field.required}
           onchange={() => onchange(field.key, coerceFieldValue(field, option), false)}
-        />
+        >
         {#if presentation}
           <span class="flex h-8 w-14 shrink-0 items-center justify-center" aria-hidden="true">
             <span
@@ -77,7 +80,10 @@ let options = $derived(explicitRatioTokens(field.enum ?? []));
           </span>
         {/if}
         <span>{option}</span>
-        <span class="flex size-3.5 shrink-0 items-center justify-center" class:invisible={!selected}>
+        <span
+          class="flex size-3.5 shrink-0 items-center justify-center"
+          class:invisible={!selected}
+        >
           <AppIcon name="success" size={14} />
         </span>
       </label>

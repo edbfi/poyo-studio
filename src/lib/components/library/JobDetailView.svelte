@@ -1,6 +1,5 @@
 <script lang="ts">
 import { untrack } from 'svelte';
-import { goto, invalidate, invalidateAll } from '$app/navigation';
 import AppIcon from '#lib/components/ui/AppIcon.svelte';
 import Badge from '#lib/components/ui/Badge.svelte';
 import LinkButton from '#lib/components/ui/LinkButton.svelte';
@@ -17,6 +16,7 @@ import {
   elapsedLabel,
   mediaFrameAspectRatio
 } from '#lib/features/library/presentation.js';
+import { goto, invalidate, invalidateAll } from '$app/navigation';
 import MediaPreview from './MediaPreview.svelte';
 import StatusBadge from './StatusBadge.svelte';
 

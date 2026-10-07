@@ -1,7 +1,5 @@
 <script lang="ts">
 import { onMount, type Snippet, untrack } from 'svelte';
-import { afterNavigate, invalidate, invalidateAll } from '$app/navigation';
-import { page } from '$app/state';
 import AppIcon from '#lib/components/ui/AppIcon.svelte';
 import Badge from '#lib/components/ui/Badge.svelte';
 import Sheet from '#lib/components/ui/Sheet.svelte';
@@ -19,6 +17,8 @@ import {
   moreNavigation,
   navigationGroups
 } from '#lib/navigation.js';
+import { afterNavigate, invalidate, invalidateAll } from '$app/navigation';
+import { page } from '$app/state';
 import PublicIpv4Status from './PublicIpv4Status.svelte';
 import ThemeToggle from './ThemeToggle.svelte';
 
@@ -233,17 +233,24 @@ afterNavigate(() => {
 <div class="app-shell" data-sidebar-collapsed={sidebarCollapsed ? 'true' : 'false'}>
   <aside class="app-sidebar" aria-label="Application sidebar">
     <div class="flex h-[4.25rem] shrink-0 items-center gap-3 px-4">
-      <a class="focus-ring flex min-w-0 items-center gap-3 rounded-[var(--radius)] no-underline" href="/">
+      <a
+        class="focus-ring flex min-w-0 items-center gap-3 rounded-[var(--radius)] no-underline"
+        href="/"
+      >
         <img
           src="/poyo-local-studio-logo.svg"
           alt=""
           class="size-9 shrink-0"
           width="36"
           height="36"
-        />
+        >
         <span class="sidebar-copy min-w-0">
-          <span class="block truncate text-sm font-semibold tracking-tight text-foreground">Poyo Studio</span>
-          <span class="block truncate text-[0.6875rem] text-muted-foreground">Local creative workspace</span>
+          <span class="block truncate text-sm font-semibold tracking-tight text-foreground"
+            >Poyo Studio</span
+          >
+          <span class="block truncate text-[0.6875rem] text-muted-foreground"
+            >Local creative workspace</span
+          >
         </span>
       </a>
     </div>
@@ -251,7 +258,9 @@ afterNavigate(() => {
     <nav class="flex-1 overflow-y-auto px-2 pb-3" aria-label="Primary navigation">
       {#each navigationGroups as group (group.label)}
         <div class="mb-4">
-          <p class="sidebar-group-label mb-1 px-2 text-[0.625rem] font-semibold tracking-[0.14em] text-sidebar-foreground uppercase">
+          <p
+            class="sidebar-group-label mb-1 px-2 text-[0.625rem] font-semibold tracking-[0.14em] text-sidebar-foreground uppercase"
+          >
             {group.label}
           </p>
           <ul class="m-0 grid list-none gap-0.5 p-0">
@@ -267,7 +276,10 @@ afterNavigate(() => {
                   title={sidebarCollapsed ? item.label : undefined}
                 >
                   {#if active}
-                    <span class="absolute inset-y-1 left-0 w-0.5 rounded-full bg-primary" aria-hidden="true"></span>
+                    <span
+                      class="absolute inset-y-1 left-0 w-0.5 rounded-full bg-primary"
+                      aria-hidden="true"
+                    ></span>
                   {/if}
                   <AppIcon name={item.icon} size={18} />
                   <span class="sidebar-copy truncate">{item.label}</span>
@@ -296,23 +308,43 @@ afterNavigate(() => {
       >
         <span class="relative">
           <AppIcon name="activity" size={18} />
-          <span class="absolute -top-1 -right-1 grid size-3.5 place-items-center rounded-full bg-muted text-[0.5625rem] font-bold text-muted-foreground">{Math.min(summary.activeJobs, 9)}{summary.activeJobs > 9 ? '+' : ''}</span>
+          <span
+            class="absolute -top-1 -right-1 grid size-3.5 place-items-center rounded-full bg-muted text-[0.5625rem] font-bold text-muted-foreground"
+            >{Math.min(summary.activeJobs, 9)}{summary.activeJobs > 9 ? '+' : ''}</span
+          >
         </span>
         <span class="sidebar-value-copy min-w-0">
-          <span class="block text-xs font-semibold text-foreground">{summary.activeJobs} active {summary.activeJobs === 1 ? 'job' : 'jobs'}</span>
-          <span class="block text-[0.6875rem]">{summary.activeJobs ? 'Queue and generation work' : 'Queue is clear'}</span>
+          <span class="block text-xs font-semibold text-foreground"
+            >{summary.activeJobs}
+            active {summary.activeJobs === 1 ? 'job' : 'jobs'}</span
+          >
+          <span class="block text-[0.6875rem]"
+            >{summary.activeJobs ? 'Queue and generation work' : 'Queue is clear'}</span
+          >
         </span>
       </a>
 
       <a
         href="/settings"
         class="sidebar-utility focus-ring mt-0.5 flex min-h-10 items-center gap-3 rounded-[var(--radius)] px-2.5 text-muted-foreground no-underline hover:bg-background/70 hover:text-foreground"
-        title={sidebarCollapsed ? (summary.balance ? `${summary.balance.credits} credits` : 'Balance unavailable') : undefined}
+        title={sidebarCollapsed
+          ? summary.balance
+            ? `${summary.balance.credits} credits`
+            : 'Balance unavailable'
+          : undefined}
       >
         <AppIcon name="wallet" size={18} />
         <span class="sidebar-value-copy min-w-0">
-          <span class="block text-xs font-semibold text-foreground">{summary.balance ? `${summary.balance.credits.toLocaleString()} credits` : 'Balance unavailable'}</span>
-          <span class="block text-[0.6875rem]">{summary.balance ? `Refreshed ${dateLabel(summary.balance.fetchedAt)}` : 'Connect Poyo to refresh'}</span>
+          <span class="block text-xs font-semibold text-foreground"
+            >{summary.balance
+              ? `${summary.balance.credits.toLocaleString()} credits`
+              : 'Balance unavailable'}</span
+          >
+          <span class="block text-[0.6875rem]"
+            >{summary.balance
+              ? `Refreshed ${dateLabel(summary.balance.fetchedAt)}`
+              : 'Connect Poyo to refresh'}</span
+          >
         </span>
       </a>
 
@@ -322,7 +354,9 @@ afterNavigate(() => {
       <button
         type="button"
         class="sidebar-utility focus-ring mt-0.5 flex min-h-9 w-full items-center gap-3 rounded-[var(--radius)] px-2.5 text-sm font-medium text-muted-foreground hover:bg-background/70 hover:text-foreground"
-        aria-label={sidebarCollapsed ? 'Expand application sidebar' : 'Collapse application sidebar'}
+        aria-label={sidebarCollapsed
+          ? 'Expand application sidebar'
+          : 'Collapse application sidebar'}
         title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         onclick={toggleSidebar}
       >
@@ -335,7 +369,9 @@ afterNavigate(() => {
   <div class="app-main">
     <header class="context-bar">
       <div class="min-w-0">
-        <p class="hidden text-[0.6875rem] font-medium text-muted-foreground sm:block">Poyo Local Studio</p>
+        <p class="hidden text-[0.6875rem] font-medium text-muted-foreground sm:block">
+          Poyo Local Studio
+        </p>
         <h1
           class="route-heading truncate text-lg font-semibold tracking-tight sm:text-xl"
           data-route-heading
@@ -356,7 +392,9 @@ afterNavigate(() => {
             onclick={() => void refreshBalance()}
           >
             <AppIcon name={balanceRefreshing ? 'refresh' : 'wallet'} size={15} />
-            <span class="min-w-0 truncate" aria-live="polite" aria-atomic="true">{balanceStatusLabel}</span>
+            <span class="min-w-0 truncate" aria-live="polite" aria-atomic="true"
+              >{balanceStatusLabel}</span
+            >
           </button>
         </div>
         <div class={sidebarCollapsed ? '' : 'lg:hidden'}>
@@ -383,7 +421,11 @@ afterNavigate(() => {
   <nav class="mobile-bottom-nav" aria-label="Primary mobile navigation">
     {#each mobileNavigation as item (item.href)}
       {@const active = isPathActive(pathname, item.href)}
-      <a class="mobile-nav-item focus-ring" href={item.href} aria-current={active ? 'page' : undefined}>
+      <a
+        class="mobile-nav-item focus-ring"
+        href={item.href}
+        aria-current={active ? 'page' : undefined}
+      >
         <AppIcon name={item.icon} size={18} />
         <span>{item.label.replace(' Studio', '')}</span>
       </a>
@@ -412,7 +454,9 @@ afterNavigate(() => {
               <AppIcon name={item.icon} size={19} />
               <span class="min-w-0 flex-1">
                 <span class="block">{item.label}</span>
-                <span class="block truncate text-xs font-normal text-muted-foreground">{item.description}</span>
+                <span class="block truncate text-xs font-normal text-muted-foreground"
+                  >{item.description}</span
+                >
               </span>
               <AppIcon name="chevron-right" size={16} />
             </a>

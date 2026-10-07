@@ -99,13 +99,13 @@ $effect(() => {
           <Dialog.Content
             class="fixed inset-0 z-50 bg-stage text-stage-foreground"
             onkeydown={(event) => {
-  if (mediaKind !== 'image') return;
-  if (event.key === '+' || event.key === '=') changeZoom(0.25);
-  else if (event.key === '-') changeZoom(-0.25);
-  else if (event.key === '0') zoom = 1;
-  else return;
-  event.preventDefault();
-}}
+              if (mediaKind !== 'image') return;
+              if (event.key === '+' || event.key === '=') changeZoom(0.25);
+              else if (event.key === '-') changeZoom(-0.25);
+              else if (event.key === '0') zoom = 1;
+              else return;
+              event.preventDefault();
+            }}
           >
             <div
               bind:this={viewer}
@@ -118,8 +118,8 @@ $effect(() => {
                   <Dialog.Title class="truncate text-sm font-semibold">{alt}</Dialog.Title>
                   <Dialog.Description class="mt-0.5 text-xs text-stage-muted">
                     {mediaKind === 'image'
-  ? 'Zoom with the controls or plus, minus and zero keys.'
-  : 'Generated video with browser playback controls.'}
+                      ? 'Zoom with the controls or plus, minus and zero keys.'
+                      : 'Generated video with browser playback controls.'}
                   </Dialog.Description>
                 </div>
                 <Dialog.Close

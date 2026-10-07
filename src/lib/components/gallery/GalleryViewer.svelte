@@ -858,10 +858,10 @@ $effect(() => {
               </button>
               <output data-testid="gallery-viewer-zoom" aria-label="Zoom level" aria-live="off"
                 >{readyImage
-  ? readyImage.mode === 'actual'
-    ? '100%'
-    : `${Math.round(readyImage.transform.zoom * 100)}%`
-  : '—'}</output
+                  ? readyImage.mode === 'actual'
+                    ? '100%'
+                    : `${Math.round(readyImage.transform.zoom * 100)}%`
+                  : '—'}</output
               >
             </div>
           {/if}
@@ -900,8 +900,8 @@ $effect(() => {
                     class="gallery-viewer-media"
                     class:gallery-viewer-media-ready={Boolean(readyImage)}
                     style={readyImage
-  ? `width:${readyImage.geometry.fitted.width}px;height:${readyImage.geometry.fitted.height}px;transform:translate3d(${readyImage.transform.x}px,${readyImage.transform.y}px,0) scale(${readyImage.transform.zoom});`
-  : ''}
+                      ? `width:${readyImage.geometry.fitted.width}px;height:${readyImage.geometry.fitted.height}px;transform:translate3d(${readyImage.transform.x}px,${readyImage.transform.y}px,0) scale(${readyImage.transform.zoom});`
+                      : ''}
                     onload={handleImageLoad}
                     onerror={handleImageError}
                   >
@@ -917,8 +917,8 @@ $effect(() => {
                     autoplay={false}
                     playsinline
                     style={readyVideo
-  ? `width:${readyVideo.geometry.fitted.width}px;height:${readyVideo.geometry.fitted.height}px;`
-  : ''}
+                      ? `width:${readyVideo.geometry.fitted.width}px;height:${readyVideo.geometry.fitted.height}px;`
+                      : ''}
                     onloadedmetadata={handleVideoLoadedMetadata}
                     onerror={handleVideoError}
                   ></video>

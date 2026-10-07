@@ -64,7 +64,8 @@ function updateStructured(event: Event): void {
         {id}
         class="focus-ring h-9 w-full rounded-[var(--radius)] border border-input bg-background px-2.5 text-sm"
         value={value === undefined ? '' : String(value)}
-        onchange={(event) => onchange(field.key, coerceFieldValue(field, event.currentTarget.value))}
+        onchange={(event) =>
+          onchange(field.key, coerceFieldValue(field, event.currentTarget.value))}
       >
         {#if !field.required}
           <option value="">Automatic</option>
@@ -90,23 +91,35 @@ function updateStructured(event: Event): void {
           type="number"
           min="1"
           class="focus-ring h-9 min-w-0 rounded-[var(--radius)] border border-input bg-background px-2.5 text-sm"
-          value={typeof value === 'object' && value ? String((value as Record<string, unknown>).width ?? '') : ''}
+          value={typeof value === 'object' && value
+            ? String((value as Record<string, unknown>).width ?? '')
+            : ''}
           aria-label="Custom width"
           oninput={(event) =>
-  onchange('width', event.currentTarget.value ? Number(event.currentTarget.value) : undefined)}
+            onchange(
+              'width',
+              event.currentTarget.value ? Number(event.currentTarget.value) : undefined
+            )}
         >
         <span class="text-muted-foreground" aria-hidden="true">×</span>
         <input
           type="number"
           min="1"
           class="focus-ring h-9 min-w-0 rounded-[var(--radius)] border border-input bg-background px-2.5 text-sm"
-          value={typeof value === 'object' && value ? String((value as Record<string, unknown>).height ?? '') : ''}
+          value={typeof value === 'object' && value
+            ? String((value as Record<string, unknown>).height ?? '')
+            : ''}
           aria-label="Custom height"
           oninput={(event) =>
-  onchange('height', event.currentTarget.value ? Number(event.currentTarget.value) : undefined)}
+            onchange(
+              'height',
+              event.currentTarget.value ? Number(event.currentTarget.value) : undefined
+            )}
         >
       </div>
-    {:else if field.kind === 'object-list' || field.kind === 'elements' || field.kind === 'string-list'}
+    {:else if field.kind === 'object-list' ||
+      field.kind === 'elements' ||
+      field.kind === 'string-list'}
       <textarea
         {id}
         rows="4"

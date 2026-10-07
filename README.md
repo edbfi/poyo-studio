@@ -105,8 +105,10 @@ import-organizing rules, and the existing two-space, 100-column, single-quote st
 Experimental HTML support enables Svelte markup checks and formatting. The exact
 file overrides record these compatibility limits:
 
-- Biome 2.5.14 rewrites some `{@const}` declarations into invalid Svelte. Formatting
-  is disabled for the five affected components; lint and import organization remain enabled.
+- Formatting is disabled for `src/routes/gallery/+page.svelte` and
+  `src/lib/components/library/JobDetailView.svelte`: Biome 2.5.15 would insert whitespace
+  between elements they deliberately keep adjacent, which changes the rendered DOM. Lint
+  and import organization remain enabled.
 - Focusable tab panels and the keyboard-operated media viewport retain their tab stops.
 - Generated video has no caption track; the caption exceptions match the existing
   Svelte suppressions. The media preview link has a dynamic accessible name that

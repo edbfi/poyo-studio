@@ -1,6 +1,5 @@
 <script lang="ts">
 import { tick, untrack } from 'svelte';
-import { goto } from '$app/navigation';
 import MediaPrivacyControls from '#lib/components/settings/MediaPrivacyControls.svelte';
 import AppIcon from '#lib/components/ui/AppIcon.svelte';
 import Badge from '#lib/components/ui/Badge.svelte';
@@ -19,6 +18,7 @@ import {
   themePreferences,
   themeStorageKey
 } from '#lib/theme.js';
+import { goto } from '$app/navigation';
 import type { PageData } from './$types';
 
 let { data }: { data: PageData } = $props();
@@ -308,11 +308,12 @@ const setupStepLabels: Record<SetupStep, string> = {
     <ol class="mt-3 flex flex-wrap gap-2" aria-label="Setup progress">
       {#each setupSteps as setupStep, index (setupStep)}
         <li
-          class="flex min-h-6 items-center gap-1.5 rounded-full border px-2.5 text-[0.6875rem] font-semibold {index < setupStepIndex
-  ? 'border-success/40 bg-success/10 text-foreground'
-  : index === setupStepIndex
-    ? 'border-primary bg-primary/10 text-foreground'
-    : 'border-border text-muted-foreground'}"
+          class="flex min-h-6 items-center gap-1.5 rounded-full border px-2.5 text-[0.6875rem] font-semibold {index <
+          setupStepIndex
+            ? 'border-success/40 bg-success/10 text-foreground'
+            : index === setupStepIndex
+              ? 'border-primary bg-primary/10 text-foreground'
+              : 'border-border text-muted-foreground'}"
           aria-current={index === setupStepIndex ? 'step' : undefined}
         >
           <span class="tabular-nums">{index + 1}</span>
@@ -375,8 +376,8 @@ const setupStepLabels: Record<SetupStep, string> = {
         <p class="font-semibold">Local by design</p>
         <p class="mt-1 text-xs leading-5 text-muted-foreground">
           {settings.storage.source === 'environment'
-  ? 'The server administrator manages the local storage location.'
-  : 'The Studio uses its private local application storage.'}
+            ? 'The server administrator manages the local storage location.'
+            : 'The Studio uses its private local application storage.'}
         </p>
       </div>
     {:else if step === 'mediaPrivacy'}
@@ -413,9 +414,9 @@ const setupStepLabels: Record<SetupStep, string> = {
               type="password"
               value={apiKeyInput}
               oninput={(event) => {
-  apiKeyInput = event.currentTarget.value;
-  invalidateConnectivity();
-}}
+                apiKeyInput = event.currentTarget.value;
+                invalidateConnectivity();
+              }}
               autocomplete="off"
               spellcheck="false"
               placeholder="Stored securely; never shown again"
@@ -455,7 +456,10 @@ const setupStepLabels: Record<SetupStep, string> = {
       >
         {#each themePreferences as preference (preference)}
           <label
-            class="focus-within:ring-2 focus-within:ring-ring flex min-h-9 cursor-pointer items-center justify-center rounded px-2 text-sm font-semibold {themeChoice === preference ? 'bg-background shadow-[var(--shadow-xs)]' : 'text-muted-foreground'}"
+            class="focus-within:ring-2 focus-within:ring-ring flex min-h-9 cursor-pointer items-center justify-center rounded px-2 text-sm font-semibold {themeChoice ===
+            preference
+              ? 'bg-background shadow-[var(--shadow-xs)]'
+              : 'text-muted-foreground'}"
           >
             <input
               class="sr-only"

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.13/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -99,9 +99,6 @@
     {
       "includes": [
         "src/routes/gallery/+page.svelte",
-        "src/lib/components/studio/AspectRatioField.svelte",
-        "src/lib/components/studio/StudioWorkspace.svelte",
-        "src/lib/components/shell/AppShell.svelte",
         "src/lib/components/library/JobDetailView.svelte"
       ],
       "formatter": {

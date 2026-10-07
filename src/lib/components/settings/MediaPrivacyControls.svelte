@@ -82,10 +82,10 @@ let preferenceHelp = $derived(
   <div
     id={`${componentId}-status`}
     class="rounded px-3 py-2.5 {mediaPrivacy.sanitizeLocalMedia && capabilityState === 'available'
-  ? 'bg-success/8'
-  : mediaPrivacy.sanitizeLocalMedia && capabilityState === 'partial'
-    ? 'bg-warning/8'
-    : 'bg-muted/55'}"
+      ? 'bg-success/8'
+      : mediaPrivacy.sanitizeLocalMedia && capabilityState === 'partial'
+        ? 'bg-warning/8'
+        : 'bg-muted/55'}"
     aria-live="polite"
   >
     <div class="flex items-start gap-2.5">
@@ -93,8 +93,8 @@ let preferenceHelp = $derived(
         name="shield"
         size={17}
         class={mediaPrivacy.sanitizeLocalMedia && capabilityState === 'available'
-  ? 'mt-0.5 text-success'
-  : 'mt-0.5 text-muted-foreground'}
+          ? 'mt-0.5 text-success'
+          : 'mt-0.5 text-muted-foreground'}
       />
       <div class="min-w-0 flex-1">
         <p class="text-sm font-semibold">{headline}</p>

@@ -1,6 +1,5 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import { invalidate } from '$app/navigation';
 import StatusBadge from '#lib/components/library/StatusBadge.svelte';
 import AppIcon from '#lib/components/ui/AppIcon.svelte';
 import LinkButton from '#lib/components/ui/LinkButton.svelte';
@@ -8,6 +7,7 @@ import { nextMonotonicEventId } from '#lib/features/generation/studio-controller
 import { downloadCopy } from '#lib/features/library/attachment-request.js';
 import type { ActivityCostDto } from '#lib/features/library/contracts.js';
 import { dateTimeLabel, elapsedLabel } from '#lib/features/library/presentation.js';
+import { invalidate } from '$app/navigation';
 import type { PageData } from './$types';
 
 let { data }: { data: PageData } = $props();
@@ -253,7 +253,9 @@ onMount(() => {
                     <a
                       href={`/jobs/${activity.job.id}`}
                       class="focus-ring truncate rounded text-sm font-semibold hover:underline"
-                      >{activity.kind === 'attachment-request' ? 'Download copy requested' : activity.job.displayName}</a
+                      >{activity.kind === 'attachment-request'
+                        ? 'Download copy requested'
+                        : activity.job.displayName}</a
                     >
                     {#if activity.kind === 'job-created'}
                       <StatusBadge
@@ -292,8 +294,11 @@ onMount(() => {
                   <p class="text-muted-foreground lg:hidden">Progress / output</p>
                   <p class="mt-1 font-medium">
                     {activity.job.progress !== null
-  ? `${Math.round(activity.job.progress)}%`
-  : elapsedLabel(activity.job.startedAt ?? activity.job.createdAt, activity.job.completedAt)}
+                      ? `${Math.round(activity.job.progress)}%`
+                      : elapsedLabel(
+                          activity.job.startedAt ?? activity.job.createdAt,
+                          activity.job.completedAt
+                        )}
                     · {activity.job.verifiedOutputCount}/{activity.job.outputCount}
                     local
                   </p>
