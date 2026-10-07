@@ -53,8 +53,11 @@ Open <http://127.0.0.1:5173>.
 
 ```bash
 bun run build
-bun run start
+bun scripts/start.ts
 ```
+
+Run Studio directly. With Bun 1.4.2's default shell, `bun run start` and `bun start` deliver one
+Ctrl+C twice, which skips the drain and stops at once.
 
 Open <http://127.0.0.1:3000>, the address the server listens on. Use the IP address rather than
 `http://localhost:3000`: pages load there too, but the browser reports a different origin, so
@@ -73,7 +76,7 @@ All optional; set them in the environment or in `.env`.
 | `HOST` | `127.0.0.1` | Listen address, `127.0.0.1` or `::1` (then open `http://[::1]:3000`). |
 | `PORT` | `3000` | Listen port, read when the server starts. |
 | `BODY_SIZE_LIMIT` | `101M` | Largest request body; `K`/`M`/`G` are binary units and `Infinity` disables the limit. The default fits the largest upload Studio accepts. |
-| `SHUTDOWN_TIMEOUT` | `1` | Seconds open requests get to finish after Ctrl+C, `SIGTERM`, or closing the terminal (`SIGHUP`); the server exits at that deadline even if the app still has work in flight. A second Ctrl+C stops at once. |
+| `SHUTDOWN_TIMEOUT` | `1` | Seconds open requests get to finish after Ctrl+C, `SIGTERM`, or closing the terminal (`SIGHUP`); the server exits at that deadline even if the app still has work in flight. With `bun scripts/start.ts`, a second Ctrl+C stops at once. |
 | `CONNECTION_IDLE_TIMEOUT` | `10` | Seconds before an idle connection is closed (0 to 255; 0 never closes). Time the app takes to answer does not count, and live job updates are exempt. |
 | `ORIGIN` | unset | Not needed. If set, it must equal the address the server listens on, such as `http://127.0.0.1:3000`, or startup fails. |
 

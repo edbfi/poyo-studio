@@ -16,7 +16,7 @@ in `vite.config.ts`; there is no `svelte.config.ts`.
 | Task | Command |
 | --- | --- |
 | Install | `bun install --frozen-lockfile` |
-| Dev / production | `bun run dev` (:5173) · `bun run build && bun run start` (:3000) |
+| Dev / production | `bun run dev` (:5173) · `bun run build && bun scripts/start.ts` (:3000) |
 | Typecheck | `bun run check` (svelte-check, then the TS 7 `check:native` pass) |
 | Lint / format | `bun run lint` · `bun run format` · `bun run format:check` |
 | Default suite | `bun run test` |
@@ -53,7 +53,7 @@ in `vite.config.ts`; there is no `svelte.config.ts`.
 
 ## Production server (`scripts/start.ts`)
 
-`bun run start` is a loopback front for `@sveltejs/adapter-bun`. It listens on `HOST` (only
+`bun scripts/start.ts` is a loopback front for `@sveltejs/adapter-bun`. It listens on `HOST` (only
 `127.0.0.1` or `::1`) and `PORT` (read at runtime, default 3000), runs the adapter on a private
 Unix socket, and overwrites `x-poyo-listener-proto`/`x-poyo-listener-host` on every request, so
 same-origin writes work over plain HTTP on any port without `ORIGIN`. `ORIGIN`, if set, must equal
@@ -64,7 +64,9 @@ the listener origin or startup fails.
   adapter variables and an operator value wins. The front exits at the `SHUTDOWN_TIMEOUT` deadline
   even if the app still has work in flight (such as a provider call).
 - `SIGHUP` (the terminal closed) shuts down like `SIGTERM`/`SIGINT` and reaches the adapter as
-  `SIGTERM`. A repeated `SIGHUP` is not a second signal: under `bun run start` it arrives twice.
+  `SIGTERM`. A repeated `SIGHUP` is not a second signal: under `bun run start` it arrives twice
+  (once under `bun scripts/start.ts`). A Ctrl+C or group `SIGTERM` also arrives twice under
+  `bun run start`, and the second one forces exit 1 without the drain; run the front directly.
 - `CONNECTION_IDLE_TIMEOUT` applies at the front; the adapter side always runs with `0`. The old
   adapter's `IDLE_TIMEOUT` is not read. The front's timer is off from the end of the request body
   until the app answers, then re-armed (Bun 1.4.2 otherwise closes a request still waiting on the app).
@@ -165,7 +167,7 @@ using conditional spreads as `src/lib/server/poyo/factory.ts` does:
   Read before writing new components. Its runes guidance applies, but where it conflicts with this
   repo, this repo wins: `@sveltejs/adapter-bun` (not adapter-node), `bun test` plus
   `scripts/test-browser.ts` (not Vitest), UnoCSS `presetWind4` with `src/lib/components/ui`
-  (no shadcn-svelte or `unocss-preset-shadcn`), `bun run start` (not `bun ./build/index.js`: the
-  loopback front supplies the origin, because SvelteKit 3 has no runtime `ORIGIN`), the front's own
-  `ADDRESS_HEADER` (an operator value is not passed through on a loopback front), Vite under Bun
+  (no shadcn-svelte or `unocss-preset-shadcn`), `bun scripts/start.ts` (not `bun ./build/index.js`:
+  the loopback front supplies the origin, because SvelteKit 3 has no runtime `ORIGIN`), the front's
+  own `ADDRESS_HEADER` (an operator value is not passed through on a loopback front), Vite under Bun
   (`bun --bun vite`), and JSON API routes instead of form actions.
