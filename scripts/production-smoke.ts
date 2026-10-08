@@ -113,8 +113,28 @@ try {
   await rm(smokeDirectory, { recursive: true, force: true });
   throw error;
 }
-const stdout = new Response(server.stdout).text();
+// Readiness is this server's own `Listening on <origin>` line, printed once it holds the port and
+// has loaded the app. A response on the port alone proves nothing: another process may already
+// hold it, and this server then exits because the port is busy.
+const listeningLine = `Listening on ${origin}`;
+let serverStdoutText = '';
+const stdout = (async () => {
+  const decoder = new TextDecoder();
+  for await (const chunk of server.stdout as ReadableStream<Uint8Array>) {
+    serverStdoutText += decoder.decode(chunk, { stream: true });
+  }
+  serverStdoutText += decoder.decode();
+  return serverStdoutText;
+})();
 const stderr = new Response(server.stderr).text();
+
+function assertServerRunning(stage: string): void {
+  if (server.exitCode !== null || server.signalCode !== null) {
+    throw new Error(
+      `Production server exited ${stage} (exit code ${server.exitCode}, signal ${server.signalCode}).`
+    );
+  }
+}
 
 let failure: unknown;
 
@@ -123,7 +143,11 @@ try {
   let response: Response | undefined;
   let lastError: unknown;
 
-  while (Date.now() < deadline && server.exitCode === null) {
+  while (Date.now() < deadline && server.exitCode === null && server.signalCode === null) {
+    if (!serverStdoutText.includes(listeningLine)) {
+      await Bun.sleep(50);
+      continue;
+    }
     try {
       response = await fetch(url, {
         signal: AbortSignal.timeout(requestTimeoutMs)
@@ -137,6 +161,12 @@ try {
     await Bun.sleep(150);
   }
 
+  assertServerRunning('before it was ready');
+  if (!serverStdoutText.includes(listeningLine)) {
+    throw new Error(
+      `Production server did not report "${listeningLine}" within ${startupTimeoutMs}ms.`
+    );
+  }
   if (!response?.ok) {
     throw new Error(`Production server did not become ready within ${startupTimeoutMs}ms.`, {
       cause: lastError
@@ -215,6 +245,7 @@ try {
   if (mock.ipRequests.length === 0) {
     throw new Error('Production smoke did not resolve public IPv4 through the loopback fixture.');
   }
+  assertServerRunning('during the checks');
 
   console.log(
     `Production smoke passed: onboarding and ${routeChecks.length} routes responded on the loopback listener ${url}.`
