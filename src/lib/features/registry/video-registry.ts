@@ -10,7 +10,7 @@ import type {
   VideoWorkflow
 } from './types';
 
-export const VIDEO_REGISTRY_VERSION = 'video-2026-08-26.1';
+export const VIDEO_REGISTRY_VERSION = 'video-2026-10-11.1';
 export const VIDEO_VERIFIED_AT = OFFICIAL_SOURCE_MANIFEST.verifiedAt;
 const videoFormats = ['video/mp4', 'video/webm', 'video/quicktime'];
 const imageFormats = ['image/jpeg', 'image/png', 'image/webp'];
@@ -60,6 +60,63 @@ const klingRich: VideoWorkflow[] = [
 
 const pages: Page[] = [
   {
+    slug: 'gemini-omni-1.1-flash',
+    provider: 'Google',
+    family: 'Gemini Omni 1.1 Flash',
+    models: [
+      {
+        id: 'gemini-omni-1.1-flash',
+        workflows: ['text-to-video', 'image-to-video', 'reference-to-video', 'video-to-video']
+      }
+    ],
+    prompt: [1, 20000],
+    durations: [4, 6, 8, 10],
+    durationDefault: 8,
+    resolutions: ['360p', '720p', '1080p', '4k'],
+    resolutionDefault: '720p',
+    ratios: ['16:9', '9:16'],
+    ratioDefault: '16:9',
+    limitations: [
+      'Reference video must be 3–10 seconds and supports at most five accompanying reference images. Output duration follows the reference video.'
+    ]
+  },
+  {
+    slug: 'h3-max',
+    provider: 'MiniMax',
+    family: 'H3 Max',
+    models: [
+      { id: 'h3-max', workflows: ['text-to-video', 'image-to-video', 'reference-to-video'] }
+    ],
+    prompt: [1, 50000],
+    durations: { min: 5, max: 15 },
+    durationDefault: 5,
+    resolutions: ['480p', '768p', '1080p'],
+    resolutionDefault: '768p',
+    ratios: ratiosSix,
+    ratioDefault: '16:9',
+    safety: true,
+    limitations: [
+      'Reference mode requires an image and allows at most 12 total files. Videos and audio must each total at most 15 seconds. The provider checks video frame counts, 24 fps, shape and rotation, and 32 kHz audio timing before charging. Each audio clip must fit the output duration.'
+    ]
+  },
+  {
+    slug: 'h3-max-turbo',
+    provider: 'MiniMax',
+    family: 'H3 Max Turbo',
+    models: [{ id: 'h3-max-turbo', workflows: textImage }],
+    prompt: [1, 50000],
+    durations: { min: 5, max: 15 },
+    durationDefault: 5,
+    resolutions: ['480p', '768p', '1080p'],
+    resolutionDefault: '768p',
+    ratios: ratiosSix,
+    ratioDefault: '16:9',
+    safety: true,
+    limitations: [
+      'Image mode accepts a first frame and optional last frame; aspect ratio follows the first image.'
+    ]
+  },
+  {
     slug: 'flux-3',
     provider: 'Black Forest Labs',
     family: 'Flux 3',
@@ -94,12 +151,19 @@ const pages: Page[] = [
     slug: 'grok-imagine-video-1-5',
     provider: 'xAI',
     family: 'Grok Imagine Video 1.5',
-    models: [{ id: 'grok-imagine-video-1.5', workflows: ['image-to-video'] }],
+    models: [
+      {
+        id: 'grok-imagine-video-1.5',
+        workflows: ['text-to-video', 'image-to-video', 'reference-to-video']
+      }
+    ],
     prompt: [1, 4096],
-    resolutions: ['480p', '720p'],
+    resolutions: ['480p', '720p', '1080p'],
     resolutionDefault: '720p',
     durations: { min: 1, max: 15 },
-    durationDefault: 6
+    durationDefault: 6,
+    ratios: ['16:9', '4:3', '3:2', '1:1', '2:3', '3:4', '9:16'],
+    ratioDefault: '16:9'
   },
   {
     slug: 'hailuo-02',
@@ -325,7 +389,10 @@ const pages: Page[] = [
       { id: 'kling-avatar-2.0/standard', workflows: ['avatar-video'] },
       { id: 'kling-avatar-2.0/pro', workflows: ['avatar-video'] }
     ],
-    limitations: ['Excluded from initial scope because it is an audio-driven avatar workflow.']
+    prompt: [0, 5000],
+    limitations: [
+      'Supply one avatar image and a public audio URL. Driving audio must be 2–60 seconds and at most 5 MB; the provider validates remote audio. Billing follows detected audio duration.'
+    ]
   },
   {
     slug: 'kling-o3',
@@ -723,6 +790,11 @@ export function seedanceReferenceLimits(family: string): {
 }
 
 function rolesFor(page: Page, modelId: string, workflow: VideoWorkflow): InputRole[] {
+  if (workflow === 'avatar-video')
+    return [
+      mediaRole('image', 'imageUrls', 'image_urls', 'image', true, 1, 1),
+      mediaRole('audio', 'audioUrl', 'audio_url', 'audio', true, 1, 1)
+    ];
   if (workflow === 'text-to-video' && page.family === 'Wan 2.7 Video')
     return [mediaRole('audio', 'audioUrl', 'audio_url', 'audio', false, 0, 1)];
   if (workflow === 'image-to-video') {
@@ -739,6 +811,8 @@ function rolesFor(page: Page, modelId: string, workflow: VideoWorkflow): InputRo
     // from the first image.
     if (
       page.family === 'Hailuo 03' ||
+      page.family.startsWith('H3 Max') ||
+      page.family === 'Gemini Omni 1.1 Flash' ||
       page.family.startsWith('Seedance 2') ||
       page.family.startsWith('Wan 3.0')
     )
@@ -770,15 +844,27 @@ function rolesFor(page: Page, modelId: string, workflow: VideoWorkflow): InputRo
     return [mediaRole('start-frame', 'imageUrls', 'image_urls', 'image', true, 1, max)];
   }
   if (workflow === 'reference-to-video') {
-    if (page.family === 'Hailuo 03')
+    if (page.family === 'Grok Imagine Video 1.5' || page.family === 'Gemini Omni 1.1 Flash')
       return [
         mediaRole(
           'reference-image',
           'referenceImageUrls',
           'reference_image_urls',
           'image',
-          false,
-          0,
+          true,
+          1,
+          7
+        )
+      ];
+    if (page.family === 'Hailuo 03' || page.family === 'H3 Max')
+      return [
+        mediaRole(
+          'reference-image',
+          'referenceImageUrls',
+          'reference_image_urls',
+          'image',
+          page.family === 'H3 Max',
+          page.family === 'H3 Max' ? 1 : 0,
           9
         ),
         mediaRole(
@@ -918,6 +1004,27 @@ function rolesFor(page: Page, modelId: string, workflow: VideoWorkflow): InputRo
     return [];
   }
   if (workflow === 'video-to-video') {
+    if (page.family === 'Gemini Omni 1.1 Flash')
+      return [
+        mediaRole(
+          'reference-video',
+          'referenceVideoUrls',
+          'reference_video_urls',
+          'video',
+          true,
+          1,
+          1
+        ),
+        mediaRole(
+          'reference-image',
+          'referenceImageUrls',
+          'reference_image_urls',
+          'image',
+          false,
+          0,
+          5
+        )
+      ];
     if (page.family === 'Flux 3')
       return [mediaRole('source-video', 'videoUrl', 'video_url', 'video', true, 1, 1)];
     return [
@@ -983,7 +1090,9 @@ function effectiveDurations(page: Page, modelId: string, workflow: VideoWorkflow
   return page.durations ?? null;
 }
 
-function effectiveResolutions(page: Page, modelId: string) {
+function effectiveResolutions(page: Page, modelId: string, workflow: VideoWorkflow) {
+  if (page.family === 'Grok Imagine Video 1.5' && workflow === 'reference-to-video')
+    return ['480p', '720p'];
   if (page.family === 'Hailuo 02' && modelId.endsWith('-pro')) return ['1080P'] as const;
   if (page.family === 'Seedance 2' && modelId === 'seedance-2-fast')
     return ['480p', '720p'] as const;
@@ -1000,10 +1109,11 @@ function effectiveRatios(page: Page, modelId: string, workflow: VideoWorkflow) {
     workflow === 'image-to-video'
   )
     return null;
-  if (page.family === 'Hailuo 03') {
+  if (['Hailuo 03', 'H3 Max', 'H3 Max Turbo', 'Grok Imagine Video 1.5'].includes(page.family)) {
     // Image-to-video follows the first image, and only reference generation offers adaptive.
     if (workflow === 'image-to-video') return null;
-    if (workflow === 'reference-to-video') return ['adaptive', ...(page.ratios ?? [])] as const;
+    if (workflow === 'reference-to-video' && page.family !== 'Grok Imagine Video 1.5')
+      return ['adaptive', ...(page.ratios ?? [])] as const;
   }
   // Seedance 2.5 documents that supplying image_urls pins the request to aspect_ratio auto.
   if (page.family === 'Seedance 2.5' && workflow === 'image-to-video') return ['auto'] as const;
@@ -1011,27 +1121,27 @@ function effectiveRatios(page: Page, modelId: string, workflow: VideoWorkflow) {
 }
 
 function effectiveRatioDefault(page: Page, workflow: VideoWorkflow): string | undefined {
-  if (page.family === 'Hailuo 03' && workflow === 'reference-to-video') return 'adaptive';
+  if (['Hailuo 03', 'H3 Max'].includes(page.family) && workflow === 'reference-to-video')
+    return 'adaptive';
   if (page.family === 'Seedance 2.5' && workflow === 'image-to-video') return 'auto';
   return page.ratioDefault;
 }
 
 function fieldsFor(page: Page, modelId: string, workflow: VideoWorkflow): FieldDefinition[] {
   const isMultiShot = workflow === 'multi-shot-video';
-  const promptExcluded =
-    workflow === 'motion-control' ||
-    workflow.startsWith('character-') ||
-    workflow === 'avatar-video';
+  const promptExcluded = workflow === 'motion-control' || workflow.startsWith('character-');
   const promptOptional =
+    workflow === 'avatar-video' ||
     (page.family.startsWith('Happy Horse') &&
       ['image-to-video', 'video-edit'].includes(workflow)) ||
     ((page.family === 'Wan 2.7 Video' || page.family.startsWith('Wan 3.0')) &&
       workflow === 'image-to-video');
   const durations = effectiveDurations(page, modelId, workflow);
-  const resolutions = effectiveResolutions(page, modelId);
+  const resolutions = effectiveResolutions(page, modelId, workflow);
   const omitDuration =
     (page.family === 'Happy Horse' && workflow === 'video-edit') ||
-    (page.family === 'Omni Flash' && workflow === 'video-to-video');
+    (['Omni Flash', 'Gemini Omni 1.1 Flash'].includes(page.family) &&
+      workflow === 'video-to-video');
   const omitRatio =
     (page.family === 'Kling 1.6' &&
       modelId.endsWith('/standard') &&
@@ -1076,7 +1186,10 @@ function fieldsFor(page: Page, modelId: string, workflow: VideoWorkflow): FieldD
       fields.push(
         field('duration', 'duration', 'integer', 'common', {
           required: true,
-          default: page.durationDefault ?? (workflow === 'video-edit' ? 0 : durations.min),
+          default:
+            page.family === 'Grok Imagine Video 1.5' && workflow === 'reference-to-video'
+              ? 8
+              : (page.durationDefault ?? (workflow === 'video-edit' ? 0 : durations.min)),
           min: durations.min,
           max: durations.max
         })
@@ -1163,6 +1276,13 @@ function fieldsFor(page: Page, modelId: string, workflow: VideoWorkflow): FieldD
       })
     );
   }
+  if (page.family === 'Gemini Omni 1.1 Flash' && workflow === 'video-to-video')
+    fields.push(
+      field('referenceVideoDuration', '__local_reference_video_duration', 'number', 'advanced', {
+        min: 3,
+        max: 10
+      })
+    );
   if (
     workflow === 'video-edit' &&
     (page.family === 'Happy Horse' || page.family === 'Wan 2.7 Video')
@@ -1192,6 +1312,9 @@ function provenance(page: Page): RegistryProvenance {
 
 function rulesFor(page: Page, modelId: string, workflow: VideoWorkflow): string[] {
   return [
+    ...(page.family === 'H3 Max' && workflow === 'reference-to-video'
+      ? ['h3-max-reference-total-at-most-12']
+      : []),
     ...(page.family.startsWith('Happy Horse') ? ['happy-horse-input-modes-exclusive'] : []),
     ...(page.family === 'Hailuo 03' && workflow === 'reference-to-video'
       ? ['hailuo-03-reference-requires-image-or-video']
@@ -1216,9 +1339,8 @@ function rulesFor(page: Page, modelId: string, workflow: VideoWorkflow): string[
 }
 
 function entry(page: Page, model: Model, workflow: VideoWorkflow): VideoRegistryEntry {
-  const excluded = workflow === 'avatar-video';
   const durations = effectiveDurations(page, model.id, workflow);
-  const resolutions = effectiveResolutions(page, model.id);
+  const resolutions = effectiveResolutions(page, model.id, workflow);
   const ratios = effectiveRatios(page, model.id, workflow);
   const fields = fieldsFor(page, model.id, workflow);
   const fixedInput: Record<string, unknown> = {};
@@ -1237,7 +1359,7 @@ function entry(page: Page, model: Model, workflow: VideoWorkflow): VideoRegistry
     displayName: `${page.family} · ${workflow.replaceAll('-', ' ')}`,
     publicModelId: model.id,
     workflow,
-    status: excluded ? 'excluded-initial-scope' : 'current',
+    status: 'current',
     inputRoles: rolesFor(page, model.id, workflow),
     output: {
       mediaKind: 'video',

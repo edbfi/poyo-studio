@@ -1,8 +1,1519 @@
 {
   "version": 1,
-  "registryVersion": "image-2026-08-24.1",
-  "reviewedAt": "2026-08-26T16:51:42Z",
+  "registryVersion": "image-2026-10-11.1",
+  "reviewedAt": "2026-10-11T11:26:07Z",
   "workflows": [
+    {
+      "entryKey": "gpt-image-2.5-flare:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "gpt-image-2-5-flare",
+        "markdownId": "model:image:gpt-image-2-5-flare:markdown",
+        "jsonId": "model:image:gpt-image-2-5-flare:json"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-2.5-flare",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg", "webp"],
+            "default": "png"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "quality",
+            "apiKey": "quality",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["low", "medium", "high", "xhigh", "max"],
+            "default": "high"
+          },
+          {
+            "key": "background",
+            "apiKey": "background",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["auto", "transparent", "opaque"],
+            "default": "auto"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": false,
+            "min": 1,
+            "max": 16,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg", "webp"],
+          "counts": [1],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": ["auto-size-only-at-1k"],
+          "customDimensions": {
+            "divisor": 16,
+            "maxEdge": 3840,
+            "minPixels": 655360,
+            "maxPixels": 8294400,
+            "maxAspectRatio": 3
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": [
+          "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "gpt-image-2.5-flare",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "output_format": "png",
+              "quality": "high",
+              "background": "auto",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "21:9",
+            "resolution": "4K",
+            "outputFormat": "webp",
+            "quality": "max",
+            "background": "opaque"
+          },
+          "request": {
+            "model": "gpt-image-2.5-flare",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "output_format": "webp",
+              "quality": "max",
+              "background": "opaque",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "outputFormat", "quality", "background"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Reviewed adapter condition: auto-size-only-at-1k.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-2.5-flare:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "gpt-image-2-5-flare",
+        "markdownId": "model:image:gpt-image-2-5-flare:markdown",
+        "jsonId": "model:image:gpt-image-2-5-flare:json"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-2.5-flare",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg", "webp"],
+            "default": "png"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "quality",
+            "apiKey": "quality",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["low", "medium", "high", "xhigh", "max"],
+            "default": "high"
+          },
+          {
+            "key": "background",
+            "apiKey": "background",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["auto", "transparent", "opaque"],
+            "default": "auto"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 16,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          },
+          {
+            "role": "mask",
+            "required": false,
+            "min": 0,
+            "max": 1,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg", "webp"],
+          "counts": [1],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": ["auto-size-only-at-1k"],
+          "customDimensions": {
+            "divisor": 16,
+            "maxEdge": 3840,
+            "minPixels": 655360,
+            "maxPixels": 8294400,
+            "maxAspectRatio": 3
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": [
+          "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "gpt-image-2.5-flare",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "output_format": "png",
+              "quality": "high",
+              "background": "auto",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "21:9",
+            "resolution": "4K",
+            "outputFormat": "webp",
+            "quality": "max",
+            "background": "opaque"
+          },
+          "request": {
+            "model": "gpt-image-2.5-flare",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "output_format": "webp",
+              "quality": "max",
+              "background": "opaque",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "outputFormat", "quality", "background"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Reviewed adapter condition: auto-size-only-at-1k.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-2.5-sunburst:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "gpt-image-2-5-sunburst",
+        "markdownId": "model:image:gpt-image-2-5-sunburst:markdown",
+        "jsonId": "model:image:gpt-image-2-5-sunburst:json"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-2.5-sunburst",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg", "webp"],
+            "default": "png"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "quality",
+            "apiKey": "quality",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["low", "medium", "high", "xhigh", "max"],
+            "default": "high"
+          },
+          {
+            "key": "background",
+            "apiKey": "background",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["auto", "transparent", "opaque"],
+            "default": "auto"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": false,
+            "min": 1,
+            "max": 16,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg", "webp"],
+          "counts": [1],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": ["auto-size-only-at-1k"],
+          "customDimensions": {
+            "divisor": 16,
+            "maxEdge": 3840,
+            "minPixels": 655360,
+            "maxPixels": 8294400,
+            "maxAspectRatio": 3
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": [
+          "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "gpt-image-2.5-sunburst",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "output_format": "png",
+              "quality": "high",
+              "background": "auto",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "21:9",
+            "resolution": "4K",
+            "outputFormat": "webp",
+            "quality": "max",
+            "background": "opaque"
+          },
+          "request": {
+            "model": "gpt-image-2.5-sunburst",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "output_format": "webp",
+              "quality": "max",
+              "background": "opaque",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "outputFormat", "quality", "background"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Reviewed adapter condition: auto-size-only-at-1k.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-2.5-sunburst:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "gpt-image-2-5-sunburst",
+        "markdownId": "model:image:gpt-image-2-5-sunburst:markdown",
+        "jsonId": "model:image:gpt-image-2-5-sunburst:json"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-2.5-sunburst",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg", "webp"],
+            "default": "png"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "quality",
+            "apiKey": "quality",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["low", "medium", "high", "xhigh", "max"],
+            "default": "high"
+          },
+          {
+            "key": "background",
+            "apiKey": "background",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["auto", "transparent", "opaque"],
+            "default": "auto"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 16,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          },
+          {
+            "role": "mask",
+            "required": false,
+            "min": 0,
+            "max": 1,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg", "webp"],
+          "counts": [1],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": ["auto-size-only-at-1k"],
+          "customDimensions": {
+            "divisor": 16,
+            "maxEdge": 3840,
+            "minPixels": 655360,
+            "maxPixels": 8294400,
+            "maxAspectRatio": 3
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": [
+          "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "gpt-image-2.5-sunburst",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "output_format": "png",
+              "quality": "high",
+              "background": "auto",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "21:9",
+            "resolution": "4K",
+            "outputFormat": "webp",
+            "quality": "max",
+            "background": "opaque"
+          },
+          "request": {
+            "model": "gpt-image-2.5-sunburst",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "output_format": "webp",
+              "quality": "max",
+              "background": "opaque",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "outputFormat", "quality", "background"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Reviewed adapter condition: auto-size-only-at-1k.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+      ]
+    },
+    {
+      "entryKey": "nano-banana-2.1:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "nano-banana-2-1",
+        "markdownId": "model:image:nano-banana-2-1:markdown",
+        "jsonId": "model:image:nano-banana-2-1:json"
+      },
+      "schema": {
+        "publicModelId": "nano-banana-2.1",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 20000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": false,
+            "min": 1,
+            "max": 10,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": null,
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": ["Auto aspect ratio requires reference images."]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "nano-banana-2.1",
+            "input": {
+              "prompt": "studio image",
+              "resolution": "1K",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "21:9",
+            "resolution": "4K"
+          },
+          "request": {
+            "model": "nano-banana-2.1",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Auto aspect ratio requires reference images."
+      ]
+    },
+    {
+      "entryKey": "nano-banana-2.1:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "nano-banana-2-1",
+        "markdownId": "model:image:nano-banana-2-1:markdown",
+        "jsonId": "model:image:nano-banana-2-1:json"
+      },
+      "schema": {
+        "publicModelId": "nano-banana-2.1",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 20000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 10,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": null,
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": ["Auto aspect ratio requires reference images."]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "nano-banana-2.1",
+            "input": {
+              "prompt": "studio image",
+              "resolution": "1K",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "21:9",
+            "resolution": "4K"
+          },
+          "request": {
+            "model": "nano-banana-2.1",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Auto aspect ratio requires reference images."
+      ]
+    },
+    {
+      "entryKey": "qwen-image-2.1:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "qwen-image-2-1",
+        "markdownId": "model:image:qwen-image-2-1:markdown",
+        "jsonId": "model:image:qwen-image-2-1:json"
+      },
+      "schema": {
+        "publicModelId": "qwen-image-2.1",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 5000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1:1", "4:3", "3:4", "16:9", "9:16", "3:2", "2:3", "21:9", "9:21"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K"],
+            "default": "1K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "webp", "jpeg"],
+            "default": "png"
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          },
+          {
+            "key": "background",
+            "apiKey": "background",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["opaque", "transparent"],
+            "default": "opaque"
+          },
+          {
+            "key": "promptExtend",
+            "apiKey": "prompt_extend",
+            "kind": "boolean",
+            "level": "advanced",
+            "default": true
+          },
+          {
+            "key": "seed",
+            "apiKey": "seed",
+            "kind": "integer",
+            "level": "advanced"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": false,
+            "min": 1,
+            "max": 10,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "webp", "jpeg"],
+          "counts": [1],
+          "customSize": false,
+          "seed": true,
+          "safetyChecker": true
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": [
+          "Masks require exactly one reference and an opaque background; size and prompt enhancement are ignored with a mask. Transparent output requires PNG or WebP. References support JPEG, PNG and WebP, up to 30 MB and 25 MP each; the provider checks remote media limits."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "qwen-image-2.1",
+            "input": {
+              "prompt": "studio image",
+              "resolution": "1K",
+              "output_format": "png",
+              "enable_safety_checker": false,
+              "background": "opaque",
+              "prompt_extend": true
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "9:21",
+            "resolution": "2K",
+            "outputFormat": "jpeg",
+            "enableSafetyChecker": true,
+            "promptExtend": false,
+            "seed": 1
+          },
+          "request": {
+            "model": "qwen-image-2.1",
+            "input": {
+              "prompt": "studio image",
+              "size": "9:21",
+              "resolution": "2K",
+              "output_format": "jpeg",
+              "enable_safety_checker": true,
+              "background": "opaque",
+              "prompt_extend": false,
+              "seed": 1
+            }
+          },
+          "coveredFields": [
+            "aspectRatio",
+            "resolution",
+            "outputFormat",
+            "enableSafetyChecker",
+            "promptExtend",
+            "seed"
+          ]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in.",
+        "Masks require exactly one reference and an opaque background; size and prompt enhancement are ignored with a mask. Transparent output requires PNG or WebP. References support JPEG, PNG and WebP, up to 30 MB and 25 MP each; the provider checks remote media limits."
+      ]
+    },
+    {
+      "entryKey": "qwen-image-2.1:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "qwen-image-2-1",
+        "markdownId": "model:image:qwen-image-2-1:markdown",
+        "jsonId": "model:image:qwen-image-2-1:json"
+      },
+      "schema": {
+        "publicModelId": "qwen-image-2.1",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 5000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1:1", "4:3", "3:4", "16:9", "9:16", "3:2", "2:3", "21:9", "9:21", "auto"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K"],
+            "default": "1K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "webp", "jpeg"],
+            "default": "png"
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          },
+          {
+            "key": "background",
+            "apiKey": "background",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["opaque", "transparent"],
+            "default": "opaque"
+          },
+          {
+            "key": "promptExtend",
+            "apiKey": "prompt_extend",
+            "kind": "boolean",
+            "level": "advanced",
+            "default": true
+          },
+          {
+            "key": "seed",
+            "apiKey": "seed",
+            "kind": "integer",
+            "level": "advanced"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 10,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          },
+          {
+            "role": "mask",
+            "required": false,
+            "min": 0,
+            "max": 1,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "webp", "jpeg"],
+          "counts": [1],
+          "customSize": false,
+          "seed": true,
+          "safetyChecker": true
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": [
+          "Masks require exactly one reference and an opaque background; size and prompt enhancement are ignored with a mask. Transparent output requires PNG or WebP. References support JPEG, PNG and WebP, up to 30 MB and 25 MP each; the provider checks remote media limits."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "qwen-image-2.1",
+            "input": {
+              "prompt": "studio image",
+              "resolution": "1K",
+              "output_format": "png",
+              "enable_safety_checker": false,
+              "background": "opaque",
+              "prompt_extend": true,
+              "image_urls": ["https://assets.example/reference-0.png"]
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "auto",
+            "resolution": "2K",
+            "outputFormat": "jpeg",
+            "enableSafetyChecker": true,
+            "promptExtend": false,
+            "seed": 1
+          },
+          "request": {
+            "model": "qwen-image-2.1",
+            "input": {
+              "prompt": "studio image",
+              "size": "auto",
+              "resolution": "2K",
+              "output_format": "jpeg",
+              "enable_safety_checker": true,
+              "background": "opaque",
+              "prompt_extend": false,
+              "seed": 1,
+              "image_urls": ["https://assets.example/reference-0.png"]
+            }
+          },
+          "coveredFields": [
+            "aspectRatio",
+            "resolution",
+            "outputFormat",
+            "enableSafetyChecker",
+            "promptExtend",
+            "seed"
+          ]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in.",
+        "Masks require exactly one reference and an opaque background; size and prompt enhancement are ignored with a mask. Transparent output requires PNG or WebP. References support JPEG, PNG and WebP, up to 30 MB and 25 MP each; the provider checks remote media limits."
+      ]
+    },
+    {
+      "entryKey": "seedream-5.0-flash:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "seedream-5-0-flash",
+        "markdownId": "model:image:seedream-5-0-flash:markdown",
+        "jsonId": "model:image:seedream-5-0-flash:json"
+      },
+      "schema": {
+        "publicModelId": "seedream-5.0-flash",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 5000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1:1", "4:3", "3:4", "16:9", "9:16", "3:2", "2:3", "21:9"],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "1.5K", "2K"],
+            "default": "1K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["jpeg", "png"]
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          }
+        ],
+        "inputRoles": [],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["jpeg", "png"],
+          "counts": [1],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": true
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "seedream-5.0-flash",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "21:9",
+            "resolution": "2K",
+            "outputFormat": "png",
+            "enableSafetyChecker": true
+          },
+          "request": {
+            "model": "seedream-5.0-flash",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "2K",
+              "output_format": "png",
+              "enable_safety_checker": true
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "outputFormat", "enableSafetyChecker"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in."
+      ]
+    },
+    {
+      "entryKey": "seedream-5.0-flash-edit:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "seedream-5-0-flash",
+        "markdownId": "model:image:seedream-5-0-flash:markdown",
+        "jsonId": "model:image:seedream-5-0-flash:json"
+      },
+      "schema": {
+        "publicModelId": "seedream-5.0-flash-edit",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 5000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1:1", "4:3", "3:4", "16:9", "9:16", "3:2", "2:3", "21:9"],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "1.5K", "2K"],
+            "default": "1K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["jpeg", "png"]
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 10,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["jpeg", "png"],
+          "counts": [1],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": true
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "seedream-5.0-flash-edit",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "enable_safety_checker": false,
+              "image_urls": ["https://assets.example/reference-0.png"]
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "21:9",
+            "resolution": "2K",
+            "outputFormat": "png",
+            "enableSafetyChecker": true
+          },
+          "request": {
+            "model": "seedream-5.0-flash-edit",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "2K",
+              "output_format": "png",
+              "enable_safety_checker": true,
+              "image_urls": ["https://assets.example/reference-0.png"]
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "outputFormat", "enableSafetyChecker"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in."
+      ]
+    },
     {
       "entryKey": "flux-2-pro:text-to-image",
       "status": "current",
@@ -101,7 +1612,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: size-and-resolution-required.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Size and resolution are both required."
       ]
     },
@@ -217,7 +1728,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: size-and-resolution-required.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Size and resolution are both required."
       ]
     },
@@ -319,7 +1830,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: size-and-resolution-required.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Size and resolution are both required."
       ]
     },
@@ -435,7 +1946,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: size-and-resolution-required.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Size and resolution are both required."
       ]
     },
@@ -561,7 +2072,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -692,7 +2203,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -785,7 +2296,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Edit variants use only reference image index 0."
       ]
     },
@@ -894,7 +2405,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Edit variants use only reference image index 0."
       ]
     },
@@ -988,7 +2499,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Edit variants use only reference image index 0."
       ]
     },
@@ -1097,7 +2608,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Edit variants use only reference image index 0."
       ]
     },
@@ -1214,7 +2725,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -1316,7 +2827,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -1441,7 +2952,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -1543,7 +3054,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -1668,7 +3179,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -1798,7 +3309,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -1951,7 +3462,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -2044,7 +3555,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -2143,7 +3654,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -2275,7 +3786,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -2413,7 +3924,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -2544,7 +4055,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Supplying image_urls switches the single model ID from generation to editing."
       ]
     },
@@ -2682,7 +4193,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Supplying image_urls switches the single model ID from generation to editing."
       ]
     },
@@ -2818,7 +4329,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -2938,7 +4449,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Elements remain a reviewed structured adapter surface."
       ]
     },
@@ -3074,7 +4585,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Elements remain a reviewed structured adapter surface."
       ]
     },
@@ -3159,7 +4670,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -3258,7 +4769,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -3376,7 +4887,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: pro-only-output-format-and-web-search.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Output format and web search are Pro-only."
       ]
     },
@@ -3510,7 +5021,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: pro-only-output-format-and-web-search.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Output format and web search are Pro-only."
       ]
     },
@@ -3648,7 +5159,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: pro-only-output-format-and-web-search.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Output format and web search are Pro-only."
       ]
     },
@@ -3801,7 +5312,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: pro-only-output-format-and-web-search.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Output format and web search are Pro-only."
       ]
     },
@@ -3886,7 +5397,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Text variant forbids image_urls."
       ]
     },
@@ -3986,7 +5497,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Text variant forbids image_urls."
       ]
     },
@@ -4115,7 +5626,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Some seed fields are official-variant only."
       ]
     },
@@ -4259,7 +5770,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Some seed fields are official-variant only."
       ]
     },
@@ -4398,7 +5909,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Some seed fields are official-variant only."
       ]
     },
@@ -4552,7 +6063,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Some seed fields are official-variant only."
       ]
     },
@@ -5323,7 +6834,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: reference-count-plus-output-count-at-most-15.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "image_urls plus n must not exceed 15."
       ]
     },
@@ -5444,7 +6955,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: reference-count-plus-output-count-at-most-15.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "image_urls plus n must not exceed 15."
       ]
     },
@@ -6325,7 +7836,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -6454,7 +7965,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -6577,7 +8088,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -6706,7 +8217,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {

@@ -151,8 +151,8 @@ describe('durable job repository invariants', () => {
       estimateEnvelope: {
         signatureVersion: PRICING_SIGNATURE_VERSION,
         signature:
-          'version=pricing-signature-v1|registry=image-2026-08-24.1|model=seedream-5.0-pro|workflow=text-to-image|unit=per-output|quantity=2',
-        registryVersion: 'image-2026-08-24.1',
+          'version=pricing-signature-v1|registry=image-2026-10-11.1|model=seedream-5.0-pro|workflow=text-to-image|unit=per-output|quantity=2',
+        registryVersion: 'image-2026-10-11.1',
         pricingHash: 'a'.repeat(64),
         basis: { unit: 'per-output', creditsPerUnit: 8, units: 2 },
         provenance: 'published',
@@ -166,8 +166,8 @@ describe('durable job repository invariants', () => {
       estimate: {
         signatureVersion: PRICING_SIGNATURE_VERSION,
         signature:
-          'version=pricing-signature-v1|registry=image-2026-08-24.1|model=seedream-5.0-pro|workflow=text-to-image|unit=per-output|quantity=2',
-        registryVersion: 'image-2026-08-24.1',
+          'version=pricing-signature-v1|registry=image-2026-10-11.1|model=seedream-5.0-pro|workflow=text-to-image|unit=per-output|quantity=2',
+        registryVersion: 'image-2026-10-11.1',
         pricingHash: 'a'.repeat(64),
         basis: { unit: 'per-output', creditsPerUnit: 8, units: 2 },
         provenance: 'published',
@@ -185,7 +185,7 @@ describe('durable job repository invariants', () => {
     seedImageRegistry(fixture.database);
     fixture.database
       .query(
-        "UPDATE registry_entries SET status='historical' WHERE registry_version='image-2026-08-24.1' AND entry_key='seedream-5.0-pro:text-to-image'"
+        "UPDATE registry_entries SET status='historical' WHERE registry_version='image-2026-10-11.1' AND entry_key='seedream-5.0-pro:text-to-image'"
       )
       .run();
     const request = {
@@ -211,8 +211,8 @@ describe('durable job repository invariants', () => {
         estimateEnvelope: {
           signatureVersion: PRICING_SIGNATURE_VERSION,
           signature:
-            'version=pricing-signature-v1|registry=image-2026-08-24.1|model=seedream-5.0-pro|workflow=text-to-image|unit=per-output|quantity=1',
-          registryVersion: 'image-2026-08-24.1',
+            'version=pricing-signature-v1|registry=image-2026-10-11.1|model=seedream-5.0-pro|workflow=text-to-image|unit=per-output|quantity=1',
+          registryVersion: 'image-2026-10-11.1',
           pricingHash: 'a'.repeat(64),
           basis: { unit: 'per-output', creditsPerUnit: 8, units: 1 },
           provenance: 'published',

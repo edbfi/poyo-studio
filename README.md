@@ -24,6 +24,29 @@ responsive light/dark interface.
 
 The project is independent and is not an official Poyo.ai client.
 
+## Model coverage
+
+The October 11, 2026 comparison against [Poyo's documentation index](https://docs.poyo.ai/llms.txt)
+covers all 29 indexed image and 41 indexed video model pages, plus the two existing Sora Official
+pages that remain directly accessible. The registry contains 53 image model IDs with 66 workflows
+and 69 video model IDs with 151 workflows. The studio supports text and reference-image generation, image
+editing, text/image/frame/reference-to-video, video editing and extension, motion transfer,
+multi-shot generation, and audio-driven avatar video.
+
+Recent additions include [Seedream 5.0 Flash](https://docs.poyo.ai/api-manual/image-series/seedream-5-0-flash),
+GPT Image 2.5 Flare and Sunburst, Nano Banana 2.1, Qwen Image 2.1, Gemini Omni 1.1 Flash,
+H3 Max and H3 Max Turbo. Grok Imagine Video 1.5 includes text, image and reference modes;
+Kling Avatar 2.0 Standard and Pro accept an avatar image and a public driving-audio URL.
+Audio inputs use remote URLs; local audio upload is not available.
+
+The Models page links each workflow to its source documentation and shows its limitations.
+Model-specific fields, reference limits and incompatible combinations are checked before
+submission. Remote media metadata constraints remain subject to provider validation.
+Legacy and JSON-only Sora specifications remain audit records outside the selectors.
+Pricing stays unavailable when published rows cannot be matched unambiguously; the studio
+does not invent prices for new models. Registry evidence includes paired Markdown/JSON hashes,
+reviewed schemas and request fixtures. Run `bun run validate:registry` to check this evidence.
+
 ## Quick start
 
 ### Requirements

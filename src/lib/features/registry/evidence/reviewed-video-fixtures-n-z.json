@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "registryVersion": "video-2026-08-26.1",
-  "reviewedAt": "2026-08-26T16:51:42Z",
+  "registryVersion": "video-2026-10-11.1",
+  "reviewedAt": "2026-10-11T11:26:07Z",
   "workflows": [
     {
       "entryKey": "omni-flash:text-to-video",
@@ -123,7 +123,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: omni-image-count-one-or-three-and-video-omits-duration.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image count must be exactly one or three, never two; duration is omitted for video input."
       ]
     },
@@ -263,7 +263,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: omni-image-count-one-or-three-and-video-omits-duration.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image count must be exactly one or three, never two; duration is omitted for video input."
       ]
     },
@@ -423,7 +423,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: omni-image-count-one-or-three-and-video-omits-duration.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image count must be exactly one or three, never two; duration is omitted for video input."
       ]
     },
@@ -549,7 +549,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: omni-image-count-one-or-three-and-video-omits-duration.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image count must be exactly one or three, never two; duration is omitted for video input."
       ]
     },
@@ -669,7 +669,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -804,7 +804,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -910,7 +910,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -1032,7 +1032,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -1175,7 +1175,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -1334,7 +1334,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -1493,7 +1493,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -1631,7 +1631,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: frames-vs-references-and-reference-counts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image inputs take a starting frame plus an optional ending frame, conflict with all references, and reference audio requires an image or video reference."
       ]
     },
@@ -1786,7 +1786,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: frames-vs-references-and-reference-counts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image inputs take a starting frame plus an optional ending frame, conflict with all references, and reference audio requires an image or video reference."
       ]
     },
@@ -1961,7 +1961,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: frames-vs-references-and-reference-counts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image inputs take a starting frame plus an optional ending frame, conflict with all references, and reference audio requires an image or video reference."
       ]
     },
@@ -2100,7 +2100,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: frames-vs-references-and-reference-counts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image inputs take a starting frame plus an optional ending frame, conflict with all references, and reference audio requires an image or video reference."
       ]
     },
@@ -2255,7 +2255,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: frames-vs-references-and-reference-counts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image inputs take a starting frame plus an optional ending frame, conflict with all references, and reference audio requires an image or video reference."
       ]
     },
@@ -2430,7 +2430,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: frames-vs-references-and-reference-counts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image inputs take a starting frame plus an optional ending frame, conflict with all references, and reference audio requires an image or video reference."
       ]
     },
@@ -2569,7 +2569,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: frames-vs-references-and-reference-counts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image inputs take a starting frame plus an optional ending frame, conflict with all references, and reference audio requires an image or video reference."
       ]
     },
@@ -2724,7 +2724,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: frames-vs-references-and-reference-counts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image inputs take a starting frame plus an optional ending frame, conflict with all references, and reference audio requires an image or video reference."
       ]
     },
@@ -2899,7 +2899,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: frames-vs-references-and-reference-counts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image inputs take a starting frame plus an optional ending frame, conflict with all references, and reference audio requires an image or video reference."
       ]
     },
@@ -3038,7 +3038,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: frames-vs-references-and-reference-counts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image inputs conflict with all references and pin the aspect ratio to auto; reference media accepts 30 images, 10 videos and 10 audio clips, and audio requires an image or video reference."
       ]
     },
@@ -3194,7 +3194,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: frames-vs-references-and-reference-counts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image inputs conflict with all references and pin the aspect ratio to auto; reference media accepts 30 images, 10 videos and 10 audio clips, and audio requires an image or video reference."
       ]
     },
@@ -3369,7 +3369,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: frames-vs-references-and-reference-counts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image inputs conflict with all references and pin the aspect ratio to auto; reference media accepts 30 images, 10 videos and 10 audio clips, and audio requires an image or video reference."
       ]
     },
@@ -3476,7 +3476,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -3598,7 +3598,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -3718,7 +3718,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "aspect_ratio=auto is valid only when an image is supplied."
       ]
     },
@@ -3855,7 +3855,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "aspect_ratio=auto is valid only when an image is supplied."
       ]
     },
@@ -3978,7 +3978,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Lite forbids images/generation_type; Quality forbids reference generation."
       ]
     },
@@ -4101,7 +4101,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Lite forbids images/generation_type; Quality forbids reference generation."
       ]
     },
@@ -4240,7 +4240,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Lite forbids images/generation_type; Quality forbids reference generation."
       ]
     },
@@ -4399,7 +4399,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Lite forbids images/generation_type; Quality forbids reference generation."
       ]
     },
@@ -4563,7 +4563,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Lite forbids images/generation_type; Quality forbids reference generation."
       ]
     },
@@ -4686,7 +4686,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Lite forbids images/generation_type; Quality forbids reference generation."
       ]
     },
@@ -4825,7 +4825,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Lite forbids images/generation_type; Quality forbids reference generation."
       ]
     },
@@ -4984,7 +4984,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Lite forbids images/generation_type; Quality forbids reference generation."
       ]
     },
@@ -5120,7 +5120,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Reference, selected multi-image combinations, and Lite 1080p require 8 seconds; Lite forbids 4k."
       ]
     },
@@ -5272,7 +5272,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Reference, selected multi-image combinations, and Lite 1080p require 8 seconds; Lite forbids 4k."
       ]
     },
@@ -5444,7 +5444,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Reference, selected multi-image combinations, and Lite 1080p require 8 seconds; Lite forbids 4k."
       ]
     },
@@ -5580,7 +5580,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Reference, selected multi-image combinations, and Lite 1080p require 8 seconds; Lite forbids 4k."
       ]
     },
@@ -5732,7 +5732,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Reference, selected multi-image combinations, and Lite 1080p require 8 seconds; Lite forbids 4k."
       ]
     },
@@ -5904,7 +5904,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Reference, selected multi-image combinations, and Lite 1080p require 8 seconds; Lite forbids 4k."
       ]
     },
@@ -6081,7 +6081,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Reference, selected multi-image combinations, and Lite 1080p require 8 seconds; Lite forbids 4k."
       ]
     },
@@ -6217,7 +6217,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Reference, selected multi-image combinations, and Lite 1080p require 8 seconds; Lite forbids 4k."
       ]
     },
@@ -6369,7 +6369,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Reference, selected multi-image combinations, and Lite 1080p require 8 seconds; Lite forbids 4k."
       ]
     },
@@ -6541,7 +6541,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Reference, selected multi-image combinations, and Lite 1080p require 8 seconds; Lite forbids 4k."
       ]
     },
@@ -6718,7 +6718,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: generation-type-model-duration-matrix.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Reference, selected multi-image combinations, and Lite 1080p require 8 seconds; Lite forbids 4k."
       ]
     },
@@ -6837,7 +6837,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Video-to-video accepts 1–3 videos and duration 5 or 10 only."
       ]
     },
@@ -6972,7 +6972,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Video-to-video accepts 1–3 videos and duration 5 or 10 only."
       ]
     },
@@ -7108,7 +7108,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: video-to-video-duration-max-ten.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Video-to-video accepts 1–3 videos and duration 5 or 10 only."
       ]
     },
@@ -9126,7 +9126,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -9235,7 +9235,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -9356,7 +9356,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -9475,7 +9475,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -9626,7 +9626,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -9760,7 +9760,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "audio is an optional string; boolean values are invalid."
       ]
     }

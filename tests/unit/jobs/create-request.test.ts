@@ -446,3 +446,54 @@ describe('server-authoritative paid request preparation', () => {
     }
   });
 });
+
+test('avatar audio is required in guided values at the paid boundary', async () => {
+  const fixture = await createJobFixture();
+  try {
+    seedVideoRegistry(fixture.database);
+    const envelope = {
+      actionId,
+      entryKey: 'kling-avatar-2.0/standard:avatar-video',
+      inputs: [
+        {
+          role: 'image',
+          mediaKind: 'image',
+          source: 'remote',
+          url: 'https://assets.example/avatar.png'
+        }
+      ]
+    };
+    const resolve = async () => {
+      throw new Error('Remote media must not resolve local sources.');
+    };
+    const prepared = await prepareJobCreateRequest(
+      fixture.database,
+      {
+        ...envelope,
+        values: { audioUrl: 'https://assets.example/speech.mp3' }
+      },
+      resolve
+    );
+    expect(prepared.normalizedPayload).toEqual({
+      model: 'kling-avatar-2.0/standard',
+      input: {
+        image_urls: ['https://assets.example/avatar.png'],
+        audio_url: 'https://assets.example/speech.mp3',
+        enable_safety_checker: false
+      }
+    });
+    expect(prepared.inputs).toHaveLength(1);
+    await expect(
+      prepareJobCreateRequest(fixture.database, { ...envelope, values: {} }, resolve)
+    ).rejects.toThrow('audio requires');
+    await expect(
+      prepareJobCreateRequest(
+        fixture.database,
+        { ...envelope, values: { audioUrl: 'file:///tmp/speech.mp3' } },
+        resolve
+      )
+    ).rejects.toThrow('HTTP(S)');
+  } finally {
+    await fixture.cleanup();
+  }
+});

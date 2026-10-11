@@ -22,7 +22,9 @@ export function validateFieldValue(field: FieldDefinition, value: unknown): stri
   const issues: string[] = [];
   if (
     field.required &&
-    (value === undefined || value === '' || (Array.isArray(value) && value.length === 0))
+    (value === undefined ||
+      (typeof value === 'string' && value.trim() === '') ||
+      (Array.isArray(value) && value.length === 0))
   )
     issues.push(`${field.key} is required.`);
   if (value === undefined) return issues;

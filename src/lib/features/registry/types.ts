@@ -134,6 +134,7 @@ export interface GuidedImageRequest {
   seed?: number;
   enableSafetyChecker?: boolean;
   quality?: string;
+  background?: string;
   elements?: unknown[];
   googleSearch?: boolean;
   webSearch?: boolean;

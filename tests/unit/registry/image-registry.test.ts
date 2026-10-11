@@ -22,12 +22,12 @@ function registryEntry(key: string) {
 }
 
 describe('audited image registry', () => {
-  test('REG-01/02 accounts for all 24 pages, 47 public IDs, and 56 reviewed workflows', () => {
-    expect(IMAGE_PAGE_SLUGS).toHaveLength(24);
-    expect(new Set(IMAGE_PAGE_SLUGS).size).toBe(24);
-    expect(IMAGE_PUBLIC_IDS).toHaveLength(47);
-    expect(IMAGE_REGISTRY_ENTRIES).toHaveLength(56);
-    expect(new Set(IMAGE_REGISTRY_ENTRIES.map((entry) => entry.key)).size).toBe(56);
+  test('REG-01/02 accounts for all 29 pages, 53 public IDs, and 66 reviewed workflows', () => {
+    expect(IMAGE_PAGE_SLUGS).toHaveLength(29);
+    expect(new Set(IMAGE_PAGE_SLUGS).size).toBe(29);
+    expect(IMAGE_PUBLIC_IDS).toHaveLength(53);
+    expect(IMAGE_REGISTRY_ENTRIES).toHaveLength(66);
+    expect(new Set(IMAGE_REGISTRY_ENTRIES.map((entry) => entry.key)).size).toBe(66);
     for (const entry of IMAGE_REGISTRY_ENTRIES) {
       expect(entry.provenance.markdownUrl).toStartWith('https://docs.poyo.ai/');
       expect(entry.provenance.markdownSha256).toHaveLength(64);
@@ -122,6 +122,9 @@ describe('audited image registry', () => {
   });
   test('REG-07 opts every image model out of the safety checker and toggles only audited families', () => {
     const safetyIds = new Set([
+      'qwen-image-2.1',
+      'seedream-5.0-flash',
+      'seedream-5.0-flash-edit',
       'qwen-image-3',
       'qwen-image-3-pro',
       'seedream-4.5',
@@ -306,7 +309,7 @@ describe('audited image registry', () => {
     expect(
       database.query<{ count: number }, []>('SELECT COUNT(*) count FROM registry_entries').get()
         ?.count
-    ).toBe(58);
+    ).toBe(68);
     expect(
       database
         .query<{ manifest_hash: string }, []>('SELECT manifest_hash FROM registry_versions')

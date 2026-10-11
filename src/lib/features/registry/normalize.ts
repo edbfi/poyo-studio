@@ -68,6 +68,26 @@ function validate(entry: ImageRegistryEntry, values: GuidedImageRequest): string
   if (values.maskUrl !== undefined && typeof values.maskUrl !== 'string')
     issues.push('maskUrl must be a string.');
   const refs = Array.isArray(values.imageUrls) ? values.imageUrls.length : 0;
+  const isGpt25 = entry.publicModelId.startsWith('gpt-image-2.5-');
+  if (isGpt25 || entry.publicModelId === 'qwen-image-2.1') {
+    if (values.background === 'transparent' && values.outputFormat === 'jpeg')
+      issues.push('Transparent backgrounds require PNG or WebP output.');
+    if (values.maskUrl && !refs) issues.push('Mask editing requires reference images.');
+    if (
+      entry.publicModelId === 'qwen-image-2.1' &&
+      values.maskUrl &&
+      (refs !== 1 || values.background === 'transparent')
+    )
+      issues.push('Qwen Image 2.1 masks require exactly one reference and an opaque background.');
+  }
+  if (isGpt25 && values.aspectRatio === 'auto' && (values.resolution ?? '1K') !== '1K')
+    issues.push('GPT Image 2.5 auto size requires 1K resolution.');
+  if (
+    ['nano-banana-2.1', 'qwen-image-2.1'].includes(entry.publicModelId) &&
+    values.aspectRatio === 'auto' &&
+    !refs
+  )
+    issues.push('Auto aspect ratio requires reference images.');
   for (const role of entry.inputRoles) {
     const count = role.role === 'mask' ? (typeof values.maskUrl === 'string' ? 1 : 0) : refs;
     if (role.required && count < role.min)
@@ -116,6 +136,12 @@ function validate(entry: ImageRegistryEntry, values: GuidedImageRequest): string
       issues.push(`${entry.family} accepts custom dimensions or resolution, not both.`);
     if (entry.family === 'GPT Image 2' && values.resolution !== '2K' && values.resolution !== '4K')
       issues.push('GPT Image 2 custom dimensions require 2K or 4K resolution.');
+    if (isGpt25) {
+      if (!['2K', '4K'].includes(values.resolution ?? '1K'))
+        issues.push('GPT Image 2.5 custom dimensions require 2K or 4K resolution.');
+      if (Math.max(width, height) === 3840 && values.resolution !== '4K')
+        issues.push('GPT Image 2.5 a 3840-pixel edge requires 4K resolution.');
+    }
   }
   if (
     ['Seedream 4.5', 'Seedream 5.0 Lite'].includes(entry.family) &&
@@ -181,10 +207,11 @@ export function normalizeImageRequest(
     if (
       override.key === 'n' &&
       (entry.publicModelId === 'seedream-5.0-pro' ||
-        entry.publicModelId === 'seedream-5.0-pro-edit')
+        entry.publicModelId === 'seedream-5.0-pro-edit' ||
+        entry.output.counts?.length === 1)
     )
       throw new RegistryValidationError([
-        'Expert override n is not supported by the current Seedream 5.0 Pro schema.'
+        `Expert override n is not supported by the current ${entry.family} schema.`
       ]);
     if (!/^[a-z][a-z0-9_]{0,63}$/.test(override.key) || protectedKeys.test(override.key))
       throw new RegistryValidationError([`Expert override ${override.key} is protected.`]);

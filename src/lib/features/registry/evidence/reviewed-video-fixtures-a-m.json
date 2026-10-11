@@ -1,8 +1,1279 @@
 {
   "version": 1,
-  "registryVersion": "video-2026-08-26.1",
-  "reviewedAt": "2026-08-26T16:51:42Z",
+  "registryVersion": "video-2026-10-11.1",
+  "reviewedAt": "2026-10-11T11:26:07Z",
   "workflows": [
+    {
+      "entryKey": "gemini-omni-1.1-flash:text-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "gemini-omni-1.1-flash",
+        "markdownId": "model:video:gemini-omni-1.1-flash:markdown",
+        "jsonId": "model:video:gemini-omni-1.1-flash:json"
+      },
+      "schema": {
+        "publicModelId": "gemini-omni-1.1-flash",
+        "workflow": "text-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 20000
+          },
+          {
+            "key": "duration",
+            "apiKey": "duration",
+            "kind": "enum",
+            "level": "common",
+            "required": true,
+            "default": 8,
+            "enum": ["4", "6", "8", "10"]
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "aspect_ratio",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "16:9",
+            "enum": ["16:9", "9:16"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "720p",
+            "enum": ["360p", "720p", "1080p", "4k"]
+          }
+        ],
+        "inputRoles": [],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": [4, 6, 8, 10],
+          "resolutions": ["360p", "720p", "1080p", "4k"],
+          "aspectRatios": ["16:9", "9:16"],
+          "seed": false,
+          "safetyChecker": false,
+          "audio": "none"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": [
+          "Reference video must be 3–10 seconds and supports at most five accompanying reference images. Output duration follows the reference video."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 8,
+            "aspectRatio": "16:9",
+            "resolution": "720p"
+          },
+          "request": {
+            "model": "gemini-omni-1.1-flash",
+            "input": {
+              "prompt": "studio video",
+              "duration": 8,
+              "aspect_ratio": "16:9",
+              "resolution": "720p",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 10,
+            "aspectRatio": "9:16",
+            "resolution": "4k"
+          },
+          "request": {
+            "model": "gemini-omni-1.1-flash",
+            "input": {
+              "prompt": "studio video",
+              "duration": 10,
+              "aspect_ratio": "9:16",
+              "resolution": "4k",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["duration", "aspectRatio", "resolution"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "duration": 8,
+            "aspectRatio": "16:9",
+            "resolution": "720p"
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Reference video must be 3–10 seconds and supports at most five accompanying reference images. Output duration follows the reference video."
+      ]
+    },
+    {
+      "entryKey": "gemini-omni-1.1-flash:image-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "gemini-omni-1.1-flash",
+        "markdownId": "model:video:gemini-omni-1.1-flash:markdown",
+        "jsonId": "model:video:gemini-omni-1.1-flash:json"
+      },
+      "schema": {
+        "publicModelId": "gemini-omni-1.1-flash",
+        "workflow": "image-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 20000
+          },
+          {
+            "key": "duration",
+            "apiKey": "duration",
+            "kind": "enum",
+            "level": "common",
+            "required": true,
+            "default": 8,
+            "enum": ["4", "6", "8", "10"]
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "aspect_ratio",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "16:9",
+            "enum": ["16:9", "9:16"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "720p",
+            "enum": ["360p", "720p", "1080p", "4k"]
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "start-frame",
+            "requestKey": "imageUrls",
+            "apiKey": "image_urls",
+            "mediaKind": "image",
+            "required": true,
+            "min": 1,
+            "max": 2,
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": [4, 6, 8, 10],
+          "resolutions": ["360p", "720p", "1080p", "4k"],
+          "aspectRatios": ["16:9", "9:16"],
+          "seed": false,
+          "safetyChecker": false,
+          "audio": "none"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": [
+          "Reference video must be 3–10 seconds and supports at most five accompanying reference images. Output duration follows the reference video."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 8,
+            "aspectRatio": "16:9",
+            "resolution": "720p",
+            "imageUrls": ["https://assets.example/start-frame-0.png"]
+          },
+          "request": {
+            "model": "gemini-omni-1.1-flash",
+            "input": {
+              "prompt": "studio video",
+              "duration": 8,
+              "aspect_ratio": "16:9",
+              "resolution": "720p",
+              "image_urls": ["https://assets.example/start-frame-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 10,
+            "aspectRatio": "9:16",
+            "resolution": "4k",
+            "imageUrls": ["https://assets.example/start-frame-0.png"]
+          },
+          "request": {
+            "model": "gemini-omni-1.1-flash",
+            "input": {
+              "prompt": "studio video",
+              "duration": 10,
+              "aspect_ratio": "9:16",
+              "resolution": "4k",
+              "image_urls": ["https://assets.example/start-frame-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["duration", "aspectRatio", "resolution"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "duration": 8,
+            "aspectRatio": "16:9",
+            "resolution": "720p",
+            "imageUrls": ["https://assets.example/start-frame-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Reference video must be 3–10 seconds and supports at most five accompanying reference images. Output duration follows the reference video."
+      ]
+    },
+    {
+      "entryKey": "gemini-omni-1.1-flash:reference-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "gemini-omni-1.1-flash",
+        "markdownId": "model:video:gemini-omni-1.1-flash:markdown",
+        "jsonId": "model:video:gemini-omni-1.1-flash:json"
+      },
+      "schema": {
+        "publicModelId": "gemini-omni-1.1-flash",
+        "workflow": "reference-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 20000
+          },
+          {
+            "key": "duration",
+            "apiKey": "duration",
+            "kind": "enum",
+            "level": "common",
+            "required": true,
+            "default": 8,
+            "enum": ["4", "6", "8", "10"]
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "aspect_ratio",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "16:9",
+            "enum": ["16:9", "9:16"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "720p",
+            "enum": ["360p", "720p", "1080p", "4k"]
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference-image",
+            "requestKey": "referenceImageUrls",
+            "apiKey": "reference_image_urls",
+            "mediaKind": "image",
+            "required": true,
+            "min": 1,
+            "max": 7,
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": [4, 6, 8, 10],
+          "resolutions": ["360p", "720p", "1080p", "4k"],
+          "aspectRatios": ["16:9", "9:16"],
+          "seed": false,
+          "safetyChecker": false,
+          "audio": "none"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": [
+          "Reference video must be 3–10 seconds and supports at most five accompanying reference images. Output duration follows the reference video."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 8,
+            "aspectRatio": "16:9",
+            "resolution": "720p",
+            "referenceImageUrls": ["https://assets.example/reference-image-0.png"]
+          },
+          "request": {
+            "model": "gemini-omni-1.1-flash",
+            "input": {
+              "prompt": "studio video",
+              "duration": 8,
+              "aspect_ratio": "16:9",
+              "resolution": "720p",
+              "reference_image_urls": ["https://assets.example/reference-image-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 10,
+            "aspectRatio": "9:16",
+            "resolution": "4k",
+            "referenceImageUrls": ["https://assets.example/reference-image-0.png"]
+          },
+          "request": {
+            "model": "gemini-omni-1.1-flash",
+            "input": {
+              "prompt": "studio video",
+              "duration": 10,
+              "aspect_ratio": "9:16",
+              "resolution": "4k",
+              "reference_image_urls": ["https://assets.example/reference-image-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["duration", "aspectRatio", "resolution"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "duration": 8,
+            "aspectRatio": "16:9",
+            "resolution": "720p",
+            "referenceImageUrls": ["https://assets.example/reference-image-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Reference video must be 3–10 seconds and supports at most five accompanying reference images. Output duration follows the reference video."
+      ]
+    },
+    {
+      "entryKey": "gemini-omni-1.1-flash:video-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "gemini-omni-1.1-flash",
+        "markdownId": "model:video:gemini-omni-1.1-flash:markdown",
+        "jsonId": "model:video:gemini-omni-1.1-flash:json"
+      },
+      "schema": {
+        "publicModelId": "gemini-omni-1.1-flash",
+        "workflow": "video-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 20000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "aspect_ratio",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "16:9",
+            "enum": ["16:9", "9:16"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "720p",
+            "enum": ["360p", "720p", "1080p", "4k"]
+          },
+          {
+            "key": "referenceVideoDuration",
+            "apiKey": "__local_reference_video_duration",
+            "kind": "number",
+            "level": "advanced",
+            "min": 3,
+            "max": 10
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference-video",
+            "requestKey": "referenceVideoUrls",
+            "apiKey": "reference_video_urls",
+            "mediaKind": "video",
+            "required": true,
+            "min": 1,
+            "max": 1,
+            "formats": ["video/mp4", "video/webm", "video/quicktime"]
+          },
+          {
+            "role": "reference-image",
+            "requestKey": "referenceImageUrls",
+            "apiKey": "reference_image_urls",
+            "mediaKind": "image",
+            "required": false,
+            "min": 0,
+            "max": 5,
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": [4, 6, 8, 10],
+          "resolutions": ["360p", "720p", "1080p", "4k"],
+          "aspectRatios": ["16:9", "9:16"],
+          "seed": false,
+          "safetyChecker": false,
+          "audio": "none"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": [
+          "Reference video must be 3–10 seconds and supports at most five accompanying reference images. Output duration follows the reference video."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "aspectRatio": "16:9",
+            "resolution": "720p",
+            "referenceVideoUrls": ["https://assets.example/reference-video-0.mp4"]
+          },
+          "request": {
+            "model": "gemini-omni-1.1-flash",
+            "input": {
+              "prompt": "studio video",
+              "aspect_ratio": "16:9",
+              "resolution": "720p",
+              "reference_video_urls": ["https://assets.example/reference-video-0.mp4"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "aspectRatio": "9:16",
+            "resolution": "4k",
+            "referenceVideoUrls": ["https://assets.example/reference-video-0.mp4"],
+            "referenceVideoDuration": 10
+          },
+          "request": {
+            "model": "gemini-omni-1.1-flash",
+            "input": {
+              "prompt": "studio video",
+              "aspect_ratio": "9:16",
+              "resolution": "4k",
+              "reference_video_urls": ["https://assets.example/reference-video-0.mp4"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "referenceVideoDuration"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "aspectRatio": "16:9",
+            "resolution": "720p",
+            "referenceVideoUrls": ["https://assets.example/reference-video-0.mp4"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Reference video must be 3–10 seconds and supports at most five accompanying reference images. Output duration follows the reference video."
+      ]
+    },
+    {
+      "entryKey": "h3-max:text-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "h3-max",
+        "markdownId": "model:video:h3-max:markdown",
+        "jsonId": "model:video:h3-max:json"
+      },
+      "schema": {
+        "publicModelId": "h3-max",
+        "workflow": "text-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 50000
+          },
+          {
+            "key": "duration",
+            "apiKey": "duration",
+            "kind": "integer",
+            "level": "common",
+            "required": true,
+            "default": 5,
+            "min": 5,
+            "max": 15
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "aspect_ratio",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "16:9",
+            "enum": ["1:1", "21:9", "4:3", "3:4", "16:9", "9:16"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "768p",
+            "enum": ["480p", "768p", "1080p"]
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          }
+        ],
+        "inputRoles": [],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": {
+            "min": 5,
+            "max": 15
+          },
+          "resolutions": ["480p", "768p", "1080p"],
+          "aspectRatios": ["1:1", "21:9", "4:3", "3:4", "16:9", "9:16"],
+          "seed": false,
+          "safetyChecker": true,
+          "audio": "none"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": [
+          "Reference mode requires an image and allows at most 12 total files. Videos and audio must each total at most 15 seconds. The provider checks video frame counts, 24 fps, shape and rotation, and 32 kHz audio timing before charging. Each audio clip must fit the output duration."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 5,
+            "aspectRatio": "16:9",
+            "resolution": "768p",
+            "enableSafetyChecker": false
+          },
+          "request": {
+            "model": "h3-max",
+            "input": {
+              "prompt": "studio video",
+              "duration": 5,
+              "aspect_ratio": "16:9",
+              "resolution": "768p",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 15,
+            "aspectRatio": "9:16",
+            "resolution": "1080p",
+            "enableSafetyChecker": true
+          },
+          "request": {
+            "model": "h3-max",
+            "input": {
+              "prompt": "studio video",
+              "duration": 15,
+              "aspect_ratio": "9:16",
+              "resolution": "1080p",
+              "enable_safety_checker": true
+            }
+          },
+          "coveredFields": ["duration", "aspectRatio", "resolution", "enableSafetyChecker"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "duration": 5,
+            "aspectRatio": "16:9",
+            "resolution": "768p",
+            "enableSafetyChecker": false
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in.",
+        "Reference mode requires an image and allows at most 12 total files. Videos and audio must each total at most 15 seconds. The provider checks video frame counts, 24 fps, shape and rotation, and 32 kHz audio timing before charging. Each audio clip must fit the output duration."
+      ]
+    },
+    {
+      "entryKey": "h3-max:image-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "h3-max",
+        "markdownId": "model:video:h3-max:markdown",
+        "jsonId": "model:video:h3-max:json"
+      },
+      "schema": {
+        "publicModelId": "h3-max",
+        "workflow": "image-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 50000
+          },
+          {
+            "key": "duration",
+            "apiKey": "duration",
+            "kind": "integer",
+            "level": "common",
+            "required": true,
+            "default": 5,
+            "min": 5,
+            "max": 15
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "768p",
+            "enum": ["480p", "768p", "1080p"]
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "start-frame",
+            "requestKey": "imageUrls",
+            "apiKey": "image_urls",
+            "mediaKind": "image",
+            "required": true,
+            "min": 1,
+            "max": 2,
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": {
+            "min": 5,
+            "max": 15
+          },
+          "resolutions": ["480p", "768p", "1080p"],
+          "aspectRatios": null,
+          "seed": false,
+          "safetyChecker": true,
+          "audio": "none"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": [
+          "Reference mode requires an image and allows at most 12 total files. Videos and audio must each total at most 15 seconds. The provider checks video frame counts, 24 fps, shape and rotation, and 32 kHz audio timing before charging. Each audio clip must fit the output duration."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 5,
+            "resolution": "768p",
+            "enableSafetyChecker": false,
+            "imageUrls": ["https://assets.example/start-frame-0.png"]
+          },
+          "request": {
+            "model": "h3-max",
+            "input": {
+              "prompt": "studio video",
+              "duration": 5,
+              "resolution": "768p",
+              "enable_safety_checker": false,
+              "image_urls": ["https://assets.example/start-frame-0.png"]
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 15,
+            "resolution": "1080p",
+            "enableSafetyChecker": true,
+            "imageUrls": ["https://assets.example/start-frame-0.png"]
+          },
+          "request": {
+            "model": "h3-max",
+            "input": {
+              "prompt": "studio video",
+              "duration": 15,
+              "resolution": "1080p",
+              "enable_safety_checker": true,
+              "image_urls": ["https://assets.example/start-frame-0.png"]
+            }
+          },
+          "coveredFields": ["duration", "resolution", "enableSafetyChecker"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "duration": 5,
+            "resolution": "768p",
+            "enableSafetyChecker": false,
+            "imageUrls": ["https://assets.example/start-frame-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in.",
+        "Reference mode requires an image and allows at most 12 total files. Videos and audio must each total at most 15 seconds. The provider checks video frame counts, 24 fps, shape and rotation, and 32 kHz audio timing before charging. Each audio clip must fit the output duration."
+      ]
+    },
+    {
+      "entryKey": "h3-max:reference-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "h3-max",
+        "markdownId": "model:video:h3-max:markdown",
+        "jsonId": "model:video:h3-max:json"
+      },
+      "schema": {
+        "publicModelId": "h3-max",
+        "workflow": "reference-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 50000
+          },
+          {
+            "key": "duration",
+            "apiKey": "duration",
+            "kind": "integer",
+            "level": "common",
+            "required": true,
+            "default": 5,
+            "min": 5,
+            "max": 15
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "aspect_ratio",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "adaptive",
+            "enum": ["adaptive", "1:1", "21:9", "4:3", "3:4", "16:9", "9:16"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "768p",
+            "enum": ["480p", "768p", "1080p"]
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference-image",
+            "requestKey": "referenceImageUrls",
+            "apiKey": "reference_image_urls",
+            "mediaKind": "image",
+            "required": true,
+            "min": 1,
+            "max": 9,
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          },
+          {
+            "role": "reference-video",
+            "requestKey": "referenceVideoUrls",
+            "apiKey": "reference_video_urls",
+            "mediaKind": "video",
+            "required": false,
+            "min": 0,
+            "max": 3,
+            "formats": ["video/mp4", "video/webm", "video/quicktime"]
+          },
+          {
+            "role": "reference-audio",
+            "requestKey": "referenceAudioUrls",
+            "apiKey": "reference_audio_urls",
+            "mediaKind": "audio",
+            "required": false,
+            "min": 0,
+            "max": 3,
+            "formats": ["audio/mpeg", "audio/wav", "audio/mp4"]
+          }
+        ],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": {
+            "min": 5,
+            "max": 15
+          },
+          "resolutions": ["480p", "768p", "1080p"],
+          "aspectRatios": ["adaptive", "1:1", "21:9", "4:3", "3:4", "16:9", "9:16"],
+          "seed": false,
+          "safetyChecker": true,
+          "audio": "none"
+        },
+        "validation": {
+          "conditionalRules": ["h3-max-reference-total-at-most-12"]
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": [
+          "Reference mode requires an image and allows at most 12 total files. Videos and audio must each total at most 15 seconds. The provider checks video frame counts, 24 fps, shape and rotation, and 32 kHz audio timing before charging. Each audio clip must fit the output duration."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 5,
+            "aspectRatio": "adaptive",
+            "resolution": "768p",
+            "enableSafetyChecker": false,
+            "referenceImageUrls": ["https://assets.example/reference-image-0.png"]
+          },
+          "request": {
+            "model": "h3-max",
+            "input": {
+              "prompt": "studio video",
+              "duration": 5,
+              "aspect_ratio": "adaptive",
+              "resolution": "768p",
+              "enable_safety_checker": false,
+              "reference_image_urls": ["https://assets.example/reference-image-0.png"]
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 15,
+            "aspectRatio": "9:16",
+            "resolution": "1080p",
+            "enableSafetyChecker": true,
+            "referenceImageUrls": ["https://assets.example/reference-image-0.png"]
+          },
+          "request": {
+            "model": "h3-max",
+            "input": {
+              "prompt": "studio video",
+              "duration": 15,
+              "aspect_ratio": "9:16",
+              "resolution": "1080p",
+              "enable_safety_checker": true,
+              "reference_image_urls": ["https://assets.example/reference-image-0.png"]
+            }
+          },
+          "coveredFields": ["duration", "aspectRatio", "resolution", "enableSafetyChecker"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "duration": 5,
+            "aspectRatio": "adaptive",
+            "resolution": "768p",
+            "enableSafetyChecker": false,
+            "referenceImageUrls": ["https://assets.example/reference-image-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Reviewed adapter condition: h3-max-reference-total-at-most-12.",
+        "Project override: enable_safety_checker is explicitly false unless the user opts in.",
+        "Reference mode requires an image and allows at most 12 total files. Videos and audio must each total at most 15 seconds. The provider checks video frame counts, 24 fps, shape and rotation, and 32 kHz audio timing before charging. Each audio clip must fit the output duration."
+      ]
+    },
+    {
+      "entryKey": "h3-max-turbo:text-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "h3-max-turbo",
+        "markdownId": "model:video:h3-max-turbo:markdown",
+        "jsonId": "model:video:h3-max-turbo:json"
+      },
+      "schema": {
+        "publicModelId": "h3-max-turbo",
+        "workflow": "text-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 50000
+          },
+          {
+            "key": "duration",
+            "apiKey": "duration",
+            "kind": "integer",
+            "level": "common",
+            "required": true,
+            "default": 5,
+            "min": 5,
+            "max": 15
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "aspect_ratio",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "16:9",
+            "enum": ["1:1", "21:9", "4:3", "3:4", "16:9", "9:16"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "768p",
+            "enum": ["480p", "768p", "1080p"]
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          }
+        ],
+        "inputRoles": [],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": {
+            "min": 5,
+            "max": 15
+          },
+          "resolutions": ["480p", "768p", "1080p"],
+          "aspectRatios": ["1:1", "21:9", "4:3", "3:4", "16:9", "9:16"],
+          "seed": false,
+          "safetyChecker": true,
+          "audio": "none"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": [
+          "Image mode accepts a first frame and optional last frame; aspect ratio follows the first image."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 5,
+            "aspectRatio": "16:9",
+            "resolution": "768p",
+            "enableSafetyChecker": false
+          },
+          "request": {
+            "model": "h3-max-turbo",
+            "input": {
+              "prompt": "studio video",
+              "duration": 5,
+              "aspect_ratio": "16:9",
+              "resolution": "768p",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 15,
+            "aspectRatio": "9:16",
+            "resolution": "1080p",
+            "enableSafetyChecker": true
+          },
+          "request": {
+            "model": "h3-max-turbo",
+            "input": {
+              "prompt": "studio video",
+              "duration": 15,
+              "aspect_ratio": "9:16",
+              "resolution": "1080p",
+              "enable_safety_checker": true
+            }
+          },
+          "coveredFields": ["duration", "aspectRatio", "resolution", "enableSafetyChecker"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "duration": 5,
+            "aspectRatio": "16:9",
+            "resolution": "768p",
+            "enableSafetyChecker": false
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in.",
+        "Image mode accepts a first frame and optional last frame; aspect ratio follows the first image."
+      ]
+    },
+    {
+      "entryKey": "h3-max-turbo:image-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "h3-max-turbo",
+        "markdownId": "model:video:h3-max-turbo:markdown",
+        "jsonId": "model:video:h3-max-turbo:json"
+      },
+      "schema": {
+        "publicModelId": "h3-max-turbo",
+        "workflow": "image-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 50000
+          },
+          {
+            "key": "duration",
+            "apiKey": "duration",
+            "kind": "integer",
+            "level": "common",
+            "required": true,
+            "default": 5,
+            "min": 5,
+            "max": 15
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "768p",
+            "enum": ["480p", "768p", "1080p"]
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "start-frame",
+            "requestKey": "imageUrls",
+            "apiKey": "image_urls",
+            "mediaKind": "image",
+            "required": true,
+            "min": 1,
+            "max": 2,
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": {
+            "min": 5,
+            "max": 15
+          },
+          "resolutions": ["480p", "768p", "1080p"],
+          "aspectRatios": null,
+          "seed": false,
+          "safetyChecker": true,
+          "audio": "none"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": [
+          "Image mode accepts a first frame and optional last frame; aspect ratio follows the first image."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 5,
+            "resolution": "768p",
+            "enableSafetyChecker": false,
+            "imageUrls": ["https://assets.example/start-frame-0.png"]
+          },
+          "request": {
+            "model": "h3-max-turbo",
+            "input": {
+              "prompt": "studio video",
+              "duration": 5,
+              "resolution": "768p",
+              "enable_safety_checker": false,
+              "image_urls": ["https://assets.example/start-frame-0.png"]
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 15,
+            "resolution": "1080p",
+            "enableSafetyChecker": true,
+            "imageUrls": ["https://assets.example/start-frame-0.png"]
+          },
+          "request": {
+            "model": "h3-max-turbo",
+            "input": {
+              "prompt": "studio video",
+              "duration": 15,
+              "resolution": "1080p",
+              "enable_safety_checker": true,
+              "image_urls": ["https://assets.example/start-frame-0.png"]
+            }
+          },
+          "coveredFields": ["duration", "resolution", "enableSafetyChecker"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "duration": 5,
+            "resolution": "768p",
+            "enableSafetyChecker": false,
+            "imageUrls": ["https://assets.example/start-frame-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in.",
+        "Image mode accepts a first frame and optional last frame; aspect ratio follows the first image."
+      ]
+    },
     {
       "entryKey": "flux-3/text-to-video:text-to-video",
       "status": "current",
@@ -139,7 +1410,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Each model ID fixes its media input: one image, two ordered frames, one MP4 under 50 MB and 15 seconds, or 1-10 positioned keyframes."
       ]
     },
@@ -295,7 +1566,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Each model ID fixes its media input: one image, two ordered frames, one MP4 under 50 MB and 15 seconds, or 1-10 positioned keyframes."
       ]
     },
@@ -466,7 +1737,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Each model ID fixes its media input: one image, two ordered frames, one MP4 under 50 MB and 15 seconds, or 1-10 positioned keyframes."
       ]
     },
@@ -622,7 +1893,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Each model ID fixes its media input: one image, two ordered frames, one MP4 under 50 MB and 15 seconds, or 1-10 positioned keyframes."
       ]
     },
@@ -801,7 +2072,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Each model ID fixes its media input: one image, two ordered frames, one MP4 under 50 MB and 15 seconds, or 1-10 positioned keyframes."
       ]
     },
@@ -919,7 +2190,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -1052,7 +2323,131 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "grok-imagine-video-1.5:text-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "grok-imagine-video-1-5",
+        "markdownId": "model:video:grok-imagine-video-1-5:markdown",
+        "jsonId": "model:video:grok-imagine-video-1-5:json"
+      },
+      "schema": {
+        "publicModelId": "grok-imagine-video-1.5",
+        "workflow": "text-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 4096
+          },
+          {
+            "key": "duration",
+            "apiKey": "duration",
+            "kind": "integer",
+            "level": "common",
+            "required": true,
+            "default": 6,
+            "min": 1,
+            "max": 15
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "aspect_ratio",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "16:9",
+            "enum": ["16:9", "4:3", "3:2", "1:1", "2:3", "3:4", "9:16"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "720p",
+            "enum": ["480p", "720p", "1080p"]
+          }
+        ],
+        "inputRoles": [],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": {
+            "min": 1,
+            "max": 15
+          },
+          "resolutions": ["480p", "720p", "1080p"],
+          "aspectRatios": ["16:9", "4:3", "3:2", "1:1", "2:3", "3:4", "9:16"],
+          "seed": false,
+          "safetyChecker": false,
+          "audio": "none"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 6,
+            "aspectRatio": "16:9",
+            "resolution": "720p"
+          },
+          "request": {
+            "model": "grok-imagine-video-1.5",
+            "input": {
+              "prompt": "studio video",
+              "duration": 6,
+              "aspect_ratio": "16:9",
+              "resolution": "720p",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 15,
+            "aspectRatio": "9:16",
+            "resolution": "1080p"
+          },
+          "request": {
+            "model": "grok-imagine-video-1.5",
+            "input": {
+              "prompt": "studio video",
+              "duration": 15,
+              "aspect_ratio": "9:16",
+              "resolution": "1080p",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["duration", "aspectRatio", "resolution"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "duration": 6,
+            "aspectRatio": "16:9",
+            "resolution": "720p"
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -1093,7 +2488,7 @@
             "level": "common",
             "required": false,
             "default": "720p",
-            "enum": ["480p", "720p"]
+            "enum": ["480p", "720p", "1080p"]
           }
         ],
         "inputRoles": [
@@ -1115,7 +2510,7 @@
             "min": 1,
             "max": 15
           },
-          "resolutions": ["480p", "720p"],
+          "resolutions": ["480p", "720p", "1080p"],
           "aspectRatios": null,
           "seed": false,
           "safetyChecker": false,
@@ -1152,7 +2547,7 @@
           "values": {
             "prompt": "studio video",
             "duration": 15,
-            "resolution": "720p",
+            "resolution": "1080p",
             "imageUrls": ["https://assets.example/image-0.png"]
           },
           "request": {
@@ -1160,7 +2555,7 @@
             "input": {
               "prompt": "studio video",
               "duration": 15,
-              "resolution": "720p",
+              "resolution": "1080p",
               "image_urls": ["https://assets.example/image-0.png"],
               "enable_safety_checker": false
             }
@@ -1178,7 +2573,147 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "grok-imagine-video-1.5:reference-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "grok-imagine-video-1-5",
+        "markdownId": "model:video:grok-imagine-video-1-5:markdown",
+        "jsonId": "model:video:grok-imagine-video-1-5:json"
+      },
+      "schema": {
+        "publicModelId": "grok-imagine-video-1.5",
+        "workflow": "reference-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 4096
+          },
+          {
+            "key": "duration",
+            "apiKey": "duration",
+            "kind": "integer",
+            "level": "common",
+            "required": true,
+            "default": 8,
+            "min": 1,
+            "max": 15
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "aspect_ratio",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "16:9",
+            "enum": ["16:9", "4:3", "3:2", "1:1", "2:3", "3:4", "9:16"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "720p",
+            "enum": ["480p", "720p"]
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference-image",
+            "requestKey": "referenceImageUrls",
+            "apiKey": "reference_image_urls",
+            "mediaKind": "image",
+            "required": true,
+            "min": 1,
+            "max": 7,
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": {
+            "min": 1,
+            "max": 15
+          },
+          "resolutions": ["480p", "720p"],
+          "aspectRatios": ["16:9", "4:3", "3:2", "1:1", "2:3", "3:4", "9:16"],
+          "seed": false,
+          "safetyChecker": false,
+          "audio": "none"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 8,
+            "aspectRatio": "16:9",
+            "resolution": "720p",
+            "referenceImageUrls": ["https://assets.example/reference-image-0.png"]
+          },
+          "request": {
+            "model": "grok-imagine-video-1.5",
+            "input": {
+              "prompt": "studio video",
+              "duration": 8,
+              "aspect_ratio": "16:9",
+              "resolution": "720p",
+              "reference_image_urls": ["https://assets.example/reference-image-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 15,
+            "aspectRatio": "9:16",
+            "resolution": "720p",
+            "referenceImageUrls": ["https://assets.example/reference-image-0.png"]
+          },
+          "request": {
+            "model": "grok-imagine-video-1.5",
+            "input": {
+              "prompt": "studio video",
+              "duration": 15,
+              "aspect_ratio": "9:16",
+              "resolution": "720p",
+              "reference_image_urls": ["https://assets.example/reference-image-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["duration", "aspectRatio", "resolution"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "duration": 8,
+            "aspectRatio": "16:9",
+            "resolution": "720p",
+            "referenceImageUrls": ["https://assets.example/reference-image-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -1298,7 +2833,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "The standard end-frame workflow requires 768P; Pro is fixed to 1080P and 6 seconds."
       ]
     },
@@ -1435,7 +2970,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "The standard end-frame workflow requires 768P; Pro is fixed to 1080P and 6 seconds."
       ]
     },
@@ -1587,7 +3122,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "The standard end-frame workflow requires 768P; Pro is fixed to 1080P and 6 seconds."
       ]
     },
@@ -1708,7 +3243,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "The standard end-frame workflow requires 768P; Pro is fixed to 1080P and 6 seconds."
       ]
     },
@@ -1845,7 +3380,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "The standard end-frame workflow requires 768P; Pro is fixed to 1080P and 6 seconds."
       ]
     },
@@ -1964,7 +3499,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "1080p supports 6 seconds only; end frames are not supported."
       ]
     },
@@ -2099,7 +3634,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "1080p supports 6 seconds only; end frames are not supported."
       ]
     },
@@ -2226,7 +3761,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image-to-video follows the first image and accepts no aspect ratio; reference audio requires a reference image or video."
       ]
     },
@@ -2355,7 +3890,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image-to-video follows the first image and accepts no aspect ratio; reference audio requires a reference image or video."
       ]
     },
@@ -2519,7 +4054,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: hailuo-03-reference-requires-image-or-video.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image-to-video follows the first image and accepts no aspect ratio; reference audio requires a reference image or video."
       ]
     },
@@ -3801,7 +5336,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: kling-1.6-frames-elements-cfg-conflicts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Elements, start/end frames, and cfg controls have documented conflicts; end frame is Pro-only."
       ]
     },
@@ -3931,7 +5466,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: kling-1.6-frames-elements-cfg-conflicts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Elements, start/end frames, and cfg controls have documented conflicts; end frame is Pro-only."
       ]
     },
@@ -4058,7 +5593,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: kling-1.6-frames-elements-cfg-conflicts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Elements, start/end frames, and cfg controls have documented conflicts; end frame is Pro-only."
       ]
     },
@@ -4185,7 +5720,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: kling-1.6-frames-elements-cfg-conflicts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Elements, start/end frames, and cfg controls have documented conflicts; end frame is Pro-only."
       ]
     },
@@ -4328,7 +5863,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: kling-1.6-frames-elements-cfg-conflicts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Elements, start/end frames, and cfg controls have documented conflicts; end frame is Pro-only."
       ]
     },
@@ -4486,7 +6021,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: kling-1.6-frames-elements-cfg-conflicts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Elements, start/end frames, and cfg controls have documented conflicts; end frame is Pro-only."
       ]
     },
@@ -4626,7 +6161,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: kling-1.6-frames-elements-cfg-conflicts.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Elements, start/end frames, and cfg controls have documented conflicts; end frame is Pro-only."
       ]
     },
@@ -4743,7 +6278,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "A start frame is required; end frame is Pro-only."
       ]
     },
@@ -4860,7 +6395,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "A start frame is required; end frame is Pro-only."
       ]
     },
@@ -4992,7 +6527,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "A start frame is required; end frame is Pro-only."
       ]
     },
@@ -5106,7 +6641,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -5235,7 +6770,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -5379,7 +6914,7 @@
         }
       },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
       ]
     },
     {
@@ -5498,7 +7033,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: end-frame-requires-sound-false.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Sound is required and must be false when an end frame is supplied."
       ]
     },
@@ -5634,7 +7169,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: end-frame-requires-sound-false.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Sound is required and must be false when an end frame is supplied."
       ]
     },
@@ -5777,7 +7312,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: end-frame-requires-sound-false.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Sound is required and must be false when an end frame is supplied."
       ]
     },
@@ -5915,7 +7450,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: orientation-controls-reference-video-duration.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Image orientation supports reference videos through 10s; video orientation supports 3–30s."
       ]
     },
@@ -6044,7 +7579,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Prompt and multi_prompt are exclusive; multi-shot requires sound=true."
       ]
     },
@@ -6189,7 +7724,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Prompt and multi_prompt are exclusive; multi-shot requires sound=true."
       ]
     },
@@ -6355,7 +7890,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Prompt and multi_prompt are exclusive; multi-shot requires sound=true."
       ]
     },
@@ -6504,7 +8039,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Prompt and multi_prompt are exclusive; multi-shot requires sound=true."
       ]
     },
@@ -6633,7 +8168,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Prompt and multi_prompt are exclusive; multi-shot requires sound=true."
       ]
     },
@@ -6778,7 +8313,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Prompt and multi_prompt are exclusive; multi-shot requires sound=true."
       ]
     },
@@ -6944,7 +8479,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Prompt and multi_prompt are exclusive; multi-shot requires sound=true."
       ]
     },
@@ -7093,7 +8628,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Prompt and multi_prompt are exclusive; multi-shot requires sound=true."
       ]
     },
@@ -7222,7 +8757,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Prompt and multi_prompt are exclusive; multi-shot requires sound=true."
       ]
     },
@@ -7367,7 +8902,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Prompt and multi_prompt are exclusive; multi-shot requires sound=true."
       ]
     },
@@ -7533,7 +9068,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Prompt and multi_prompt are exclusive; multi-shot requires sound=true."
       ]
     },
@@ -7682,7 +9217,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Prompt and multi_prompt are exclusive; multi-shot requires sound=true."
       ]
     },
@@ -7801,7 +9336,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "multi_prompt contains 1–6 shots and total shot duration must equal duration."
       ]
     },
@@ -7922,7 +9457,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "multi_prompt contains 1–6 shots and total shot duration must equal duration."
       ]
     },
@@ -8061,7 +9596,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "multi_prompt contains 1–6 shots and total shot duration must equal duration."
       ]
     },
@@ -8180,7 +9715,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "multi_prompt contains 1–6 shots and total shot duration must equal duration."
       ]
     },
@@ -8301,7 +9836,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "multi_prompt contains 1–6 shots and total shot duration must equal duration."
       ]
     },
@@ -8440,7 +9975,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "multi_prompt contains 1–6 shots and total shot duration must equal duration."
       ]
     },
@@ -8591,13 +10126,13 @@
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
         "Reviewed adapter condition: orientation-controls-reference-video-duration.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "A single facial element is allowed only with video orientation."
       ]
     },
     {
       "entryKey": "kling-avatar-2.0/standard:avatar-video",
-      "status": "excluded-initial-scope",
+      "status": "current",
       "source": {
         "pageSlug": "kling-avatar-2-0",
         "markdownId": "model:video:kling-avatar-2-0:markdown",
@@ -8606,8 +10141,39 @@
       "schema": {
         "publicModelId": "kling-avatar-2.0/standard",
         "workflow": "avatar-video",
-        "fields": [],
-        "inputRoles": [],
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": false,
+            "min": 0,
+            "max": 5000
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "image",
+            "requestKey": "imageUrls",
+            "apiKey": "image_urls",
+            "mediaKind": "image",
+            "required": true,
+            "min": 1,
+            "max": 1,
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          },
+          {
+            "role": "audio",
+            "requestKey": "audioUrl",
+            "apiKey": "audio_url",
+            "mediaKind": "audio",
+            "required": true,
+            "min": 1,
+            "max": 1,
+            "formats": ["audio/mpeg", "audio/wav", "audio/mp4"]
+          }
+        ],
         "output": {
           "mediaKind": "video",
           "formats": ["video/mp4", "video/webm", "video/quicktime"],
@@ -8625,18 +10191,60 @@
           "adapter": "video-input-v1"
         },
         "limitations": [
-          "Excluded from initial scope because it is an audio-driven avatar workflow."
+          "Supply one avatar image and a public audio URL. Driving audio must be 2–60 seconds and at most 5 MB; the provider validates remote audio. Billing follows detected audio duration."
         ]
       },
-      "vectors": null,
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "imageUrls": ["https://assets.example/image-0.png"],
+            "audioUrl": "https://assets.example/audio-0.mp3"
+          },
+          "request": {
+            "model": "kling-avatar-2.0/standard",
+            "input": {
+              "prompt": "studio video",
+              "image_urls": ["https://assets.example/image-0.png"],
+              "audio_url": "https://assets.example/audio-0.mp3",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "imageUrls": ["https://assets.example/image-0.png"],
+            "audioUrl": "https://assets.example/audio-0.mp3"
+          },
+          "request": {
+            "model": "kling-avatar-2.0/standard",
+            "input": {
+              "prompt": "studio video",
+              "image_urls": ["https://assets.example/image-0.png"],
+              "audio_url": "https://assets.example/audio-0.mp3",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": []
+        },
+        "invalid": {
+          "label": "required image input",
+          "values": {
+            "prompt": "studio video",
+            "audioUrl": "https://assets.example/audio-0.mp3"
+          },
+          "issueIncludes": "image"
+        }
+      },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
-        "Excluded from initial scope because it is an audio-driven avatar workflow."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Supply one avatar image and a public audio URL. Driving audio must be 2–60 seconds and at most 5 MB; the provider validates remote audio. Billing follows detected audio duration."
       ]
     },
     {
       "entryKey": "kling-avatar-2.0/pro:avatar-video",
-      "status": "excluded-initial-scope",
+      "status": "current",
       "source": {
         "pageSlug": "kling-avatar-2-0",
         "markdownId": "model:video:kling-avatar-2-0:markdown",
@@ -8645,8 +10253,39 @@
       "schema": {
         "publicModelId": "kling-avatar-2.0/pro",
         "workflow": "avatar-video",
-        "fields": [],
-        "inputRoles": [],
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": false,
+            "min": 0,
+            "max": 5000
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "image",
+            "requestKey": "imageUrls",
+            "apiKey": "image_urls",
+            "mediaKind": "image",
+            "required": true,
+            "min": 1,
+            "max": 1,
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          },
+          {
+            "role": "audio",
+            "requestKey": "audioUrl",
+            "apiKey": "audio_url",
+            "mediaKind": "audio",
+            "required": true,
+            "min": 1,
+            "max": 1,
+            "formats": ["audio/mpeg", "audio/wav", "audio/mp4"]
+          }
+        ],
         "output": {
           "mediaKind": "video",
           "formats": ["video/mp4", "video/webm", "video/quicktime"],
@@ -8664,13 +10303,55 @@
           "adapter": "video-input-v1"
         },
         "limitations": [
-          "Excluded from initial scope because it is an audio-driven avatar workflow."
+          "Supply one avatar image and a public audio URL. Driving audio must be 2–60 seconds and at most 5 MB; the provider validates remote audio. Billing follows detected audio duration."
         ]
       },
-      "vectors": null,
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "imageUrls": ["https://assets.example/image-0.png"],
+            "audioUrl": "https://assets.example/audio-0.mp3"
+          },
+          "request": {
+            "model": "kling-avatar-2.0/pro",
+            "input": {
+              "prompt": "studio video",
+              "image_urls": ["https://assets.example/image-0.png"],
+              "audio_url": "https://assets.example/audio-0.mp3",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "imageUrls": ["https://assets.example/image-0.png"],
+            "audioUrl": "https://assets.example/audio-0.mp3"
+          },
+          "request": {
+            "model": "kling-avatar-2.0/pro",
+            "input": {
+              "prompt": "studio video",
+              "image_urls": ["https://assets.example/image-0.png"],
+              "audio_url": "https://assets.example/audio-0.mp3",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": []
+        },
+        "invalid": {
+          "label": "required image input",
+          "values": {
+            "prompt": "studio video",
+            "audioUrl": "https://assets.example/audio-0.mp3"
+          },
+          "issueIncludes": "image"
+        }
+      },
       "manualDecisions": [
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
-        "Excluded from initial scope because it is an audio-driven avatar workflow."
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Supply one avatar image and a public audio URL. Driving audio must be 2–60 seconds and at most 5 MB; the provider validates remote audio. Billing follows detected audio duration."
       ]
     },
     {
@@ -8800,7 +10481,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Up to two image anchors and four references; multi-shot requires multi_prompt and sound=true."
       ]
     },
@@ -8934,7 +10615,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Up to two image anchors and four references; multi-shot requires multi_prompt and sound=true."
       ]
     },
@@ -9098,7 +10779,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Up to two image anchors and four references; multi-shot requires multi_prompt and sound=true."
       ]
     },
@@ -9249,7 +10930,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Up to two image anchors and four references; multi-shot requires multi_prompt and sound=true."
       ]
     },
@@ -9380,7 +11061,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Up to two image anchors and four references; multi-shot requires multi_prompt and sound=true."
       ]
     },
@@ -9514,7 +11195,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Up to two image anchors and four references; multi-shot requires multi_prompt and sound=true."
       ]
     },
@@ -9678,7 +11359,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Up to two image anchors and four references; multi-shot requires multi_prompt and sound=true."
       ]
     },
@@ -9829,7 +11510,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Up to two image anchors and four references; multi-shot requires multi_prompt and sound=true."
       ]
     },
@@ -9958,7 +11639,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Native 4K O3 follows the same anchor/reference/multi-shot rules."
       ]
     },
@@ -10090,7 +11771,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Native 4K O3 follows the same anchor/reference/multi-shot rules."
       ]
     },
@@ -10252,7 +11933,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Native 4K O3 follows the same anchor/reference/multi-shot rules."
       ]
     },
@@ -10401,7 +12082,7 @@
       },
       "manualDecisions": [
         "Reviewed adapter condition: prompt-vs-multi-prompt-and-sound.",
-        "Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.",
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "Native 4K O3 follows the same anchor/reference/multi-shot rules."
       ]
     }

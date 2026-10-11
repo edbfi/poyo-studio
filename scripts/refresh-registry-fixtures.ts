@@ -182,7 +182,7 @@ function fixture(entry: RegistryEntry): WorkflowFixture {
     ...entry.validation.conditionalRules.map((rule) => `Reviewed adapter condition: ${rule}.`),
     entry.output.safetyChecker
       ? 'Project override: enable_safety_checker is explicitly false unless the user opts in.'
-      : 'Project override: enable_safety_checker is sent as false even though this page does not document it; Poyo drops the undocumented field, verified live.',
+      : 'Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.',
     ...entry.limitations
   ];
   if (entry.status !== 'current')

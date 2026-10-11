@@ -129,17 +129,17 @@ if (sourceManifest.registryVersion !== `${IMAGE_REGISTRY_VERSION}+${VIDEO_REGIST
   errors.push('official source manifest registry version is stale');
 if (sourceCorpusSha256(sourceManifest.sources) !== sourceManifest.corpusSha256)
   errors.push('official source corpus hash does not match committed source records');
-if (sourceManifest.sources.length !== 158)
-  errors.push(`expected 158 official source records, found ${sourceManifest.sources.length}`);
+if (sourceManifest.sources.length !== 174)
+  errors.push(`expected 174 official source records, found ${sourceManifest.sources.length}`);
 const modelMarkdown = sourceManifest.sources.filter(
   (source) => source.category === 'model' && source.representation === 'markdown'
 );
 const modelJson = sourceManifest.sources.filter(
   (source) => source.category === 'model' && source.representation === 'json'
 );
-if (modelMarkdown.length !== 64 || modelJson.length !== 64)
+if (modelMarkdown.length !== 72 || modelJson.length !== 72)
   errors.push(
-    `expected 64 Markdown and 64 JSON model sources, found ${modelMarkdown.length}/${modelJson.length}`
+    `expected 72 Markdown and 72 JSON model sources, found ${modelMarkdown.length}/${modelJson.length}`
   );
 for (const source of sourceManifest.sources) {
   if (source.sha256.length !== 64 || source.canonicalSha256.length !== 64)
@@ -200,7 +200,10 @@ for (const entry of entries) {
       );
     }
   }
-  if (!fixture.vectors.advanced.coveredFields.length)
+  if (
+    !fixture.vectors.advanced.coveredFields.length &&
+    entry.fields.some((field) => field.level !== 'essential')
+  )
     errors.push(`advanced fixture covers no fields for ${entry.key}`);
   expectRejection(
     entry,
@@ -234,22 +237,18 @@ for (const conflict of conflictsJson.conflicts)
     if (!sourceIds.has(sourceId)) errors.push(`conflict ${conflict.scope} references ${sourceId}`);
 
 if (
-  IMAGE_PAGE_SLUGS.length !== 24 ||
-  IMAGE_PUBLIC_IDS.length !== 47 ||
-  IMAGE_REGISTRY.entries.length !== 56
+  IMAGE_PAGE_SLUGS.length !== 29 ||
+  IMAGE_PUBLIC_IDS.length !== 53 ||
+  IMAGE_REGISTRY.entries.length !== 66
 )
   errors.push('image registry inventory changed without reviewed evidence');
 if (
-  VIDEO_PAGE_SLUGS.length !== 40 ||
-  VIDEO_PUBLIC_IDS.length !== 66 ||
-  VIDEO_CURRENT_ENTRIES.length !== 138
+  VIDEO_PAGE_SLUGS.length !== 43 ||
+  VIDEO_PUBLIC_IDS.length !== 69 ||
+  VIDEO_CURRENT_ENTRIES.length !== 151
 )
   errors.push('video registry inventory changed without reviewed evidence');
-if (
-  VIDEO_EXCLUDED_ENTRIES.length !== 2 ||
-  VIDEO_EXCLUDED_ENTRIES.some((entry) => entry.workflow !== 'avatar-video')
-)
-  errors.push('Kling Avatar 2.0 exclusion records are incomplete');
+if (VIDEO_EXCLUDED_ENTRIES.length !== 0) errors.push('Current video models must be selectable');
 if (VIDEO_AUDIT_RECORDS.length !== 8)
   errors.push(`expected 8 video legacy/unindexed records, found ${VIDEO_AUDIT_RECORDS.length}`);
 if (
