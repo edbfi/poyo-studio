@@ -2495,9 +2495,17 @@ async function productionJourney() {
     const lostResponsePrompt = 'A paid action whose local HTTP response is deliberately lost';
     const lostResponseInspector = page.locator('#parameter-inspector');
     const lostResponsePromptPanel = await showInspectorSection(lostResponseInspector, 'Prompt');
+    // The previous prompt's Ready badge can remain visible during the preview debounce. Wait for
+    // this edit's preview so it cannot arrive later and clear the interrupted-action warnings.
+    const lostResponsePreview = page.waitForResponse((response) => {
+      if (new URL(response.url()).pathname !== '/api/requests/preview') return false;
+      const body = response.request().postDataJSON() as { values?: { prompt?: string } };
+      return body.values?.prompt === lostResponsePrompt;
+    });
     await lostResponsePromptPanel
       .getByRole('textbox', { name: /^Prompt/ })
       .fill(lostResponsePrompt);
+    await lostResponsePreview;
     await waitForValidRequest(page);
     const submitsBeforeLostResponse = harness.mock.requests.filter(
       (request) => request.pathname === '/api/generate/submit'
