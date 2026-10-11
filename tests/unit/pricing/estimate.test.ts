@@ -65,7 +65,7 @@ function snapshot(tiers = supported.map(tier), expiresAt = '2026-07-21T00:00:00.
     version: PUBLIC_PRICING_SNAPSHOT_VERSION,
     signatureVersion: PRICING_SIGNATURE_VERSION,
     pricingHash: 'a'.repeat(64),
-    registryVersions: { image: 'image-2026-08-24.1', video: 'video-2026-08-26.1' },
+    registryVersions: { image: 'image-2026-10-11.1', video: 'video-2026-10-11.1' },
     source: {
       kind: 'published',
       url: 'https://poyo.ai/pricing',
@@ -209,7 +209,7 @@ describe('browser-safe published pricing estimates', () => {
     ).toMatchObject({
       credits: 60,
       signature:
-        'version=pricing-signature-v1|registry=video-2026-08-26.1|model=wan2.7-image-to-video|workflow=image-to-video|unit=per-second|duration=5|resolution=720p',
+        'version=pricing-signature-v1|registry=video-2026-10-11.1|model=wan2.7-image-to-video|workflow=image-to-video|unit=per-second|duration=5|resolution=720p',
       availability: 'available'
     });
     expect(
@@ -225,7 +225,7 @@ describe('browser-safe published pricing estimates', () => {
     ).toMatchObject({
       credits: 12,
       signature:
-        'version=pricing-signature-v1|registry=video-2026-08-26.1|model=wan2.2-image-to-video-fast|workflow=frame-to-video|unit=per-output|quantity=1|resolution=720p',
+        'version=pricing-signature-v1|registry=video-2026-10-11.1|model=wan2.2-image-to-video-fast|workflow=frame-to-video|unit=per-output|quantity=1|resolution=720p',
       availability: 'available'
     });
     expect(
@@ -247,7 +247,7 @@ describe('browser-safe published pricing estimates', () => {
     ).toMatchObject({ credits: null, availability: 'unavailable' });
   });
 
-  test('does not treat excluded registry entries as pricing targets', () => {
+  test('leaves avatar estimates unavailable without measured driving audio duration', () => {
     const result = estimateNormalizedRegistryRequestWithEnvelope({
       snapshot: snapshot(),
       entryKey: 'kling-avatar-2.0/standard:avatar-video',
@@ -263,7 +263,7 @@ describe('browser-safe published pricing estimates', () => {
       signature: null,
       availability: 'unavailable'
     });
-    expect(result.envelope.registryVersion).toBeNull();
+    expect(result.envelope.registryVersion).toBe('video-2026-10-11.1');
   });
 
   test('recomputes when normalized duration, resolution, workflow input, or quantity changes', () => {

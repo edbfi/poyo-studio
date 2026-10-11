@@ -9,7 +9,7 @@ credits, displayed USD price, unit, and billing dimensions. Descriptions, compar
 markup, scripts, and unrelated categories are omitted. Normal tests use this local corpus and never
 contact Poyo.
 
-The reviewed capture contains 209 image/video rows: 76 allowlisted pricing tiers and 133 rows with
+The reviewed capture contains 209 image/video rows: 75 allowlisted pricing tiers and 134 rows with
 an explicit unsupported reason. `supported-signatures.json` provides one deterministic calculation
 vector per allowlisted signature; `unsupported-rows.json` preserves the ordered unsupported result.
 Tests assert the exact counts and normalized-inventory hash so omissions require an explicit corpus
@@ -24,3 +24,7 @@ The public page can change without notice. Rows that cannot be uniquely matched 
 registry remain unavailable at runtime. In particular, a model may publish complementary units
 (for example, both per-input-image and per-second rows); individual signatures are reviewed, but a
 request with multiple compatible tiers fails closed instead of inventing an additive formula.
+
+The October 11 registry review preserves this historical price capture. Grok Video 1.5 rows
+without a workflow discriminator are now ambiguous across its three modes; avatar rows can
+be matched, but actual requests still need a known billable duration to obtain an estimate.

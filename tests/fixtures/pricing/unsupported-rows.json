@@ -64,12 +64,16 @@
     "reason": "missing-discriminator"
   },
   {
-    "modelId": "kling-avatar-2.0/standard",
-    "reason": "no-registry-model"
+    "modelId": "grok-imagine-video-1.5",
+    "reason": "missing-discriminator"
   },
   {
-    "modelId": "kling-avatar-2.0/pro",
-    "reason": "no-registry-model"
+    "modelId": "grok-imagine-video-1.5",
+    "reason": "missing-discriminator"
+  },
+  {
+    "modelId": "grok-imagine-video-1.5",
+    "reason": "missing-discriminator"
   },
   {
     "modelId": "happy-horse-1.1",

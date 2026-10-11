@@ -32,19 +32,12 @@ function minimum(key: string): GuidedVideoRequest {
 }
 
 describe('audited video registry coverage', () => {
-  test('REG-01/02 accounts for 40 pages, 66 IDs, 138 current workflows and explicit exclusions', () => {
-    expect(VIDEO_PAGE_SLUGS).toHaveLength(40);
-    expect(new Set(VIDEO_PAGE_SLUGS).size).toBe(40);
-    expect(VIDEO_PUBLIC_IDS).toHaveLength(66);
-    expect(VIDEO_CURRENT_ENTRIES).toHaveLength(138);
-    expect(VIDEO_EXCLUDED_ENTRIES).toHaveLength(2);
-    expect(VIDEO_EXCLUDED_ENTRIES.every((entry) => entry.status === 'excluded-initial-scope')).toBe(
-      true
-    );
-    expect(VIDEO_EXCLUDED_ENTRIES.map((entry) => entry.publicModelId).sort()).toEqual([
-      'kling-avatar-2.0/pro',
-      'kling-avatar-2.0/standard'
-    ]);
+  test('REG-01/02 accounts for 43 pages, 69 IDs and 151 current workflows', () => {
+    expect(VIDEO_PAGE_SLUGS).toHaveLength(43);
+    expect(new Set(VIDEO_PAGE_SLUGS).size).toBe(43);
+    expect(VIDEO_PUBLIC_IDS).toHaveLength(69);
+    expect(VIDEO_CURRENT_ENTRIES).toHaveLength(151);
+    expect(VIDEO_EXCLUDED_ENTRIES).toHaveLength(0);
     expect(VIDEO_AUDIT_RECORDS).toHaveLength(8);
     expect(VIDEO_AUDIT_RECORDS.filter((record) => record.status === 'legacy')).toHaveLength(2);
     expect(VIDEO_AUDIT_RECORDS.filter((record) => record.status === 'unindexed')).toHaveLength(6);
@@ -64,11 +57,11 @@ describe('audited video registry coverage', () => {
     }
   });
 
-  test('REG-02 excludes avatar and legacy records from selectors and payload adapters', () => {
-    expect(videoCatalogue('avatar')).toEqual([]);
+  test('REG-02 includes avatars and excludes legacy records from selectors', () => {
+    expect(videoCatalogue('avatar')).toHaveLength(2);
     expect(videoCatalogue().every((entry) => entry.status === 'current')).toBe(true);
     expect(() => normalizeVideoRequest('kling-avatar-2.0/standard:avatar-video', {})).toThrow(
-      'non-selectable'
+      'image requires at least 1 input'
     );
     expect(modelCatalogue('sora-2-beta')).toEqual([]);
   });
@@ -89,18 +82,18 @@ describe('audited video registry coverage', () => {
           "SELECT COUNT(*) count FROM registry_entries WHERE modality='video'"
         )
         .get()?.count
-    ).toBe(148);
+    ).toBe(159);
     expect(
       database
         .query<{ count: number }, []>(
           "SELECT COUNT(*) count FROM registry_entries WHERE status='excluded-initial-scope'"
         )
         .get()?.count
-    ).toBe(2);
+    ).toBe(0);
     expect(
       database.query<{ count: number }, []>('SELECT COUNT(*) count FROM registry_entries').get()
         ?.count
-    ).toBe(206);
+    ).toBe(227);
     database.close();
   });
 });
@@ -147,6 +140,8 @@ describe('reviewed video conditional adapters', () => {
 
   test('REG-07 opts every video model out of the safety checker and toggles only audited families', () => {
     const safetyIds = new Set([
+      'h3-max',
+      'h3-max-turbo',
       'happy-horse-1.1',
       'happy-horse',
       'wan2.7-text-to-video',

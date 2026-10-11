@@ -1248,7 +1248,7 @@ serial('BATCH-06 stale paid video recovery never replays retired requests', asyn
     classification: 'estimate',
     credits: 60,
     signature:
-      'version=pricing-signature-v1|registry=video-2026-08-26.1|model=wan2.7-image-to-video|workflow=image-to-video|unit=per-second|duration=5|resolution=720p',
+      'version=pricing-signature-v1|registry=video-2026-10-11.1|model=wan2.7-image-to-video|workflow=image-to-video|unit=per-second|duration=5|resolution=720p',
     basis: { unit: 'per-second', creditsPerUnit: 12, units: 5 },
     provenance: 'published',
     sourceVerifiedAt: '2026-07-20T00:00:00.000Z',
@@ -1956,7 +1956,7 @@ serial(
     }
   }
 );
-serial('E2E-01..15 production studios, recovery, library, settings and accessibility', async () => {
+async function productionJourney() {
   const tracker: StageTracker = {};
   const stage = stageRunner(tracker);
   let harness!: BrowserAppHarness;
@@ -2495,9 +2495,17 @@ serial('E2E-01..15 production studios, recovery, library, settings and accessibi
     const lostResponsePrompt = 'A paid action whose local HTTP response is deliberately lost';
     const lostResponseInspector = page.locator('#parameter-inspector');
     const lostResponsePromptPanel = await showInspectorSection(lostResponseInspector, 'Prompt');
+    // The previous prompt's Ready badge can remain visible during the preview debounce. Wait for
+    // this edit's preview so it cannot arrive later and clear the interrupted-action warnings.
+    const lostResponsePreview = page.waitForResponse((response) => {
+      if (new URL(response.url()).pathname !== '/api/requests/preview') return false;
+      const body = response.request().postDataJSON() as { values?: { prompt?: string } };
+      return body.values?.prompt === lostResponsePrompt;
+    });
     await lostResponsePromptPanel
       .getByRole('textbox', { name: /^Prompt/ })
       .fill(lostResponsePrompt);
+    await lostResponsePreview;
     await waitForValidRequest(page);
     const submitsBeforeLostResponse = harness.mock.requests.filter(
       (request) => request.pathname === '/api/generate/submit'
@@ -3087,4 +3095,98 @@ serial('E2E-01..15 production studios, recovery, library, settings and accessibi
     ];
     await composeCleanupFailure(primary, diagnostics, steps);
   }
-});
+}
+
+// This journey also runs axe over every primary route, including the expanded model catalogue.
+serial(
+  'E2E-01..15 production studios, recovery, library, settings and accessibility',
+  productionJourney,
+  180_000
+);
+
+serial(
+  'OCTOBER-MODELS new image controls and audio-driven video submit through the studio',
+  async () => {
+    const harness = await startBrowserAppHarness();
+    const browser = await chromium.launch({ headless: true });
+    const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const page = await context.newPage();
+    try {
+      await page.goto(`${harness.url}/studio/image`);
+      await page.getByText('Live updates connected').waitFor({ timeout: 12_000 });
+      const inspector = page.locator('#parameter-inspector');
+      await selectRadioValue(inspector, 'text-to-image');
+      await selectRadioValue(inspector, 'seedream-5.0-flash:text-to-image');
+      const prompt = await showInspectorSection(inspector, 'Prompt');
+      await prompt.getByRole('textbox', { name: /^Prompt/ }).fill('A flower shop poster');
+      const output = await showInspectorSection(inspector, 'Output');
+      await output
+        .getByRole('group', { name: 'Resolution', exact: true })
+        .getByRole('radio', { name: '1.5K', exact: true })
+        .locator('..')
+        .click();
+      expect(await output.getByLabel('N', { exact: true }).count()).toBe(0);
+      await waitForValidRequest(page);
+      await generationCommands(page).getByRole('button', { name: 'Generate image' }).click();
+      await waitUntil(() => mockSubmitCount(harness) === 1, 'Seedream Flash was not submitted.');
+      expect(
+        harness.mock.requests.find((request) => request.pathname === '/api/generate/submit')?.json
+      ).toMatchObject({
+        model: 'seedream-5.0-flash',
+        input: { prompt: 'A flower shop poster', resolution: '1.5K' }
+      });
+      await page
+        .getByRole('heading', { name: 'Generated image result' })
+        .waitFor({ timeout: 15_000 });
+
+      await selectRadioValue(inspector, 'gpt-image-2.5-flare:text-to-image');
+      const gptPrompt = await showInspectorSection(inspector, 'Prompt');
+      await gptPrompt.getByRole('textbox', { name: /^Prompt/ }).fill('A silver robot cutout');
+      const gptOutput = await showInspectorSection(inspector, 'Output');
+      await gptOutput.getByLabel('Background', { exact: true }).selectOption('transparent');
+      await waitForValidRequest(page);
+      expect(
+        await gptOutput
+          .getByRole('group', { name: 'Resolution', exact: true })
+          .getByRole('radio', { name: '4K', exact: true })
+          .isChecked()
+      ).toBe(true);
+
+      await page.goto(`${harness.url}/studio/video`);
+      await page.getByText('Live updates connected').waitFor({ timeout: 12_000 });
+      const videoInspector = page.locator('#parameter-inspector');
+      await selectRadioValue(videoInspector, 'avatar-video');
+      await selectRadioValue(videoInspector, 'kling-avatar-2.0/standard:avatar-video');
+      const inputs = await showInspectorSection(videoInspector, 'Inputs');
+      for (const [label, url] of [
+        ['Image', 'https://assets.example/avatar.png'],
+        ['Audio', 'https://assets.example/speech.mp3']
+      ]) {
+        const input = inputs.getByRole('textbox', { name: `${label} remote URL`, exact: true });
+        await input.fill(url ?? '');
+        await input.locator('..').getByRole('button', { name: 'Add URL', exact: true }).click();
+      }
+      await waitForValidRequest(page);
+      await generationCommands(page).getByRole('button', { name: 'Generate video' }).click();
+      await waitUntil(() => mockSubmitCount(harness) === 2, 'Avatar video was not submitted.');
+      expect(
+        harness.mock.requests
+          .filter((request) => request.pathname === '/api/generate/submit')
+          .at(-1)?.json
+      ).toMatchObject({
+        model: 'kling-avatar-2.0/standard',
+        input: {
+          image_urls: ['https://assets.example/avatar.png'],
+          audio_url: 'https://assets.example/speech.mp3'
+        }
+      });
+      await page
+        .getByRole('heading', { name: 'Generated video result' })
+        .waitFor({ timeout: 15_000 });
+    } finally {
+      await context.close().catch(() => undefined);
+      await browser.close().catch(() => undefined);
+      await harness.cleanup();
+    }
+  }
+);

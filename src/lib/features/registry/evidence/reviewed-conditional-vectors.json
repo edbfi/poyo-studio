@@ -274,6 +274,41 @@
         "generateAudio": true
       },
       "issueIncludes": "requires reference media"
+    },
+    {
+      "rule": "auto-size-only-at-1k",
+      "entryKey": "gpt-image-2.5-flare:text-to-image",
+      "values": {
+        "prompt": "poster",
+        "aspectRatio": "auto",
+        "resolution": "2K"
+      },
+      "issueIncludes": "auto size requires 1K"
+    },
+    {
+      "rule": "h3-max-reference-total-at-most-12",
+      "entryKey": "h3-max:reference-to-video",
+      "values": {
+        "prompt": "motion",
+        "referenceImageUrls": [
+          "https://assets.example/image.png",
+          "https://assets.example/image.png",
+          "https://assets.example/image.png",
+          "https://assets.example/image.png",
+          "https://assets.example/image.png",
+          "https://assets.example/image.png",
+          "https://assets.example/image.png",
+          "https://assets.example/image.png",
+          "https://assets.example/image.png"
+        ],
+        "referenceVideoUrls": [
+          "https://assets.example/video.mp4",
+          "https://assets.example/video.mp4",
+          "https://assets.example/video.mp4"
+        ],
+        "referenceAudioUrls": ["https://assets.example/audio.mp3"]
+      },
+      "issueIncludes": "at most 12 total"
     }
   ]
 }

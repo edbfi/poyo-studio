@@ -171,6 +171,9 @@ function validateRoleInputs(entry: StudioEntry, inputs: readonly PublicCreateJob
       );
   }
   for (const role of entry.inputRoles) {
+    // Audio URLs live in guided values, not in the managed image/video input list. The model
+    // normalizer validates their requiredness, cardinality and URL scheme below.
+    if (role.mediaKind === 'audio') continue;
     const count = inputs.filter((input) => input.role === role.role).length;
     if (role.required && count < role.min)
       throw new JobRequestError(

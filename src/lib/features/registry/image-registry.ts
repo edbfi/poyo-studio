@@ -8,7 +8,7 @@ import type {
   RegistryProvenance
 } from './types';
 
-export const IMAGE_REGISTRY_VERSION = 'image-2026-08-24.1';
+export const IMAGE_REGISTRY_VERSION = 'image-2026-10-11.1';
 export const IMAGE_VERIFIED_AT = OFFICIAL_SOURCE_MANIFEST.verifiedAt;
 const ratios8 = ['1:1', '4:3', '3:4', '16:9', '9:16', '3:2', '2:3', 'auto'];
 const seedreamRatios = ['1:1', '4:3', '3:4', '16:9', '9:16', '3:2', '2:3', '21:9'];
@@ -23,13 +23,13 @@ const prompt = (min = 1, max = 5000): FieldDefinition => ({
   min,
   max
 });
-const refs = (required: boolean, min: number, max: number | null) => ({
+const refs = (required: boolean, min: number, max: number | null, inputFormats = formats) => ({
   role: 'reference' as const,
   required,
   min,
   max,
   mediaKind: 'image' as const,
-  formats
+  formats: inputFormats
 });
 const mask = {
   role: 'mask' as const,
@@ -55,6 +55,7 @@ type Page = {
   resDefault?: string;
   refs?: [number, number | null];
   optionalRefs?: [number, number | null];
+  inputFormats?: string[];
   custom?:
     | boolean
     | {
@@ -67,10 +68,122 @@ type Page = {
       };
   seed?: boolean;
   safety?: boolean;
+  mask?: boolean;
+  singleOutput?: boolean;
   extra?: FieldDefinition[];
   limitations?: string[];
 };
 const pages: Page[] = [
+  ...['flare', 'sunburst'].map(
+    (variant): Page => ({
+      slug: `gpt-image-2-5-${variant}`,
+      provider: 'OpenAI',
+      family: `GPT Image 2.5 ${variant === 'flare' ? 'Flare' : 'Sunburst'}`,
+      ids: [`gpt-image-2.5-${variant}`],
+      prompt: [1, 32000],
+      ratios: ['auto', ...ratios10],
+      ratioDefault: '1:1',
+      res: ['1K', '2K', '4K'],
+      resDefault: '1K',
+      optionalRefs: [1, 16],
+      formats: ['png', 'jpeg', 'webp'],
+      formatDefault: 'png',
+      mask: true,
+      singleOutput: true,
+      custom: {
+        encoding: 'width-x-height-string',
+        divisor: 16,
+        maxEdge: 3840,
+        minPixels: 655360,
+        maxPixels: 8294400,
+        maxAspectRatio: 3
+      },
+      extra: [
+        {
+          key: 'quality',
+          apiKey: 'quality',
+          kind: 'enum',
+          level: 'common',
+          enum: ['low', 'medium', 'high', 'xhigh', 'max'],
+          default: 'high'
+        },
+        {
+          key: 'background',
+          apiKey: 'background',
+          kind: 'enum',
+          level: 'common',
+          enum: ['auto', 'transparent', 'opaque'],
+          default: 'auto'
+        }
+      ],
+      limitations: [
+        'Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K.'
+      ]
+    })
+  ),
+  {
+    slug: 'nano-banana-2-1',
+    provider: 'Google',
+    family: 'Nano Banana 2.1',
+    ids: ['nano-banana-2.1'],
+    prompt: [1, 20000],
+    ratios: ['auto', ...ratios10],
+    res: ['1K', '2K', '4K'],
+    resDefault: '1K',
+    optionalRefs: [1, 10],
+    limitations: ['Auto aspect ratio requires reference images.']
+  },
+  {
+    slug: 'qwen-image-2-1',
+    provider: 'Alibaba',
+    family: 'Qwen Image 2.1',
+    ids: ['qwen-image-2.1'],
+    ratios: [...seedreamRatios, '9:21', 'auto'],
+    res: ['1K', '2K'],
+    resDefault: '1K',
+    optionalRefs: [1, 10],
+    formats: ['png', 'webp', 'jpeg'],
+    inputFormats: ['image/jpeg', 'image/png', 'image/webp'],
+    formatDefault: 'png',
+    mask: true,
+    singleOutput: true,
+    safety: true,
+    extra: [
+      {
+        key: 'background',
+        apiKey: 'background',
+        kind: 'enum',
+        level: 'common',
+        enum: ['opaque', 'transparent'],
+        default: 'opaque'
+      },
+      {
+        key: 'promptExtend',
+        apiKey: 'prompt_extend',
+        kind: 'boolean',
+        level: 'advanced',
+        default: true
+      },
+      { key: 'seed', apiKey: 'seed', kind: 'integer', level: 'advanced' }
+    ],
+    limitations: [
+      'Masks require exactly one reference and an opaque background; size and prompt enhancement are ignored with a mask. Transparent output requires PNG or WebP. References support JPEG, PNG and WebP, up to 30 MB and 25 MP each; the provider checks remote media limits.'
+    ]
+  },
+  {
+    slug: 'seedream-5-0-flash',
+    provider: 'ByteDance',
+    family: 'Seedream 5.0 Flash',
+    ids: ['seedream-5.0-flash', 'seedream-5.0-flash-edit'],
+    ratios: seedreamRatios,
+    ratioDefault: '1:1',
+    res: ['1K', '1.5K', '2K'],
+    resDefault: '1K',
+    refs: [1, 10],
+    formats: ['jpeg', 'png'],
+    safety: true,
+    singleOutput: true
+  },
   {
     slug: 'flux-2',
     provider: 'Black Forest Labs',
@@ -446,7 +559,7 @@ function entry(page: Page, id: string, mode: 'base' | 'edit'): ImageRegistryEntr
   const supportsOutputFormat = page.family !== 'Nano Banana 2 / Pro' || isNanoBananaPro;
   const effectiveFormats = supportsOutputFormat ? page.formats : undefined;
   const effectiveRatios =
-    page.family === 'Kling O3 Image' && !isEdit
+    ['Kling O3 Image', 'Nano Banana 2.1', 'Qwen Image 2.1'].includes(page.family) && !isEdit
       ? page.ratios?.filter((ratio) => ratio !== 'auto')
       : page.ratios;
   const unionSize = ['Seedream 4.5', 'Seedream 5.0 Lite'].includes(page.family);
@@ -553,6 +666,7 @@ function entry(page: Page, id: string, mode: 'base' | 'edit'): ImageRegistryEntr
       : null;
   const customDimensions = typeof page.custom === 'object' ? page.custom : undefined;
   const conditionalRules = [
+    ...(page.family.startsWith('GPT Image 2.5') ? ['auto-size-only-at-1k'] : []),
     ...(unionSize ? ['size-is-one-of-resolution-ratio-or-custom'] : []),
     ...(page.family === 'Flux.2' ? ['size-and-resolution-required'] : []),
     ...(page.family === 'Seedream 4' ? ['reference-count-plus-output-count-at-most-15'] : []),
@@ -568,15 +682,15 @@ function entry(page: Page, id: string, mode: 'base' | 'edit'): ImageRegistryEntr
     workflow: workflow(mode),
     status: 'current',
     inputRoles: [
-      ...(refSpec ? [refs(isEdit, refSpec[0], refSpec[1])] : []),
-      ...(id.includes('gpt-') && isEdit ? [mask] : [])
+      ...(refSpec ? [refs(isEdit, refSpec[0], refSpec[1], page.inputFormats)] : []),
+      ...((id.includes('gpt-') || page.mask) && isEdit ? [mask] : [])
     ],
     output: {
       mediaKind: 'image',
       formats: effectiveFormats ?? ['png'],
-      counts,
+      counts: page.singleOutput ? [1] : counts,
       customSize: Boolean(page.custom),
-      seed: supportsSeed,
+      seed: supportsSeed || page.extra?.some((field) => field.key === 'seed') === true,
       safetyChecker: page.safety ?? false
     },
     fields,

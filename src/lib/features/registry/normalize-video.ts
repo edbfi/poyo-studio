@@ -120,6 +120,15 @@ function validate(entry: VideoRegistryEntry, values: GuidedVideoRequest): string
       issues.push('Hailuo 03 reference mode requires a reference image or video.');
   }
   if (
+    entry.family === 'H3 Max' &&
+    entry.workflow === 'reference-to-video' &&
+    (values.referenceImageUrls?.length ?? 0) +
+      (values.referenceVideoUrls?.length ?? 0) +
+      (values.referenceAudioUrls?.length ?? 0) >
+      12
+  )
+    issues.push('H3 Max supports at most 12 total reference files.');
+  if (
     entry.family === 'Sora 2 Pro Official' &&
     entry.workflow === 'text-to-video' &&
     values.aspectRatio === 'auto'
@@ -301,12 +310,14 @@ export function normalizeVideoRequest(
         'Expert override aspect_ratio is not supported for Wan 2.7 image-to-video.'
       ]);
     if (
-      entry.publicModelId === 'hailuo-03' &&
+      ['hailuo-03', 'h3-max', 'h3-max-turbo', 'grok-imagine-video-1.5'].includes(
+        entry.publicModelId
+      ) &&
       entry.workflow === 'image-to-video' &&
       override.key === 'aspect_ratio'
     )
       throw new RegistryValidationError([
-        'Expert override aspect_ratio is not supported for Hailuo 03 image-to-video.'
+        `Expert override aspect_ratio is not supported for ${entry.family} image-to-video.`
       ]);
     if (!isStrictJsonValue(override.value))
       throw new RegistryValidationError([`Expert override ${override.key} must be strict JSON.`]);

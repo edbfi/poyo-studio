@@ -1,13 +1,13 @@
 {
-  "version": "poyo-public-pricing-2026-08-26.1",
+  "version": "poyo-public-pricing-2026-10-11.1",
   "source": {
     "url": "https://poyo.ai/pricing",
     "verifiedAt": "2026-07-20T03:35:00.656Z",
     "contentSha256": "184d3cd31fdeccfc521c638745906d8fcf1e3d77ee5a3cb333ea4f74ec5fcd22"
   },
-  "normalizedInventorySha256": "e3610d428998e04af9ef269824ff544c1f5794403896f2c177cef9ad8e8821e8",
+  "normalizedInventorySha256": "21c3fde014efa22e093dcd4638137aaf66ee40b042f8e4e7143aaa70e9b402a1",
   "publicRowCount": 209,
-  "supportedTierCount": 76,
-  "unsupportedRowCount": 133,
+  "supportedTierCount": 75,
+  "unsupportedRowCount": 134,
   "inconsistentUsdRows": 0
 }

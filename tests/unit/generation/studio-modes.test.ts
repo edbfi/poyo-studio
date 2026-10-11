@@ -40,7 +40,8 @@ describe('studio creative-intent modes', () => {
       'vid2vid',
       'motion2vid',
       'char2vid',
-      'charswap'
+      'charswap',
+      'audio2vid'
     ]);
     expect(groups.flatMap((group) => group.modes)).toHaveLength(
       new Set(VIDEO_CURRENT_ENTRIES.map((entry) => entry.workflow)).size

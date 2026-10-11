@@ -136,11 +136,11 @@ describe('fixed public pricing fixture parser', () => {
       inconsistentUsdRows: inventory.inconsistentUsdRows
     });
     expect(reviewed).toMatchObject({
-      version: 'poyo-public-pricing-2026-08-26.1',
+      version: 'poyo-public-pricing-2026-10-11.1',
       source: { url: PUBLIC_PRICING_URL },
       publicRowCount: 209,
-      supportedTierCount: 76,
-      unsupportedRowCount: 133,
+      supportedTierCount: 75,
+      unsupportedRowCount: 134,
       inconsistentUsdRows: 0
     });
     expect(reviewed.source.contentSha256).toMatch(/^[a-f0-9]{64}$/);

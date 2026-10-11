@@ -109,7 +109,9 @@ export function automaticFieldChoice(
 
   const upstreamAutomatic =
     key === 'aspectRatio' ? upstreamAutomaticRatioToken(field.enum ?? []) : null;
-  if (upstreamAutomatic) {
+  // GPT Image 2.5 only accepts explicit auto at 1K. Automatic studio sizing uses its square
+  // default so the highest-resolution preselection and later resolution changes stay valid.
+  if (upstreamAutomatic && !entry.validation.conditionalRules.includes('auto-size-only-at-1k')) {
     return {
       available: true,
       label: 'Automatic (model decides)',

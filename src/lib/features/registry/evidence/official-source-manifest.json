@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "registryVersion": "image-2026-08-24.1+video-2026-08-26.1",
-  "verifiedAt": "2026-08-26T16:51:42Z",
+  "registryVersion": "image-2026-10-11.1+video-2026-10-11.1",
+  "verifiedAt": "2026-10-11T11:26:07Z",
   "hashAlgorithm": "sha256",
-  "corpusSha256": "d8d70fbf5e1d3bed462d074285809a827d79ae00b8c7ecfd207fa77b536d2e86",
+  "corpusSha256": "3de297d43adb4810256dafc0927fe9c1f1c86ef4a7dde4855c6092cc5cc801e5",
   "sources": [
     {
       "id": "audit:legacy:sora-2",
@@ -1071,9 +1071,9 @@
       "url": "https://docs.poyo.ai/llms.txt",
       "status": "available",
       "httpStatus": 200,
-      "byteLength": 27583,
-      "sha256": "5ca486e6299cfcb2a0d34d22fb97c8b5ee87d4430d376af732242d603d505472",
-      "canonicalSha256": "5ca486e6299cfcb2a0d34d22fb97c8b5ee87d4430d376af732242d603d505472",
+      "byteLength": 28633,
+      "sha256": "bff4bc3c896c71d1921112342224c405bb97364d1864b49f35fd401e3cc31a92",
+      "canonicalSha256": "bff4bc3c896c71d1921112342224c405bb97364d1864b49f35fd401e3cc31a92",
       "canonicalization": "raw-body-v1",
       "structured": null
     },
@@ -1801,6 +1801,270 @@
       "byteLength": 7371,
       "sha256": "74cec52a14e3ae34509d7e94f59b7d0bd104879ba0b391de23114d76b6dc69b8",
       "canonicalSha256": "74cec52a14e3ae34509d7e94f59b7d0bd104879ba0b391de23114d76b6dc69b8",
+      "canonicalization": "raw-body-v1",
+      "structured": null
+    },
+    {
+      "id": "model:image:gpt-image-2-5-flare:json",
+      "category": "model",
+      "representation": "json",
+      "modality": "image",
+      "pageSlug": "gpt-image-2-5-flare",
+      "url": "https://docs.poyo.ai/api-manual/image-series/gpt-image-2-5-flare.json",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 9243,
+      "sha256": "5f7b3843ed4b247b50fa4605d6ed68a3bc8e95e2f56850a1d2fe3866250af6a0",
+      "canonicalSha256": "5f7b3843ed4b247b50fa4605d6ed68a3bc8e95e2f56850a1d2fe3866250af6a0",
+      "canonicalization": "raw-body-v1",
+      "structured": {
+        "openapi": "3.0.0",
+        "paths": ["/api/generate/submit"],
+        "properties": [
+          {
+            "path": "SubmitRequest.callback_url",
+            "type": "string",
+            "required": false,
+            "format": "uri"
+          },
+          {
+            "path": "SubmitRequest.input",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitRequest.input.background",
+            "type": "string",
+            "required": false,
+            "enum": ["auto", "transparent", "opaque"],
+            "default": "auto"
+          },
+          {
+            "path": "SubmitRequest.input.image_urls",
+            "type": "array",
+            "required": false,
+            "maxItems": 16
+          },
+          {
+            "path": "SubmitRequest.input.mask_url",
+            "type": "string",
+            "required": false,
+            "format": "uri"
+          },
+          {
+            "path": "SubmitRequest.input.output_format",
+            "type": "string",
+            "required": false,
+            "enum": ["png", "jpeg", "webp"],
+            "default": "png"
+          },
+          {
+            "path": "SubmitRequest.input.prompt",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 32000
+          },
+          {
+            "path": "SubmitRequest.input.quality",
+            "type": "string",
+            "required": false,
+            "enum": ["low", "medium", "high", "xhigh", "max"],
+            "default": "high"
+          },
+          {
+            "path": "SubmitRequest.input.resolution",
+            "type": "string",
+            "required": false,
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "path": "SubmitRequest.input.size",
+            "type": "string",
+            "required": false,
+            "default": "1:1"
+          },
+          {
+            "path": "SubmitRequest.model",
+            "type": "string",
+            "required": true,
+            "enum": ["gpt-image-2.5-flare"]
+          },
+          {
+            "path": "SubmitResponse.code",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data.created_time",
+            "type": "string",
+            "required": true,
+            "format": "date-time"
+          },
+          {
+            "path": "SubmitResponse.data.status",
+            "type": "string",
+            "required": true,
+            "enum": ["not_started"]
+          },
+          {
+            "path": "SubmitResponse.data.task_id",
+            "type": "string",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "model:image:gpt-image-2-5-flare:markdown",
+      "category": "model",
+      "representation": "markdown",
+      "modality": "image",
+      "pageSlug": "gpt-image-2-5-flare",
+      "url": "https://docs.poyo.ai/api-manual/image-series/gpt-image-2-5-flare.md",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 11049,
+      "sha256": "176fa77c4e29bb86a7166758d4d9f47019498ea44d46d86f27c05533922ce4f8",
+      "canonicalSha256": "176fa77c4e29bb86a7166758d4d9f47019498ea44d46d86f27c05533922ce4f8",
+      "canonicalization": "raw-body-v1",
+      "structured": null
+    },
+    {
+      "id": "model:image:gpt-image-2-5-sunburst:json",
+      "category": "model",
+      "representation": "json",
+      "modality": "image",
+      "pageSlug": "gpt-image-2-5-sunburst",
+      "url": "https://docs.poyo.ai/api-manual/image-series/gpt-image-2-5-sunburst.json",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 9279,
+      "sha256": "7586051b556c5ea4ff69bb4d7b95a8b59c1389de9650edebd2344801827c3940",
+      "canonicalSha256": "7586051b556c5ea4ff69bb4d7b95a8b59c1389de9650edebd2344801827c3940",
+      "canonicalization": "raw-body-v1",
+      "structured": {
+        "openapi": "3.0.0",
+        "paths": ["/api/generate/submit"],
+        "properties": [
+          {
+            "path": "SubmitRequest.callback_url",
+            "type": "string",
+            "required": false,
+            "format": "uri"
+          },
+          {
+            "path": "SubmitRequest.input",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitRequest.input.background",
+            "type": "string",
+            "required": false,
+            "enum": ["auto", "transparent", "opaque"],
+            "default": "auto"
+          },
+          {
+            "path": "SubmitRequest.input.image_urls",
+            "type": "array",
+            "required": false,
+            "maxItems": 16
+          },
+          {
+            "path": "SubmitRequest.input.mask_url",
+            "type": "string",
+            "required": false,
+            "format": "uri"
+          },
+          {
+            "path": "SubmitRequest.input.output_format",
+            "type": "string",
+            "required": false,
+            "enum": ["png", "jpeg", "webp"],
+            "default": "png"
+          },
+          {
+            "path": "SubmitRequest.input.prompt",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 32000
+          },
+          {
+            "path": "SubmitRequest.input.quality",
+            "type": "string",
+            "required": false,
+            "enum": ["low", "medium", "high", "xhigh", "max"],
+            "default": "high"
+          },
+          {
+            "path": "SubmitRequest.input.resolution",
+            "type": "string",
+            "required": false,
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "path": "SubmitRequest.input.size",
+            "type": "string",
+            "required": false,
+            "default": "1:1"
+          },
+          {
+            "path": "SubmitRequest.model",
+            "type": "string",
+            "required": true,
+            "enum": ["gpt-image-2.5-sunburst"]
+          },
+          {
+            "path": "SubmitResponse.code",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data.created_time",
+            "type": "string",
+            "required": true,
+            "format": "date-time"
+          },
+          {
+            "path": "SubmitResponse.data.status",
+            "type": "string",
+            "required": true,
+            "enum": ["not_started"]
+          },
+          {
+            "path": "SubmitResponse.data.task_id",
+            "type": "string",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "model:image:gpt-image-2-5-sunburst:markdown",
+      "category": "model",
+      "representation": "markdown",
+      "modality": "image",
+      "pageSlug": "gpt-image-2-5-sunburst",
+      "url": "https://docs.poyo.ai/api-manual/image-series/gpt-image-2-5-sunburst.md",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 11112,
+      "sha256": "63541d8335323971deebd3105d0c5edfef7d2a685f771b4e14ea04fa8d1af79d",
+      "canonicalSha256": "63541d8335323971deebd3105d0c5edfef7d2a685f771b4e14ea04fa8d1af79d",
       "canonicalization": "raw-body-v1",
       "structured": null
     },
@@ -2597,6 +2861,144 @@
       "structured": null
     },
     {
+      "id": "model:image:nano-banana-2-1:json",
+      "category": "model",
+      "representation": "json",
+      "modality": "image",
+      "pageSlug": "nano-banana-2-1",
+      "url": "https://docs.poyo.ai/api-manual/image-series/nano-banana-2-1.json",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 8651,
+      "sha256": "8fac15b6b234cc904ec7b589c2df4331616dbdc050565c42c32bcc187a1b7671",
+      "canonicalSha256": "8fac15b6b234cc904ec7b589c2df4331616dbdc050565c42c32bcc187a1b7671",
+      "canonicalization": "raw-body-v1",
+      "structured": {
+        "openapi": "3.0.0",
+        "paths": ["/api/generate/submit"],
+        "properties": [
+          {
+            "path": "ErrorResponse.code",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "path": "ErrorResponse.error",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "ErrorResponse.error.message",
+            "type": "string",
+            "required": true
+          },
+          {
+            "path": "ErrorResponse.error.type",
+            "type": "string",
+            "required": true
+          },
+          {
+            "path": "SubmitRequest.callback_url",
+            "type": "string",
+            "required": false,
+            "format": "uri"
+          },
+          {
+            "path": "SubmitRequest.input",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitRequest.input.image_urls",
+            "type": "array",
+            "required": false,
+            "minItems": 1,
+            "maxItems": 10
+          },
+          {
+            "path": "SubmitRequest.input.prompt",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          {
+            "path": "SubmitRequest.input.resolution",
+            "type": "string",
+            "required": false,
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "path": "SubmitRequest.input.size",
+            "type": "string",
+            "required": false,
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ]
+          },
+          {
+            "path": "SubmitRequest.model",
+            "type": "string",
+            "required": true,
+            "enum": ["nano-banana-2.1"]
+          },
+          {
+            "path": "SubmitResponse.code",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data.created_time",
+            "type": "string",
+            "required": true,
+            "format": "date-time"
+          },
+          {
+            "path": "SubmitResponse.data.status",
+            "type": "string",
+            "required": true,
+            "enum": ["not_started"]
+          },
+          {
+            "path": "SubmitResponse.data.task_id",
+            "type": "string",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "model:image:nano-banana-2-1:markdown",
+      "category": "model",
+      "representation": "markdown",
+      "modality": "image",
+      "pageSlug": "nano-banana-2-1",
+      "url": "https://docs.poyo.ai/api-manual/image-series/nano-banana-2-1.md",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 8034,
+      "sha256": "aaf6f338a5003efd40c8b1099959aa02839ac8f4e092bc5a1dbd4c892ea800ef",
+      "canonicalSha256": "aaf6f338a5003efd40c8b1099959aa02839ac8f4e092bc5a1dbd4c892ea800ef",
+      "canonicalization": "raw-body-v1",
+      "structured": null
+    },
+    {
       "id": "model:image:nano-banana-2-lite:json",
       "category": "model",
       "representation": "json",
@@ -3152,6 +3554,148 @@
       "structured": null
     },
     {
+      "id": "model:image:qwen-image-2-1:json",
+      "category": "model",
+      "representation": "json",
+      "modality": "image",
+      "pageSlug": "qwen-image-2-1",
+      "url": "https://docs.poyo.ai/api-manual/image-series/qwen-image-2-1.json",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 10730,
+      "sha256": "586da944899dc0ddfe6de9f38e997af4bac4bc02bc2219f47168bcd796b3f4b1",
+      "canonicalSha256": "586da944899dc0ddfe6de9f38e997af4bac4bc02bc2219f47168bcd796b3f4b1",
+      "canonicalization": "raw-body-v1",
+      "structured": {
+        "openapi": "3.0.0",
+        "paths": ["/api/generate/submit"],
+        "properties": [
+          {
+            "path": "SubmitRequest.callback_url",
+            "type": "string",
+            "required": false,
+            "format": "uri"
+          },
+          {
+            "path": "SubmitRequest.input",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitRequest.input.background",
+            "type": "string",
+            "required": false,
+            "enum": ["opaque", "transparent"],
+            "default": "opaque"
+          },
+          {
+            "path": "SubmitRequest.input.enable_safety_checker",
+            "type": "boolean",
+            "required": false,
+            "default": true
+          },
+          {
+            "path": "SubmitRequest.input.image_urls",
+            "type": "array",
+            "required": false,
+            "minItems": 0,
+            "maxItems": 10
+          },
+          {
+            "path": "SubmitRequest.input.mask_url",
+            "type": "string",
+            "required": false,
+            "format": "uri"
+          },
+          {
+            "path": "SubmitRequest.input.output_format",
+            "type": "string",
+            "required": false,
+            "enum": ["png", "webp", "jpeg"],
+            "default": "png"
+          },
+          {
+            "path": "SubmitRequest.input.prompt",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 5000
+          },
+          {
+            "path": "SubmitRequest.input.prompt_extend",
+            "type": "boolean",
+            "required": false,
+            "default": true
+          },
+          {
+            "path": "SubmitRequest.input.resolution",
+            "type": "string",
+            "required": false,
+            "enum": ["1K", "2K"],
+            "default": "1K"
+          },
+          {
+            "path": "SubmitRequest.input.seed",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "path": "SubmitRequest.input.size",
+            "type": "string",
+            "required": false,
+            "enum": ["1:1", "4:3", "3:4", "3:2", "2:3", "16:9", "9:16", "21:9", "9:21", "auto"]
+          },
+          {
+            "path": "SubmitRequest.model",
+            "type": "string",
+            "required": true,
+            "enum": ["qwen-image-2.1"]
+          },
+          {
+            "path": "SubmitResponse.code",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data.created_time",
+            "type": "string",
+            "required": true,
+            "format": "date-time"
+          },
+          {
+            "path": "SubmitResponse.data.status",
+            "type": "string",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data.task_id",
+            "type": "string",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "model:image:qwen-image-2-1:markdown",
+      "category": "model",
+      "representation": "markdown",
+      "modality": "image",
+      "pageSlug": "qwen-image-2-1",
+      "url": "https://docs.poyo.ai/api-manual/image-series/qwen-image-2-1.md",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 12333,
+      "sha256": "7497967b8abf304b972fab65e82c34dbdc1b98dc51ffb800b0bc5ca36e8f44c3",
+      "canonicalSha256": "7497967b8abf304b972fab65e82c34dbdc1b98dc51ffb800b0bc5ca36e8f44c3",
+      "canonicalization": "raw-body-v1",
+      "structured": null
+    },
+    {
       "id": "model:image:qwen-image-3:json",
       "category": "model",
       "representation": "json",
@@ -3550,6 +4094,145 @@
       "byteLength": 8805,
       "sha256": "a7e91c663e4a7acf3be34044c27d143c68dc356b6b35e78066210f6b722de6cf",
       "canonicalSha256": "a7e91c663e4a7acf3be34044c27d143c68dc356b6b35e78066210f6b722de6cf",
+      "canonicalization": "raw-body-v1",
+      "structured": null
+    },
+    {
+      "id": "model:image:seedream-5-0-flash:json",
+      "category": "model",
+      "representation": "json",
+      "modality": "image",
+      "pageSlug": "seedream-5-0-flash",
+      "url": "https://docs.poyo.ai/api-manual/image-series/seedream-5-0-flash.json",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 6478,
+      "sha256": "bfea00061b6492f4b57b351271631428f3fe618807b7283cdb92d72d776e12ff",
+      "canonicalSha256": "bfea00061b6492f4b57b351271631428f3fe618807b7283cdb92d72d776e12ff",
+      "canonicalization": "raw-body-v1",
+      "structured": {
+        "openapi": "3.0.0",
+        "paths": ["/api/generate/submit"],
+        "properties": [
+          {
+            "path": "ErrorResponse.code",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "path": "ErrorResponse.error",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "ErrorResponse.error.message",
+            "type": "string",
+            "required": true
+          },
+          {
+            "path": "ErrorResponse.error.type",
+            "type": "string",
+            "required": true
+          },
+          {
+            "path": "SubmitRequest.callback_url",
+            "type": "string",
+            "required": false,
+            "format": "uri"
+          },
+          {
+            "path": "SubmitRequest.input",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitRequest.input.enable_safety_checker",
+            "type": "boolean",
+            "required": false,
+            "default": true
+          },
+          {
+            "path": "SubmitRequest.input.image_urls",
+            "type": "array",
+            "required": false,
+            "minItems": 1,
+            "maxItems": 10
+          },
+          {
+            "path": "SubmitRequest.input.output_format",
+            "type": "string",
+            "required": false,
+            "enum": ["jpeg", "png"]
+          },
+          {
+            "path": "SubmitRequest.input.prompt",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 5000
+          },
+          {
+            "path": "SubmitRequest.input.resolution",
+            "type": "string",
+            "required": false,
+            "enum": ["1K", "1.5K", "2K"],
+            "default": "1K"
+          },
+          {
+            "path": "SubmitRequest.input.size",
+            "type": "string",
+            "required": false,
+            "enum": ["1:1", "4:3", "3:4", "16:9", "9:16", "2:3", "3:2", "21:9"],
+            "default": "1:1"
+          },
+          {
+            "path": "SubmitRequest.model",
+            "type": "string",
+            "required": true,
+            "enum": ["seedream-5.0-flash", "seedream-5.0-flash-edit"]
+          },
+          {
+            "path": "SubmitResponse.code",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data.created_time",
+            "type": "string",
+            "required": true,
+            "format": "date-time"
+          },
+          {
+            "path": "SubmitResponse.data.status",
+            "type": "string",
+            "required": true,
+            "enum": ["not_started"]
+          },
+          {
+            "path": "SubmitResponse.data.task_id",
+            "type": "string",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "model:image:seedream-5-0-flash:markdown",
+      "category": "model",
+      "representation": "markdown",
+      "modality": "image",
+      "pageSlug": "seedream-5-0-flash",
+      "url": "https://docs.poyo.ai/api-manual/image-series/seedream-5-0-flash.md",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 8715,
+      "sha256": "152764b815faffed8581be366a3962c038ebcceb736f38598165c968489ee8cf",
+      "canonicalSha256": "152764b815faffed8581be366a3962c038ebcceb736f38598165c968489ee8cf",
       "canonicalization": "raw-body-v1",
       "structured": null
     },
@@ -4414,6 +5097,186 @@
       "structured": null
     },
     {
+      "id": "model:video:gemini-omni-1.1-flash:json",
+      "category": "model",
+      "representation": "json",
+      "modality": "video",
+      "pageSlug": "gemini-omni-1.1-flash",
+      "url": "https://docs.poyo.ai/api-manual/video-series/gemini-omni-1.1-flash.json",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 11302,
+      "sha256": "810073ae8822268c03898f67979197fb2dbaf1459234450f5e4b931b396caa81",
+      "canonicalSha256": "810073ae8822268c03898f67979197fb2dbaf1459234450f5e4b931b396caa81",
+      "canonicalization": "raw-body-v1",
+      "structured": {
+        "openapi": "3.0.0",
+        "paths": ["/api/generate/status/{task_id}", "/api/generate/submit"],
+        "properties": [
+          {
+            "path": "StatusResponse.code",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "path": "StatusResponse.data",
+            "type": "object",
+            "required": false
+          },
+          {
+            "path": "StatusResponse.data.created_time",
+            "type": "string",
+            "required": false,
+            "format": "date-time"
+          },
+          {
+            "path": "StatusResponse.data.credits_amount",
+            "type": "number",
+            "required": false
+          },
+          {
+            "path": "StatusResponse.data.error_message",
+            "type": "string",
+            "required": false
+          },
+          {
+            "path": "StatusResponse.data.files",
+            "type": "array",
+            "required": false
+          },
+          {
+            "path": "StatusResponse.data.progress",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "path": "StatusResponse.data.status",
+            "type": "string",
+            "required": false,
+            "enum": ["not_started", "running", "finished", "failed"]
+          },
+          {
+            "path": "StatusResponse.data.task_id",
+            "type": "string",
+            "required": false
+          },
+          {
+            "path": "SubmitRequest.callback_url",
+            "type": "string",
+            "required": false,
+            "format": "uri"
+          },
+          {
+            "path": "SubmitRequest.input",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitRequest.input.aspect_ratio",
+            "type": "string",
+            "required": false,
+            "enum": ["16:9", "9:16"],
+            "default": "16:9"
+          },
+          {
+            "path": "SubmitRequest.input.duration",
+            "type": "integer",
+            "required": false,
+            "enum": [4, 6, 8, 10],
+            "default": 8
+          },
+          {
+            "path": "SubmitRequest.input.image_urls",
+            "type": "array",
+            "required": false,
+            "minItems": 1,
+            "maxItems": 2
+          },
+          {
+            "path": "SubmitRequest.input.prompt",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          {
+            "path": "SubmitRequest.input.reference_image_urls",
+            "type": "array",
+            "required": false,
+            "minItems": 1,
+            "maxItems": 7
+          },
+          {
+            "path": "SubmitRequest.input.reference_video_urls",
+            "type": "array",
+            "required": false,
+            "minItems": 1,
+            "maxItems": 1
+          },
+          {
+            "path": "SubmitRequest.input.resolution",
+            "type": "string",
+            "required": false,
+            "enum": ["360p", "720p", "1080p", "4k"],
+            "default": "720p"
+          },
+          {
+            "path": "SubmitRequest.model",
+            "type": "string",
+            "required": true,
+            "enum": ["gemini-omni-1.1-flash"]
+          },
+          {
+            "path": "SubmitResponse.code",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data.created_time",
+            "type": "string",
+            "required": true,
+            "format": "date-time"
+          },
+          {
+            "path": "SubmitResponse.data.status",
+            "type": "string",
+            "required": true,
+            "enum": ["not_started"]
+          },
+          {
+            "path": "SubmitResponse.data.task_id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.message",
+            "type": "string",
+            "required": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "model:video:gemini-omni-1.1-flash:markdown",
+      "category": "model",
+      "representation": "markdown",
+      "modality": "video",
+      "pageSlug": "gemini-omni-1.1-flash",
+      "url": "https://docs.poyo.ai/api-manual/video-series/gemini-omni-1.1-flash.md",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 12402,
+      "sha256": "e117f8987ad4b930a609522761ad6e88acc25e7d490e03a72ca123899a915558",
+      "canonicalSha256": "e117f8987ad4b930a609522761ad6e88acc25e7d490e03a72ca123899a915558",
+      "canonicalization": "raw-body-v1",
+      "structured": null
+    },
+    {
       "id": "model:video:grok-imagine-video-1-5:json",
       "category": "model",
       "representation": "json",
@@ -4572,9 +5435,9 @@
       "url": "https://docs.poyo.ai/api-manual/video-series/grok-imagine-video-1-5.md",
       "status": "available",
       "httpStatus": 200,
-      "byteLength": 6803,
-      "sha256": "3fbbbad8a8ab390c91d1546569f260a28236e3121a12c74c3b30e859534c8fdf",
-      "canonicalSha256": "3fbbbad8a8ab390c91d1546569f260a28236e3121a12c74c3b30e859534c8fdf",
+      "byteLength": 6916,
+      "sha256": "40139d8de35a4b4ba0e4e506c6c13946fe8fb7cc6d25e006a501a165852266f4",
+      "canonicalSha256": "40139d8de35a4b4ba0e4e506c6c13946fe8fb7cc6d25e006a501a165852266f4",
       "canonicalization": "raw-body-v1",
       "structured": null
     },
@@ -4704,6 +5567,358 @@
       "byteLength": 6346,
       "sha256": "59cf10dac0b0d89b8a455f12b36dd70a473da614c0ccc85e7067ca702996f4e0",
       "canonicalSha256": "59cf10dac0b0d89b8a455f12b36dd70a473da614c0ccc85e7067ca702996f4e0",
+      "canonicalization": "raw-body-v1",
+      "structured": null
+    },
+    {
+      "id": "model:video:h3-max-turbo:json",
+      "category": "model",
+      "representation": "json",
+      "modality": "video",
+      "pageSlug": "h3-max-turbo",
+      "url": "https://docs.poyo.ai/api-manual/video-series/h3-max-turbo.json",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 7016,
+      "sha256": "aeeab1982fee7fd917aa714f56f6fe1d70f3bf2482ad966a53274128c61af04d",
+      "canonicalSha256": "aeeab1982fee7fd917aa714f56f6fe1d70f3bf2482ad966a53274128c61af04d",
+      "canonicalization": "raw-body-v1",
+      "structured": {
+        "openapi": "3.0.0",
+        "paths": ["/api/generate/submit"],
+        "properties": [
+          {
+            "path": "H3MaxTurboInput.aspect_ratio",
+            "type": "string",
+            "required": false,
+            "enum": ["21:9", "16:9", "4:3", "1:1", "3:4", "9:16"]
+          },
+          {
+            "path": "H3MaxTurboInput.duration",
+            "type": "integer",
+            "required": false,
+            "default": 5,
+            "minimum": 5,
+            "maximum": 15
+          },
+          {
+            "path": "H3MaxTurboInput.enable_safety_checker",
+            "type": "boolean",
+            "required": false,
+            "default": true
+          },
+          {
+            "path": "H3MaxTurboInput.image_urls",
+            "type": "array",
+            "required": false,
+            "maxItems": 2
+          },
+          {
+            "path": "H3MaxTurboInput.prompt",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 50000
+          },
+          {
+            "path": "H3MaxTurboInput.resolution",
+            "type": "string",
+            "required": false,
+            "enum": ["480p", "768p", "1080p", "480P", "768P", "1080P"],
+            "default": "768p"
+          },
+          {
+            "path": "SubmitRequest.callback_url",
+            "type": "string",
+            "required": false,
+            "format": "uri"
+          },
+          {
+            "path": "SubmitRequest.input",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitRequest.input.aspect_ratio",
+            "type": "string",
+            "required": false,
+            "enum": ["21:9", "16:9", "4:3", "1:1", "3:4", "9:16"]
+          },
+          {
+            "path": "SubmitRequest.input.duration",
+            "type": "integer",
+            "required": false,
+            "default": 5,
+            "minimum": 5,
+            "maximum": 15
+          },
+          {
+            "path": "SubmitRequest.input.enable_safety_checker",
+            "type": "boolean",
+            "required": false,
+            "default": true
+          },
+          {
+            "path": "SubmitRequest.input.image_urls",
+            "type": "array",
+            "required": false,
+            "maxItems": 2
+          },
+          {
+            "path": "SubmitRequest.input.prompt",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 50000
+          },
+          {
+            "path": "SubmitRequest.input.resolution",
+            "type": "string",
+            "required": false,
+            "enum": ["480p", "768p", "1080p", "480P", "768P", "1080P"],
+            "default": "768p"
+          },
+          {
+            "path": "SubmitRequest.model",
+            "type": "string",
+            "required": true,
+            "enum": ["h3-max-turbo"]
+          },
+          {
+            "path": "SubmitResponse.code",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data.created_time",
+            "type": "string",
+            "required": true,
+            "format": "date-time"
+          },
+          {
+            "path": "SubmitResponse.data.status",
+            "type": "string",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data.task_id",
+            "type": "string",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "model:video:h3-max-turbo:markdown",
+      "category": "model",
+      "representation": "markdown",
+      "modality": "video",
+      "pageSlug": "h3-max-turbo",
+      "url": "https://docs.poyo.ai/api-manual/video-series/h3-max-turbo.md",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 7140,
+      "sha256": "533178811e6f3b5dce857fa1b98afffdb8abc18f0744850edd012122d4563b6e",
+      "canonicalSha256": "533178811e6f3b5dce857fa1b98afffdb8abc18f0744850edd012122d4563b6e",
+      "canonicalization": "raw-body-v1",
+      "structured": null
+    },
+    {
+      "id": "model:video:h3-max:json",
+      "category": "model",
+      "representation": "json",
+      "modality": "video",
+      "pageSlug": "h3-max",
+      "url": "https://docs.poyo.ai/api-manual/video-series/h3-max.json",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 10755,
+      "sha256": "39a91defd35a0884ad996e1407d597afb1f4d62be98fb67923fec7f92d4325c7",
+      "canonicalSha256": "39a91defd35a0884ad996e1407d597afb1f4d62be98fb67923fec7f92d4325c7",
+      "canonicalization": "raw-body-v1",
+      "structured": {
+        "openapi": "3.0.0",
+        "paths": ["/api/generate/submit"],
+        "properties": [
+          {
+            "path": "H3MaxInput.aspect_ratio",
+            "type": "string",
+            "required": false,
+            "enum": ["21:9", "16:9", "4:3", "1:1", "3:4", "9:16", "adaptive"]
+          },
+          {
+            "path": "H3MaxInput.duration",
+            "type": "integer",
+            "required": false,
+            "default": 5,
+            "minimum": 5,
+            "maximum": 15
+          },
+          {
+            "path": "H3MaxInput.enable_safety_checker",
+            "type": "boolean",
+            "required": false,
+            "default": true
+          },
+          {
+            "path": "H3MaxInput.image_urls",
+            "type": "array",
+            "required": false,
+            "maxItems": 2
+          },
+          {
+            "path": "H3MaxInput.prompt",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 50000
+          },
+          {
+            "path": "H3MaxInput.reference_audio_urls",
+            "type": "array",
+            "required": false,
+            "maxItems": 3
+          },
+          {
+            "path": "H3MaxInput.reference_image_urls",
+            "type": "array",
+            "required": false,
+            "maxItems": 9
+          },
+          {
+            "path": "H3MaxInput.reference_video_urls",
+            "type": "array",
+            "required": false,
+            "maxItems": 3
+          },
+          {
+            "path": "H3MaxInput.resolution",
+            "type": "string",
+            "required": false,
+            "enum": ["480p", "768p", "1080p"],
+            "default": "768p"
+          },
+          {
+            "path": "SubmitRequest.callback_url",
+            "type": "string",
+            "required": false,
+            "format": "uri"
+          },
+          {
+            "path": "SubmitRequest.input",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitRequest.input.aspect_ratio",
+            "type": "string",
+            "required": false,
+            "enum": ["21:9", "16:9", "4:3", "1:1", "3:4", "9:16", "adaptive"]
+          },
+          {
+            "path": "SubmitRequest.input.duration",
+            "type": "integer",
+            "required": false,
+            "default": 5,
+            "minimum": 5,
+            "maximum": 15
+          },
+          {
+            "path": "SubmitRequest.input.enable_safety_checker",
+            "type": "boolean",
+            "required": false,
+            "default": true
+          },
+          {
+            "path": "SubmitRequest.input.image_urls",
+            "type": "array",
+            "required": false,
+            "maxItems": 2
+          },
+          {
+            "path": "SubmitRequest.input.prompt",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 50000
+          },
+          {
+            "path": "SubmitRequest.input.reference_audio_urls",
+            "type": "array",
+            "required": false,
+            "maxItems": 3
+          },
+          {
+            "path": "SubmitRequest.input.reference_image_urls",
+            "type": "array",
+            "required": false,
+            "maxItems": 9
+          },
+          {
+            "path": "SubmitRequest.input.reference_video_urls",
+            "type": "array",
+            "required": false,
+            "maxItems": 3
+          },
+          {
+            "path": "SubmitRequest.input.resolution",
+            "type": "string",
+            "required": false,
+            "enum": ["480p", "768p", "1080p"],
+            "default": "768p"
+          },
+          {
+            "path": "SubmitRequest.model",
+            "type": "string",
+            "required": true,
+            "enum": ["h3-max"]
+          },
+          {
+            "path": "SubmitResponse.code",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data.created_time",
+            "type": "string",
+            "required": true,
+            "format": "date-time"
+          },
+          {
+            "path": "SubmitResponse.data.status",
+            "type": "string",
+            "required": true
+          },
+          {
+            "path": "SubmitResponse.data.task_id",
+            "type": "string",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "model:video:h3-max:markdown",
+      "category": "model",
+      "representation": "markdown",
+      "modality": "video",
+      "pageSlug": "h3-max",
+      "url": "https://docs.poyo.ai/api-manual/video-series/h3-max.md",
+      "status": "available",
+      "httpStatus": 200,
+      "byteLength": 12454,
+      "sha256": "9c371258d14d6ca127cd9dbcf65c5af56244af3bed2b4ced07541f7bf4ea66db",
+      "canonicalSha256": "9c371258d14d6ca127cd9dbcf65c5af56244af3bed2b4ced07541f7bf4ea66db",
       "canonicalization": "raw-body-v1",
       "structured": null
     },
@@ -6665,9 +7880,9 @@
       "url": "https://docs.poyo.ai/api-manual/video-series/kling-avatar-2-0.md",
       "status": "available",
       "httpStatus": 200,
-      "byteLength": 7078,
-      "sha256": "ac567f8da60124a66180baa15090d1f55666a513acbc55016268e3b561d21ad1",
-      "canonicalSha256": "ac567f8da60124a66180baa15090d1f55666a513acbc55016268e3b561d21ad1",
+      "byteLength": 7191,
+      "sha256": "313341c29be24dca6f63d631d5b6d23618b873c39c6e017abb190ed2cc164b19",
+      "canonicalSha256": "313341c29be24dca6f63d631d5b6d23618b873c39c6e017abb190ed2cc164b19",
       "canonicalization": "raw-body-v1",
       "structured": null
     },
