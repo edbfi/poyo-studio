@@ -48,10 +48,11 @@ export default defineConfig({
       warning: 'var(--warning)',
       experimental: 'var(--experimental)'
     },
-    fontFamily: {
-      sans: 'var(--font-sans)',
-      serif: 'var(--font-serif)',
-      mono: 'var(--font-mono)'
+    // presetWind4 reads `font`, not `fontFamily`, and emits each stack as `--font-*`.
+    font: {
+      sans: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      serif: '"Source Serif 4", ui-serif, Georgia, Cambria, serif',
+      mono: '"JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace'
     },
     radius: {
       sm: '0.25rem',
