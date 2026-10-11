@@ -1141,10 +1141,6 @@ serial(
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
     const page = await context.newPage();
     try {
-      // When a page's last route expires, Playwright disables request interception, and a request
-      // the browser paused just before that is never continued. Each one-shot route below expires
-      // as the studio sends its first recovery poll, so keep a standing route for the whole test.
-      await page.route('**/api/jobs', (route) => route.fallback());
       await page.goto(`${harness.url}/studio/image`);
       await chooseImageTextWorkflow(page);
       const inspector = page.locator('#parameter-inspector');
@@ -2518,11 +2514,6 @@ async function productionJourney() {
       completed?: boolean;
       request?: Promise<APIResponse>;
     };
-    // When a page's last route expires, Playwright disables request interception, and a request the
-    // browser paused just before that is never continued. This one-shot route and the interrupted
-    // batch's below expire as the studio sends its first recovery poll, so keep a standing route for
-    // the rest of the test (as JOB-17 does).
-    await page.route('**/api/jobs', (route) => route.fallback());
     await page.route(
       '**/api/jobs',
       async (route) => {
