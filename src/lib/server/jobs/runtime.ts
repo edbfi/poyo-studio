@@ -31,7 +31,7 @@ async function createRuntime(): Promise<JobRuntime> {
     });
   const gateway: JobPoyoGateway = {
     submit: async (request, options) => (await createGatewayClient()).submit(request, options),
-    getStatus: async (id) => (await createGatewayClient()).getStatus(id),
+    getStatus: async (id, options) => (await createGatewayClient()).getStatus(id, options),
     getBalance: async (options) => (await createGatewayClient()).getBalance(options)
   };
   const downloader = new OutputDownloader({

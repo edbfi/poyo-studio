@@ -35,6 +35,8 @@ export async function startStudioMockPoyoServer(): Promise<{
   setPublicIpv4: (ipv4: string) => void;
   setPublicIpv4Delay: (delayMs: number) => void;
   setPublicIpv4Unavailable: (unavailable: boolean) => void;
+  /** Leaves status requests unanswered until the returned function is called. */
+  holdStatusResponses: () => () => void;
   stop: () => Promise<void>;
 }> {
   const requests: RecordedPoyoRequest[] = [];
@@ -44,6 +46,7 @@ export async function startStudioMockPoyoServer(): Promise<{
   let publicIpv4 = '8.8.4.4';
   let publicIpv4DelayMs = 0;
   let publicIpv4Unavailable = false;
+  let statusHold: Promise<void> | null = null;
   const image = await Bun.file('tests/fixtures/media/tiny.png').bytes();
   const video = await Bun.file('tests/fixtures/media/tiny.mp4').bytes();
 
@@ -136,6 +139,7 @@ export async function startStudioMockPoyoServer(): Promise<{
         const task = tasks.get(taskId);
         if (!task) return Response.json({ detail: 'Unknown task' }, { status: 404 });
         task.polls += 1;
+        if (statusHold) await statusHold;
         const held = task.outcome === 'held' && !task.released;
         const running = held || (task.outcome === 'success' && task.polls === 1);
         if (task.outcome === 'failed') {
@@ -227,6 +231,17 @@ export async function startStudioMockPoyoServer(): Promise<{
     },
     setPublicIpv4Unavailable: (unavailable) => {
       publicIpv4Unavailable = unavailable;
+    },
+    holdStatusResponses: () => {
+      let release!: () => void;
+      const hold = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      statusHold = hold;
+      return () => {
+        if (statusHold === hold) statusHold = null;
+        release();
+      };
     },
     stop: async () => server.stop(true)
   };

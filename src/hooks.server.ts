@@ -10,9 +10,16 @@ import type { OperationsSettings } from '#lib/server/settings/operations-setting
 import { injectThemeDefault, isThemePreference, type ThemePreference } from '#lib/theme.js';
 
 export async function init(): Promise<void> {
-  const { startRuntimeJobWorker } = await import('#lib/server/jobs/runtime.js');
-  const { startRuntimeCleanupWorker } = await import('#lib/server/cleanup/runtime.js');
+  const { startRuntimeJobWorker, stopRuntimeJobWorker } = await import(
+    '#lib/server/jobs/runtime.js'
+  );
+  const { startRuntimeCleanupWorker, stopRuntimeCleanupWorker } = await import(
+    '#lib/server/cleanup/runtime.js'
+  );
+  const { stopOnShutdownSignal } = await import('#lib/server/platform/shutdown.js');
   await Promise.all([startRuntimeJobWorker(), startRuntimeCleanupWorker()]);
+  // Settle the workers (and release their work leases) before the drain deadline ends the process.
+  stopOnShutdownSignal(() => Promise.all([stopRuntimeJobWorker(), stopRuntimeCleanupWorker()]));
 }
 
 async function installThemeDefault(): Promise<ThemePreference> {
