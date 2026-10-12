@@ -1,7 +1,12 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { exists, readdir } from 'node:fs/promises';
-import { JobCoordinator, type JobPoyoGateway } from '../../../src/lib/server/jobs/coordinator';
+import {
+  JobCoordinator,
+  type JobPoyoGateway,
+  JobWorker
+} from '../../../src/lib/server/jobs/coordinator';
 import { OutputDownloader } from '../../../src/lib/server/jobs/downloader';
+import { MaintenanceGate } from '../../../src/lib/server/platform/maintenance-gate';
 import { PoyoError } from '../../../src/lib/server/poyo/errors';
 import type { PoyoStatusResult } from '../../../src/lib/server/poyo/types';
 import { seedVideoRegistry } from '../../../src/lib/server/registry/repository';
@@ -607,6 +612,78 @@ describe('durable coordinator and media lifecycle', () => {
     });
     expect(fixture.repository.outputs(job.id)).toHaveLength(1);
     expect(fixture.repository.outputs(job.id)[0]?.downloadState).toBe('verified');
+  });
+
+  test('JOB-02 a stopping worker cancels its status poll and releases the poll lease', async () => {
+    const fixture = await createJobFixture();
+    cleanups.push(fixture.cleanup);
+    const job = accepted(fixture, 'stop-mid-poll');
+    fixture.setNow(new Date('2026-07-15T12:00:02.000Z'));
+    let pollStarted!: () => void;
+    const started = new Promise<void>((resolve) => {
+      pollStarted = resolve;
+    });
+    const stopping = new JobCoordinator({
+      repository: fixture.repository,
+      poyo: gateway({
+        // A provider that never answers: only the worker's shutdown signal ends the request.
+        getStatus: (_taskId, options) =>
+          new Promise<PoyoStatusResult>((_resolve, reject) => {
+            options?.signal?.addEventListener('abort', () => reject(options.signal?.reason), {
+              once: true
+            });
+            pollStarted();
+          })
+      }),
+      downloader: new OutputDownloader({ repository: fixture.repository, paths: fixture.paths }),
+      workerId: 'stopping-worker'
+    });
+    const pollClaims = () =>
+      fixture.database
+        .query<{ owner: string }, [string]>(
+          "SELECT owner FROM work_claims WHERE work_type='poll' AND work_id=?"
+        )
+        .all(job.id);
+    const worker = new JobWorker(stopping, 60_000, new MaintenanceGate());
+    worker.start();
+    await started;
+    expect(pollClaims()).toEqual([{ owner: 'stopping-worker' }]);
+
+    await worker.stopAndDrain();
+
+    expect(pollClaims()).toEqual([]);
+    expect(fixture.repository.get(job.id)).toMatchObject({
+      localPhase: 'monitoring',
+      attentionCode: null
+    });
+    expect(
+      fixture.repository.eventsAfter(0).filter((event) => event.eventType === 'poll.failed')
+    ).toEqual([]);
+
+    let polls = 0;
+    const next = new JobCoordinator({
+      repository: fixture.repository,
+      poyo: gateway({
+        getStatus: async () => {
+          polls += 1;
+          return {
+            taskId: 'task-stop-mid-poll',
+            statusRaw: 'running',
+            status: 'running',
+            creditsAmount: 1,
+            files: [],
+            createdTime: 'now',
+            progress: 60,
+            errorMessage: null
+          };
+        }
+      }),
+      downloader: new OutputDownloader({ repository: fixture.repository, paths: fixture.paths }),
+      workerId: 'next-process-worker'
+    });
+    await next.recoverOnce();
+    expect(polls).toBe(1);
+    expect(fixture.repository.get(job.id)?.progress).toBe(60);
   });
 
   test('INT-05 ambiguous submit is frozen and never auto-retried after restart', async () => {

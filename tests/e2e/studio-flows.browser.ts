@@ -10,6 +10,7 @@ import {
   type Locator,
   type Page
 } from 'playwright';
+import { JobRepository } from '../../src/lib/server/jobs/repository';
 import supportedPricingSignatures from '../fixtures/pricing/supported-signatures.json';
 import {
   type BrowserAppHarness,
@@ -1952,6 +1953,102 @@ serial(
     }
   }
 );
+serial('RESTART-01 stopping the app during a status poll leaves no poll lease behind', async () => {
+  const harness = await startBrowserAppHarness();
+  let releaseStatus: (() => void) | undefined;
+  let events: ReadableStreamDefaultReader<Uint8Array> | undefined;
+  try {
+    harness.mock.queueOutcome('held');
+    const submitted = (await (
+      await fetch(`${harness.mock.baseUrl}/api/generate/submit`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ model: 'grok-imagine', input: { prompt: 'Lease fixture' } })
+      })
+    ).json()) as { data: { task_id: string } };
+    const taskId = submitted.data.task_id;
+    const task = harness.mock.tasks.get(taskId);
+    if (!task) throw new Error('The mock did not record the fixture task.');
+
+    await harness.stopApp();
+    const seeded = new Database(harness.databasePath, { strict: true });
+    let jobId: string;
+    try {
+      const repository = new JobRepository(seeded);
+      const job = repository.create({
+        actionId: crypto.randomUUID(),
+        workflow: 'text-to-video',
+        publicModelId: 'grok-imagine',
+        guidedRequest: { prompt: 'Lease fixture' },
+        normalizedPayload: { model: 'grok-imagine', input: { prompt: 'Lease fixture' } }
+      });
+      const claim = repository.claimSubmission(job.id, 'fixture', 1_000);
+      if (!claim) throw new Error('The fixture submission could not be claimed.');
+      repository.markSubmissionTransmitted(job.id, claim.token);
+      repository.acknowledgeSubmission(job.id, claim.token, {
+        taskId,
+        statusRaw: 'not_started',
+        status: 'not_started',
+        createdTime: 'now'
+      });
+      jobId = job.id;
+    } finally {
+      seeded.exec('PRAGMA wal_checkpoint(TRUNCATE);');
+      seeded.close();
+    }
+    const pollClaims = () => {
+      const database = new Database(harness.databasePath, { readonly: true });
+      try {
+        return database
+          .query<{ work_id: string }, []>("SELECT work_id FROM work_claims WHERE work_type='poll'")
+          .all();
+      } finally {
+        database.close();
+      }
+    };
+    await harness.startApp();
+    // An open studio keeps a job event stream open, so the app's drain runs to its deadline.
+    const stream = await fetch(`${harness.url}/api/events/jobs`);
+    events = stream.body?.getReader();
+    await events?.read();
+    await waitUntil(() => task.polls > 0, 'The restarted app did not poll the fixture task.');
+
+    releaseStatus = harness.mock.holdStatusResponses();
+    const pollsBeforeHold = task.polls;
+    await waitUntil(
+      () => task.polls > pollsBeforeHold,
+      'No status request reached the held mock response.'
+    );
+    expect(pollClaims()).toEqual([{ work_id: jobId }]);
+    await harness.stopApp();
+    releaseStatus();
+    expect(pollClaims()).toEqual([]);
+
+    harness.mock.releaseHeldTasks();
+    await harness.startApp();
+    await waitUntil(
+      async () => {
+        const database = new Database(harness.databasePath, { readonly: true });
+        try {
+          return (
+            database
+              .query<{ local_phase: string }, [string]>('SELECT local_phase FROM jobs WHERE id=?')
+              .get(jobId)?.local_phase === 'complete'
+          );
+        } finally {
+          database.close();
+        }
+      },
+      'The restarted app did not complete the job promptly.',
+      5_000
+    );
+  } finally {
+    releaseStatus?.();
+    await events?.cancel().catch(() => undefined);
+    await harness.cleanup();
+  }
+});
+
 async function productionJourney() {
   const tracker: StageTracker = {};
   const stage = stageRunner(tracker);

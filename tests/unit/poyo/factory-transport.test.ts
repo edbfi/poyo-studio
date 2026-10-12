@@ -193,6 +193,44 @@ describe('Poyo transport safety boundaries', () => {
     expect(order).toEqual(['guard', 'dispatch', 'fetch', 'guard', 'dispatch', 'fetch']);
   });
 
+  test('the caller signal ends a pending guard without dispatching or retrying', async () => {
+    let fetches = 0;
+    let dispatches = 0;
+    let guardStarted!: () => void;
+    const started = new Promise<void>((resolve) => {
+      guardStarted = resolve;
+    });
+    const transport = new PoyoTransport({
+      apiKey: ['sk', 'guard_abort_canary_123456'].join('-'),
+      // A public IPv4 lookup that never answers.
+      beforeRequest: () => {
+        guardStarted();
+        return new Promise<void>(() => undefined);
+      },
+      fetch: async () => {
+        fetches += 1;
+        return Response.json({ code: 200 });
+      },
+      sleeper: { sleep: async () => undefined },
+      retryPolicy: { maxAttempts: 3, baseDelayMs: 1, maxDelayMs: 1, jitterRatio: 0 }
+    });
+    const controller = new AbortController();
+    const request = transport.request({
+      operation: 'status',
+      method: 'GET',
+      path: '/api/generate/status/task',
+      safeToRetry: true,
+      signal: controller.signal,
+      beforeDispatch: () => {
+        dispatches += 1;
+      }
+    });
+    await started;
+    controller.abort(new Error('worker stopping'));
+    await expect(request).rejects.toMatchObject({ category: 'network' });
+    expect({ fetches, dispatches }).toEqual({ fetches: 0, dispatches: 0 });
+  });
+
   test('policy and dispatch failures make zero upstream calls and are not retried', async () => {
     let fetches = 0;
     let dispatches = 0;

@@ -16,7 +16,7 @@ const COST_BALANCE_TIMEOUT_MS = 2_500;
 
 export interface JobPoyoGateway {
   submit(request: PoyoSubmitRequest, options?: PoyoRequestOptions): Promise<PoyoSubmitResult>;
-  getStatus(taskId: string): Promise<PoyoStatusResult>;
+  getStatus(taskId: string, options?: PoyoRequestOptions): Promise<PoyoStatusResult>;
   getBalance(options?: PoyoRequestOptions): Promise<PoyoBalanceResult>;
 }
 export interface JobRuntimeSettings {
@@ -186,14 +186,19 @@ export class JobCoordinator {
       return this.requireJob(jobId);
     }
   }
-  async poll(jobId: string, manual = false): Promise<JobRecord> {
+  /**
+   * Polls the provider once. A `signal` aborted by worker shutdown cancels the status request and
+   * releases the poll lease without recording a failure: a lease left behind by an exiting process
+   * would block the next process from polling this job until the lease expires.
+   */
+  async poll(jobId: string, manual = false, signal?: AbortSignal): Promise<JobRecord> {
     const job = this.options.repository.get(jobId);
     if (!job?.poyoTaskId) return this.requireJob(jobId);
     const claim = this.options.repository.claimWork('poll', jobId, this.workerId, this.workLeaseMs);
     if (!claim) return job;
     try {
       const settings = this.settings();
-      const status = await this.options.poyo.getStatus(job.poyoTaskId);
+      const status = await this.options.poyo.getStatus(job.poyoTaskId, signal ? { signal } : {});
       const updated = this.options.repository.applyStatus(jobId, status, settings.pollDelayMs);
       const wasTerminal = job.remoteStatus === 'finished' || job.remoteStatus === 'failed';
       const isTerminal = updated.remoteStatus === 'finished' || updated.remoteStatus === 'failed';
@@ -201,11 +206,13 @@ export class JobCoordinator {
         const actionId = this.options.repository.paidActionId(jobId);
         if (actionId) await this.sampleCostBalance(jobId, actionId, 'after');
       }
-      if (updated.remoteStatus === 'finished') {
+      // A shutting-down worker leaves the download to the next process's recovery.
+      if (updated.remoteStatus === 'finished' && !signal?.aborted) {
         if (settings.automaticDownloads) await this.downloadPending(jobId);
       }
       return updated;
     } catch (error) {
+      if (signal?.aborted) return this.requireJob(jobId);
       if (error instanceof PoyoError && error.category === 'policy') {
         return this.options.repository.recordPollBlocked(jobId, error.technicalCode);
       }
@@ -260,7 +267,7 @@ export class JobCoordinator {
       this.options.repository.releaseWork(claim);
     }
   }
-  async reconcile(jobId: string): Promise<JobRecord> {
+  async reconcile(jobId: string, signal?: AbortSignal): Promise<JobRecord> {
     const job = this.options.repository.get(jobId);
     if (!job) throw new Error('Job not found.');
     if (job.localPhase === 'submission_prepared' || job.localPhase === 'submitting')
@@ -271,7 +278,7 @@ export class JobCoordinator {
         (job.localPhase === 'requires_attention' && job.attentionCode === 'stale'))
     ) {
       if (!job.nextPollAt || Date.parse(job.nextPollAt) <= this.now().getTime())
-        return this.poll(jobId);
+        return this.poll(jobId, false, signal);
     }
     if (job.localPhase === 'downloading') {
       if (this.settings().automaticDownloads) await this.downloadPending(jobId);
@@ -279,26 +286,30 @@ export class JobCoordinator {
     }
     return job;
   }
-  async recoverOnce(): Promise<void> {
-    for (const job of this.options.repository.listActive())
-      await this.reconcile(job.id).catch(() => undefined);
+  async recoverOnce(signal?: AbortSignal): Promise<void> {
+    for (const job of this.options.repository.listActive()) {
+      if (signal?.aborted) return;
+      await this.reconcile(job.id, signal).catch(() => undefined);
+    }
   }
 }
 
 export interface JobRecoveryCoordinator {
-  recoverOnce(): Promise<void>;
+  recoverOnce(signal?: AbortSignal): Promise<void>;
 }
 
 export class JobWorker {
   private timer: ReturnType<typeof setInterval> | null = null;
   private readonly inFlight = new Set<Promise<void>>();
+  private shutdown = new AbortController();
   constructor(
     private readonly coordinator: JobRecoveryCoordinator,
     private readonly intervalMs = 1000,
     private readonly gate: MaintenanceGate = maintenanceGate
   ) {}
   async tick(): Promise<void> {
-    await this.gate.withWriterPermit('job-worker.tick', () => this.coordinator.recoverOnce());
+    const { signal } = this.shutdown;
+    await this.gate.withWriterPermit('job-worker.tick', () => this.coordinator.recoverOnce(signal));
   }
   private scheduleTick(): void {
     const running = this.tick()
@@ -308,6 +319,7 @@ export class JobWorker {
   }
   start(): () => void {
     if (!this.timer) {
+      if (this.shutdown.signal.aborted) this.shutdown = new AbortController();
       this.scheduleTick();
       this.timer = setInterval(() => this.scheduleTick(), this.intervalMs);
       this.timer.unref?.();
@@ -319,8 +331,10 @@ export class JobWorker {
     this.timer = null;
   }
 
+  /** Stops scheduling, cancels in-flight status polls, and waits until every tick has settled. */
   async stopAndDrain(): Promise<void> {
     this.stop();
+    this.shutdown.abort(new Error('The job worker is stopping.'));
     while (this.inFlight.size > 0) await Promise.allSettled([...this.inFlight]);
   }
 }
