@@ -59,6 +59,27 @@ async function safelyLog(operation: () => Promise<void> | void): Promise<void> {
   }
 }
 
+/**
+ * Settles with `operation`, or rejects with the abort reason as soon as `signal` aborts. The caller
+ * stops waiting; the abandoned operation still runs to its own end and its outcome is ignored.
+ */
+function unlessAborted(
+  operation: Promise<void> | void,
+  signal: AbortSignal | undefined
+): Promise<void> | void {
+  if (!signal || !(operation instanceof Promise)) return operation;
+  operation.catch(() => undefined);
+  if (signal.aborted) return Promise.reject(signal.reason);
+  let onAbort = () => {};
+  const aborted = new Promise<never>((_resolve, reject) => {
+    onAbort = () => reject(signal.reason);
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
+  return Promise.race([operation, aborted]).finally(() =>
+    signal.removeEventListener('abort', onAbort)
+  );
+}
+
 async function readBoundedJson(
   response: Response,
   operation: Exclude<PoyoOperation, 'configuration'>,
@@ -169,7 +190,9 @@ export class PoyoTransport {
       else request.signal?.addEventListener('abort', externalAbort, { once: true });
 
       try {
-        await this.options.beforeRequest?.(request.operation);
+        // The caller's signal also ends the wait for the request guard (a public IPv4 lookup can
+        // outlast a shutdown drain); nothing has been sent yet, so giving up here is safe.
+        await unlessAborted(this.options.beforeRequest?.(request.operation), request.signal);
         await request.beforeDispatch?.();
         const headers = new Headers({
           Accept: 'application/json',
