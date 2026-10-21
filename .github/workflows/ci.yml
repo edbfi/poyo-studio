@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-# Copy as .github/workflows/ci.yml; adapt commands, directories and runners to design/repos.md.
-# Allocate a distinct weekly minute during rollout. Every added PR job belongs in ci-ok.
+# Copy as .github/workflows/ci.yml; adapt commands, directories and runners to the repo.
+# Give each repo its own weekly minute. Every added PR job belongs in ci-ok. No paths: filter:
+# a skipped workflow leaves the required checks pending.
 name: CI
 on:
   pull_request:
@@ -54,7 +55,7 @@ jobs:
       - run: bun ci
       - run: bun run build
       - run: bun run test:production-smoke
-  # design/d8.md rule 16: the optional media tools are required here, so a missing or outdated
+  # The optional media tools are required here, so a missing or outdated
   # ExifTool, ImageMagick, FFmpeg or ffprobe fails the job (POYO_REQUIRE_MEDIA_TOOLS=1).
   media-tools:
     runs-on: macos-latest
