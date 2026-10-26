@@ -62,18 +62,13 @@ repos:
   # Local hooks — project-specific quality gates
   - repo: local
     hooks:
-      - id: bun-format-check
-        name: bun format check
-        entry: bun run format:check
+      - id: biome
+        name: Biome checks
+        # biome.json ignores tool-written configs; a batch of only those must not fail.
+        entry: bunx --bun --no-install biome check --no-errors-on-unmatched
         language: system
-        files: ^(src|tests|scripts|migrations|static)/|^(package\.json|bun\.lock|biome\.json|components\.json|svelte\.config\.(js|ts)|vite\.config\.(js|ts)|uno\.config\.(js|ts)|tsconfig\.json)$
-        pass_filenames: false
-      - id: bun-lint
-        name: bun lint
-        entry: bun run lint
-        language: system
-        files: ^(src|tests|scripts|migrations)/|^(package\.json|bun\.lock|biome\.json|svelte\.config\.(js|ts)|vite\.config\.(js|ts)|uno\.config\.(js|ts)|tsconfig\.json)$
-        pass_filenames: false
+        types_or: [javascript, jsx, ts, tsx, json, css, svelte]
+        exclude: ^(\.agents/skills|\.claude/skills|\.claude/agents|\.opencode)/
       - id: biome-migrate
         name: Migrate Biome configuration
         entry: bunx --no-install biome migrate --write
