@@ -123,7 +123,7 @@ Poyo Local Studio is licensed under the [GNU Affero General Public License v3.0]
 import-organizing rules, and the existing two-space, 100-column, single-quote style.
 `bun run lint` checks lint rules; `bun run format:check` checks formatting;
 `bun run format` writes formatting. For all checks and import organization, use
-`bunx biome check .` or `bunx biome check --write .` for safe fixes.
+`bunx --bun biome check .` or `bunx --bun biome check --write .` for safe fixes.
 
 Experimental HTML support enables Svelte markup checks and formatting. The exact
 file overrides record these compatibility limits:
