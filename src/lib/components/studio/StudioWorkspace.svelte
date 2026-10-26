@@ -1792,9 +1792,7 @@ onMount(() => {
 });
 </script>
 
-{#snippet sanitizationReceipt(
-  receipt: MediaSanitizationReceiptDto | undefined
-)}
+{#snippet sanitizationReceipt(receipt: MediaSanitizationReceiptDto | undefined)}
   {#if receipt}
     <div class="col-span-full mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.6875rem]">
       <span
@@ -1828,9 +1826,7 @@ onMount(() => {
   {/if}
 {/snippet}
 
-{#snippet inspectorContent(
-  mobile: boolean
-)}
+{#snippet inspectorContent(mobile: boolean)}
   {@const surface = mobile ? 'mobile' : 'desktop'}
   <div class="flex min-h-full flex-col">
     <div class="border-b border-border px-4 py-3">
