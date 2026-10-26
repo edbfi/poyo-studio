@@ -71,32 +71,32 @@ repos:
         exclude: ^(\.agents/skills|\.claude/skills|\.claude/agents|\.opencode)/
       - id: biome-migrate
         name: Migrate Biome configuration
-        entry: bunx --no-install biome migrate --write
+        entry: bunx --bun --no-install biome migrate --write
         language: system
         stages: [manual]
         pass_filenames: false
         always_run: true
       - id: svelte-check
         name: svelte check
-        entry: bun run check
+        entry: bun run --bun check
         language: system
         files: ^(src|tests|scripts|migrations)/|^(package\.json|bun\.lock|svelte\.config\.(js|ts)|vite\.config\.(js|ts)|uno\.config\.(js|ts)|tsconfig\.json)$
         pass_filenames: false
       - id: bun-test
         name: bun test
-        entry: bun run test
+        entry: bun run --bun test
         language: system
         files: ^(src|tests|scripts|migrations)/|^(package\.json|bun\.lock|bunfig\.toml|tsconfig\.json|svelte\.config\.(js|ts)|vite\.config\.(js|ts))$
         pass_filenames: false
       - id: registry-validate
         name: model registry validation
-        entry: bun run registry:validate
+        entry: bun run --bun registry:validate
         language: system
         files: ^(src/lib/features/registry/|tests/.*/registry/|tests/fixtures/pricing/|scripts/[^/]*registry[^/]*\.ts$|evidence/|docs/model-audit/|package\.json$|bun\.lock$)
         pass_filenames: false
       - id: bun-build
         name: bun production build
-        entry: bun --bun run build
+        entry: bun run --bun build
         language: system
         files: ^(src|migrations|static)/|^(package\.json|bun\.lock|svelte\.config\.(js|ts)|vite\.config\.(js|ts)|uno\.config\.(js|ts)|tsconfig\.json)$
         pass_filenames: false
