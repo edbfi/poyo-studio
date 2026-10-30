@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" alt="AGPL-3.0 license"></a>
-  <img src="https://img.shields.io/badge/Bun-1.4.2-000000?logo=bun&logoColor=white" alt="Bun 1.4.2">
+  <img src="https://img.shields.io/badge/Bun-000000?logo=bun&logoColor=white" alt="Bun">
   <img src="https://img.shields.io/badge/SvelteKit-3.0-FF3E00?logo=svelte&logoColor=white" alt="SvelteKit 3.0">
   <img src="https://img.shields.io/badge/TypeScript-6.0.3-3178C6?logo=typescript&logoColor=white" alt="TypeScript 6.0.3">
   <img src="https://img.shields.io/badge/UnoCSS-presetWind4-333333?logo=unocss&logoColor=white" alt="UnoCSS presetWind4">
@@ -51,7 +51,7 @@ reviewed schemas and request fixtures. Run `bun run validate:registry` to check 
 
 ### Requirements
 
-- [Bun 1.4.2](https://bun.sh/) — pinned in `.bun-version` and `package.json`.
+- [Bun](https://bun.sh/) — pinned in `.bun-version` and `package.json`.
 - A Poyo API key for connectivity or generation. No paid request is needed to install, build,
   or run the automated test suite.
 
