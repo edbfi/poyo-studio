@@ -121,9 +121,9 @@ Poyo Local Studio is licensed under the [GNU Affero General Public License v3.0]
 
 `biome.json` uses the pinned Biome version, Git ignore rules, recommended lint and
 import-organizing rules, and the existing two-space, 100-column, single-quote style.
-`bun run lint` checks lint rules; `bun run format:check` checks formatting;
-`bun run format` writes formatting. For all checks and import organization, use
-`bunx --bun biome check .` or `bunx --bun biome check --write .` for safe fixes.
+`bun run lint` runs every Biome check (lint, formatting and import organization)
+without writing; `bun run format` writes formatting, and `bunx --bun biome check --write .`
+applies safe fixes.
 
 Experimental HTML support enables Svelte markup checks and formatting. The exact
 file overrides record these compatibility limits:
