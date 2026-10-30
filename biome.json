@@ -8,7 +8,7 @@
   "files": {
     "ignoreUnknown": true,
     "includes": [
-      "**",
+      "**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,json,jsonc,css,svelte,html,svg}",
       "!**/.svelte-kit",
       "!!**/build",
       "!!**/coverage",
@@ -18,7 +18,12 @@
       "!!.omc",
       "!!.omx",
       "!tests/fixtures/pricing/public-pricing.html",
-      "!**/.svelte-check"
+      "!**/.svelte-check",
+      "!!.claude",
+      "!!.codex",
+      "!!.impeccable",
+      "!!.opencode",
+      "!!skills-lock.json"
     ]
   },
   "formatter": {
