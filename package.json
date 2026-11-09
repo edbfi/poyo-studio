@@ -45,7 +45,7 @@
     "@unocss/preset-wind4": "66.12.0",
     "@unocss/vite": "66.12.0",
     "axe-core": "4.14.0",
-    "playwright": "1.64.1",
+    "playwright": "1.65.0",
     "svelte": "5.57.3",
     "svelte-check": "4.7.8",
     "typescript": "6.0.3",
