@@ -1,19 +1,18 @@
 <p align="center">
-  <img src="static/poyo-local-studio-logo.svg" alt="Poyo Local Studio logo" width="192" height="192">
+  <img src="static/poyo-local-studio-logo.svg" alt="poyo-studio logo" width="256" height="256">
 </p>
 
-<h1 align="center">Poyo Local Studio</h1>
+<h1 align="center">poyo-studio</h1>
 
 <p align="center">
-  <strong>A local-first image and video studio for Poyo.ai</strong>
+  <strong>A local image and video studio for Poyo.ai.</strong>
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" alt="AGPL-3.0 license"></a>
-  <img src="https://img.shields.io/badge/Bun-000000?logo=bun&logoColor=white" alt="Bun">
-  <img src="https://img.shields.io/badge/SvelteKit-3.0-FF3E00?logo=svelte&logoColor=white" alt="SvelteKit 3.0">
-  <img src="https://img.shields.io/badge/TypeScript-6.0.3-3178C6?logo=typescript&logoColor=white" alt="TypeScript 6.0.3">
-  <img src="https://img.shields.io/badge/UnoCSS-presetWind4-333333?logo=unocss&logoColor=white" alt="UnoCSS presetWind4">
+  <a href="https://github.com/edbfi/poyo-studio/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0--only-blue?style=flat" alt="AGPL-3.0-only license"></a>
+  <a href="https://github.com/oven-sh/bun" title="Bun source"><img src="https://img.shields.io/badge/Bun-000000?style=flat&logo=bun&logoColor=white" alt="Bun"></a>
+  <a href="https://github.com/sveltejs/kit" title="SvelteKit source"><img src="https://img.shields.io/badge/SvelteKit-FF3E00?style=flat&logo=svelte&logoColor=white" alt="SvelteKit"></a>
+  <a href="https://github.com/microsoft/TypeScript" title="TypeScript source"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white" alt="TypeScript"></a>
 </p>
 
 Poyo Local Studio is a Bun-backed SvelteKit application for creating, monitoring, and
