@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="static/poyo-local-studio-logo.svg" alt="poyo-studio logo" width="256" height="256">
+  <img src="static/poyo-local-studio-logo.svg" alt="poyo-studio logo" width="160" height="160">
 </p>
 
 <h1 align="center">poyo-studio</h1>
@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/edbfi/poyo-studio/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0--only-blue?style=flat" alt="AGPL-3.0-only license"></a>
+  <a href="https://github.com/edbfi/poyo-studio/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0--or--later-blue?style=flat" alt="AGPL-3.0-or-later license"></a>
   <a href="https://github.com/oven-sh/bun" title="Bun source"><img src="https://img.shields.io/badge/Bun-000000?style=flat&logo=bun&logoColor=white" alt="Bun"></a>
   <a href="https://github.com/sveltejs/kit" title="SvelteKit source"><img src="https://img.shields.io/badge/SvelteKit-FF3E00?style=flat&logo=svelte&logoColor=white" alt="SvelteKit"></a>
   <a href="https://github.com/microsoft/TypeScript" title="TypeScript source"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white" alt="TypeScript"></a>
@@ -114,7 +114,10 @@ installed. Deleting local data does not delete content held by Poyo.
 
 ## License
 
-Poyo Local Studio is licensed under the [GNU Affero General Public License v3.0](LICENSE).
+The original code in Poyo Local Studio is free software: you can redistribute it and/or
+modify it under the terms of the [GNU Affero General Public License](LICENSE), either
+version 3 of the License, or (at your option) any later version (`AGPL-3.0-or-later`).
+Third-party code and dependencies retain their respective licenses.
 
 ## Biome configuration
 
