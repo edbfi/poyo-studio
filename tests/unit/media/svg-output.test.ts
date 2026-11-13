@@ -41,3 +41,11 @@ test('SVG responses sandbox direct navigation and forbid subresource requests', 
   expect(headers.get('content-security-policy')).toContain("img-src 'none'");
   expect(headers.get('x-content-type-options')).toBe('nosniff');
 });
+
+test('accepts XML whitespace around local references and trailing comments', () => {
+  expect(() =>
+    assertSafeSvg(
+      '<svg xmlns =  "http://www.w3.org/2000/svg"><defs><path id="a"/></defs><use href = "#a"/><path fill="url( #a )"/><text>Product image (front)</text></svg><!-- done -->'
+    )
+  ).not.toThrow();
+});

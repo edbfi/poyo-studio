@@ -46,10 +46,7 @@ function assertWellFormedSvg(text: string): void {
 }
 
 export function assertSafeSvg(text: string): void {
-  if (
-    !isSvgPrefix(new TextEncoder().encode(text)) ||
-    !/(?:<\/svg\s*>|<svg\b[^<>]*\/>)\s*$/i.test(text)
-  )
+  if (!isSvgPrefix(new TextEncoder().encode(text)))
     throw new Error('Remote SVG did not contain a complete SVG document.');
   // CSS escapes and character references can hide active identifiers from text inspection.
   // Keep named XML text escapes, but reject encoded characters and CSS escapes throughout.
@@ -58,7 +55,7 @@ export function assertSafeSvg(text: string): void {
       'Remote SVG stylesheets and inline styles are unsupported; use presentation attributes.'
     );
   if (
-    /\sxmlns(?::[A-Za-z_][A-Za-z0-9_.-]*)?\s*=\s*(?!["']http:\/\/www\.w3\.org\/(?:2000\/svg|1999\/xlink)["'])/i.test(
+    /\sxmlns(?::[A-Za-z_][A-Za-z0-9_.-]*)?\s*=(?!\s*["']http:\/\/www\.w3\.org\/(?:2000\/svg|1999\/xlink)["'])/i.test(
       text
     )
   )
@@ -68,13 +65,14 @@ export function assertSafeSvg(text: string): void {
   if (/\s(?:xml:base|[A-Za-z_][A-Za-z0-9_.-]*:base)\s*=/i.test(text))
     throw new Error('Remote SVG contains an external reference base.');
   assertWellFormedSvg(text.replace(/^\uFEFF/, ''));
+  const markup = text.match(/<[^>]*>/g)?.join('') ?? '';
   if (
     /<!DOCTYPE|<!ENTITY|<\?(?!xml\s)|<(?:[\w.-]+:)?(?:script|foreignObject|iframe|object|embed|audio|video|animate|set|base)\b|\son[\w:-]+\s*=|@import/i.test(
-      text
+      markup
     ) ||
-    /\b(?:href|src)\s*=\s*(?!["']#[\w.:-]+["'])/i.test(text) ||
-    /(?:image-set|image|src|cross-fade)\s*\(/i.test(text) ||
-    /url\s*\(\s*(?!["']?#[\w.:-]+["']?\s*\))/i.test(text)
+    /\b(?:href|src)\s*=(?!\s*["']#[\w.:-]+["'])/i.test(markup) ||
+    /(?:image-set|image|src|cross-fade)\s*\(/i.test(markup) ||
+    /url\s*\((?!\s*["']?#[\w.:-]+["']?\s*\))/i.test(markup)
   )
     throw new Error('Remote SVG contains active or external content.');
 }
