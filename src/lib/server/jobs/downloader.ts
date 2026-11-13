@@ -5,6 +5,7 @@ import type { StructuredLogger } from '../diagnostics/jsonl-logger';
 import { safeErrorSummary } from '../diagnostics/redaction';
 import { syncDirectory } from '../media/filesystem-boundary';
 import { aspectRatioLabel, readImageDimensionsFromFile } from '../media/image-dimensions';
+import { assertSafeSvgFile, isSvgPrefix } from '../media/svg-output';
 import { type AppPaths, resolvePathWithin } from '../platform/app-paths';
 import {
   type DownloadHostResolver,
@@ -15,21 +16,25 @@ import type { JobRepository } from './repository';
 import type { OutputRecord, WorkClaim } from './types';
 
 const extensions: Record<string, string> = {
+  'image/svg+xml': '.svg',
   'image/jpeg': '.jpg',
   'image/png': '.png',
   'image/gif': '.gif',
   'image/webp': '.webp',
   'video/mp4': '.mp4',
   'video/webm': '.webm',
+  'video/x-matroska': '.mkv',
   'video/quicktime': '.mov'
 };
 const mediaKinds: Record<string, OutputRecord['mediaKind']> = {
+  'image/svg+xml': 'image',
   'image/jpeg': 'image',
   'image/png': 'image',
   'image/gif': 'image',
   'image/webp': 'image',
   'video/mp4': 'video',
   'video/webm': 'video',
+  'video/x-matroska': 'video',
   'video/quicktime': 'video'
 };
 const genericTypes = new Set(['application/octet-stream', 'binary/octet-stream']);
@@ -94,6 +99,7 @@ function collisionName(name: string): string {
   return `${basename(name, extension)}-${crypto.randomUUID().slice(0, 8)}${extension}`;
 }
 function detectedContentType(bytes: Uint8Array): string | null {
+  if (isSvgPrefix(bytes)) return 'image/svg+xml';
   const hex = signature(bytes);
   const ascii = new TextDecoder().decode(bytes.slice(0, 12));
   if (hex.startsWith('89504e470d0a1a0a')) return 'image/png';
@@ -120,7 +126,53 @@ function detectedContentType(bytes: Uint8Array): string | null {
     )
       return 'video/mp4';
   }
-  if (hex.startsWith('1a45dfa3')) return 'video/webm';
+  if (hex.startsWith('1a45dfa3')) return ebmlContentType(bytes);
+  return null;
+}
+
+/** Read the EBML header's DocType instead of conflating Matroska with WebM. */
+function ebmlContentType(bytes: Uint8Array): string | null {
+  const integer = (offset: number): { value: number; width: number } | null => {
+    const first = bytes[offset];
+    if (first === undefined || first === 0) return null;
+    let width = 1;
+    let mask = 0x80;
+    while (!(first & mask)) {
+      width += 1;
+      mask >>= 1;
+    }
+    if (width > 8 || offset + width > bytes.length) return null;
+    let value = first & (mask - 1);
+    for (let i = 1; i < width; i += 1) value = value * 256 + (bytes[offset + i] ?? 0);
+    return Number.isSafeInteger(value) ? { value, width } : null;
+  };
+  const headerSize = integer(4);
+  if (!headerSize) return null;
+  const end = 4 + headerSize.width + headerSize.value;
+  if (end > bytes.length) return null;
+  let offset = 4 + headerSize.width;
+  while (offset < end) {
+    const first = bytes[offset];
+    if (first === undefined || first === 0) return null;
+    let idWidth = 1;
+    let mask = 0x80;
+    while (!(first & mask)) {
+      idWidth += 1;
+      mask >>= 1;
+    }
+    if (idWidth > 4 || offset + idWidth > end) return null;
+    const docType = idWidth === 2 && first === 0x42 && bytes[offset + 1] === 0x82;
+    const size = integer(offset + idWidth);
+    if (!size) return null;
+    const start = offset + idWidth + size.width;
+    const next = start + size.value;
+    if (next > end) return null;
+    if (docType) {
+      const type = new TextDecoder().decode(bytes.slice(start, next));
+      return type === 'matroska' ? 'video/x-matroska' : type === 'webm' ? 'video/webm' : null;
+    }
+    offset = next;
+  }
   return null;
 }
 
@@ -518,8 +570,8 @@ async function inspectPublishedFile(
       if (done) break;
       total += value.byteLength;
       if (total > maxBytes) throw new Error('Published output exceeds the local download limit.');
-      if (prefix.length < 16) {
-        const needed = 16 - prefix.length;
+      if (prefix.length < 4096) {
+        const needed = 4096 - prefix.length;
         const merged = new Uint8Array(prefix.length + Math.min(needed, value.length));
         merged.set(prefix);
         merged.set(value.slice(0, needed), prefix.length);
@@ -535,6 +587,7 @@ async function inspectPublishedFile(
     throw new Error('Published output length did not match Poyo metadata.');
   }
   const contentType = verifiedContentType(output, null, prefix);
+  if (contentType === 'image/svg+xml') await assertSafeSvgFile(canonical);
   return {
     path: canonical,
     size: total,
@@ -832,8 +885,8 @@ export class OutputDownloader {
         total += value.byteLength;
         if (total > this.maxBytes)
           throw new Error('Remote output exceeds the local download limit.');
-        if (prefix.length < 16) {
-          const needed = 16 - prefix.length;
+        if (prefix.length < 4096) {
+          const needed = 4096 - prefix.length;
           const merged = new Uint8Array(prefix.length + Math.min(needed, value.length));
           merged.set(prefix);
           merged.set(value.slice(0, needed), prefix.length);
@@ -862,6 +915,7 @@ export class OutputDownloader {
       await handle.sync();
       await handle.close();
       handle = null;
+      if (contentType === 'image/svg+xml') await assertSafeSvgFile(temporary);
       if (execution.workClaim && !this.options.repository.ownsWork(execution.workClaim)) {
         throw new Error('Download work lease ownership was lost.');
       }

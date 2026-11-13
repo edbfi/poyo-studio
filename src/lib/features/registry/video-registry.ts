@@ -1,4 +1,5 @@
 import { OFFICIAL_SOURCE_MANIFEST, officialModelSources } from './evidence/source-evidence';
+import { LIVE_VIDEO_REGISTRY_ENTRIES } from './live-catalog-registry';
 import type {
   FieldDefinition,
   GuidedVideoRequest,
@@ -10,7 +11,7 @@ import type {
   VideoWorkflow
 } from './types';
 
-export const VIDEO_REGISTRY_VERSION = 'video-2026-10-11.1';
+export const VIDEO_REGISTRY_VERSION = 'video-2026-11-13.1';
 export const VIDEO_VERIFIED_AT = OFFICIAL_SOURCE_MANIFEST.verifiedAt;
 const videoFormats = ['video/mp4', 'video/webm', 'video/quicktime'];
 const imageFormats = ['image/jpeg', 'image/png', 'image/webp'];
@@ -60,6 +61,111 @@ const klingRich: VideoWorkflow[] = [
 
 const pages: Page[] = [
   {
+    slug: 'flux-3-max',
+    provider: 'Black Forest Labs',
+    family: 'Flux 3 Max',
+    models: [
+      { id: 'flux-3-max/text-to-video', workflows: ['text-to-video'] },
+      { id: 'flux-3-max/image-to-video', workflows: ['image-to-video'] },
+      { id: 'flux-3-max/keyframes-to-video', workflows: ['keyframe-to-video'] }
+    ],
+    durations: { min: 5, max: 20 },
+    durationDefault: 5,
+    ratios: ['auto', '21:9', '2:1', '16:9', '4:3', '1:1', '3:4', '9:16'],
+    ratioDefault: 'auto',
+    resolutions: ['720p', '1080p'],
+    resolutionDefault: '720p',
+    sound: true
+  },
+  {
+    slug: 'gemini-omni-1.2-flash',
+    provider: 'Google',
+    family: 'Gemini Omni 1.2 Flash',
+    models: [
+      {
+        id: 'gemini-omni-1.2-flash',
+        workflows: ['text-to-video', 'image-to-video', 'reference-to-video', 'video-to-video']
+      }
+    ],
+    prompt: [1, 20000],
+    durations: { min: 3, max: 15 },
+    durationDefault: 8,
+    resolutions: ['360p', '720p', '1080p', '4k'],
+    resolutionDefault: '720p',
+    ratios: ['16:9', '9:16'],
+    ratioDefault: '16:9',
+    limitations: [
+      'A last frame limits output to 10 seconds. Reference and source videos must be at most 15 seconds. Editing accepts only prompt, source video, and resolution.'
+    ]
+  },
+  ...[false, true].map(
+    (flash): Page => ({
+      slug: flash ? 'kling-4-0-flash' : 'kling-4-0',
+      provider: 'Kuaishou',
+      family: flash ? 'Kling 4.0 Flash' : 'Kling 4.0',
+      models: [
+        {
+          id: flash ? 'kling-4.0-flash' : 'kling-4.0',
+          workflows: [
+            'text-to-video',
+            'image-to-video',
+            'reference-to-video',
+            'video-edit',
+            ...(flash ? [] : ['multi-shot-video' as const])
+          ]
+        }
+      ],
+      prompt: [1, 26000],
+      durations: { min: 3, max: flash ? 20 : 30 },
+      durationDefault: 5,
+      resolutions: flash ? ['720p'] : ['720p', '1080p'],
+      resolutionDefault: '720p',
+      ratios: ['auto', '16:9', '9:16', '1:1', '21:9'],
+      ...(flash ? { ratioDefault: '16:9' } : {}),
+      elements: true,
+      limitations: [
+        'Reference inputs support at most 15 materials, 10 images including a start frame, 7 subjects, and 3 video-based subjects. Provider validates input video durations.'
+      ]
+    })
+  ),
+  {
+    slug: 'omnihuman-2-0',
+    provider: 'ByteDance',
+    family: 'OmniHuman 2.0',
+    models: [{ id: 'omnihuman-2.0', workflows: ['avatar-video'] }],
+    limitations: ['Driving audio must be 4–300 seconds and at most 15 MB.']
+  },
+  {
+    slug: 'pixverse-v6-max',
+    provider: 'PixVerse',
+    family: 'PixVerse V6 Max',
+    models: [{ id: 'pixverse-v6-max', workflows: textImage }],
+    prompt: [1, 5000],
+    durations: { min: 1, max: 15 },
+    durationDefault: 5,
+    resolutions: ['360p', '540p', '720p', '1080p'],
+    resolutionDefault: '540p',
+    ratios: ['16:9', '9:16', '4:3', '3:4', '1:1', '2:3', '3:2', '21:9'],
+    ratioDefault: '16:9',
+    audio: 'boolean'
+  },
+  {
+    slug: 'vidu-q4',
+    provider: 'Vidu',
+    family: 'Vidu Q4',
+    models: [{ id: 'vidu-q4', workflows: ['image-to-video', 'reference-to-video'] }],
+    durations: { min: 3, max: 16 },
+    durationDefault: 5,
+    resolutions: ['540p', '720p', '1080p', '2k', '4k'],
+    resolutionDefault: '720p',
+    ratios: ['16:9', '9:16', '4:3', '3:4', '1:1'],
+    ratioDefault: '16:9',
+    generateAudio: true,
+    safety: true,
+    limitations: ['Reference audio accepts up to three MP3 clips, each 3–12 seconds.']
+  },
+
+  {
     slug: 'gemini-omni-1.1-flash',
     provider: 'Google',
     family: 'Gemini Omni 1.1 Flash',
@@ -85,7 +191,10 @@ const pages: Page[] = [
     provider: 'MiniMax',
     family: 'H3 Max',
     models: [
-      { id: 'h3-max', workflows: ['text-to-video', 'image-to-video', 'reference-to-video'] }
+      {
+        id: 'h3-max',
+        workflows: ['text-to-video', 'image-to-video', 'reference-to-video']
+      }
     ],
     prompt: [1, 50000],
     durations: { min: 5, max: 15 },
@@ -170,7 +279,10 @@ const pages: Page[] = [
     provider: 'MiniMax',
     family: 'Hailuo 02',
     models: [
-      { id: 'hailuo-02', workflows: ['text-to-video', 'image-to-video', 'frame-to-video'] },
+      {
+        id: 'hailuo-02',
+        workflows: ['text-to-video', 'image-to-video', 'frame-to-video']
+      },
       { id: 'hailuo-02-pro', workflows: textImage }
     ],
     durations: [6, 10],
@@ -197,7 +309,10 @@ const pages: Page[] = [
     provider: 'MiniMax',
     family: 'Hailuo 03',
     models: [
-      { id: 'hailuo-03', workflows: ['text-to-video', 'image-to-video', 'reference-to-video'] }
+      {
+        id: 'hailuo-03',
+        workflows: ['text-to-video', 'image-to-video', 'reference-to-video']
+      }
     ],
     prompt: [1, 2000],
     durations: { min: 5, max: 15 },
@@ -308,7 +423,12 @@ const pages: Page[] = [
     slug: 'kling-2-6',
     provider: 'Kuaishou',
     family: 'Kling 2.6',
-    models: [{ id: 'kling-2.6', workflows: ['text-to-video', 'image-to-video', 'frame-to-video'] }],
+    models: [
+      {
+        id: 'kling-2.6',
+        workflows: ['text-to-video', 'image-to-video', 'frame-to-video']
+      }
+    ],
     durations: [5, 10],
     ratios: ratiosThree,
     sound: true,
@@ -467,7 +587,10 @@ const pages: Page[] = [
     provider: 'ByteDance',
     family: 'Seedance 1.5 Pro',
     models: [
-      { id: 'seedance-1.5-pro', workflows: ['text-to-video', 'image-to-video', 'frame-to-video'] }
+      {
+        id: 'seedance-1.5-pro',
+        workflows: ['text-to-video', 'image-to-video', 'frame-to-video']
+      }
     ],
     ratios: ratiosSix,
     resolutions: ['480p', '720p', '1080p'],
@@ -480,7 +603,10 @@ const pages: Page[] = [
     provider: 'ByteDance',
     family: 'Seedance 2',
     models: [
-      { id: 'seedance-2', workflows: ['text-to-video', 'image-to-video', 'reference-to-video'] },
+      {
+        id: 'seedance-2',
+        workflows: ['text-to-video', 'image-to-video', 'reference-to-video']
+      },
       {
         id: 'seedance-2-fast',
         workflows: ['text-to-video', 'image-to-video', 'reference-to-video']
@@ -671,7 +797,10 @@ const pages: Page[] = [
     models: [
       { id: 'wan3.0-prime-text-to-video', workflows: ['text-to-video'] },
       { id: 'wan3.0-prime-image-to-video', workflows: ['image-to-video'] },
-      { id: 'wan3.0-prime-reference-to-video', workflows: ['reference-to-video'] }
+      {
+        id: 'wan3.0-prime-reference-to-video',
+        workflows: ['reference-to-video']
+      }
     ],
     prompt: [1, 20000],
     durations: { min: 2, max: 30 },
@@ -790,6 +919,97 @@ export function seedanceReferenceLimits(family: string): {
 }
 
 function rolesFor(page: Page, modelId: string, workflow: VideoWorkflow): InputRole[] {
+  if (page.family === 'Gemini Omni 1.2 Flash' && workflow === 'reference-to-video')
+    return [
+      mediaRole(
+        'reference-image',
+        'referenceImageUrls',
+        'reference_image_urls',
+        'image',
+        false,
+        0,
+        10
+      ),
+      mediaRole(
+        'reference-video',
+        'referenceVideoUrls',
+        'reference_video_urls',
+        'video',
+        false,
+        0,
+        3
+      )
+    ];
+  if (page.family === 'Gemini Omni 1.2 Flash' && workflow === 'video-to-video')
+    return [mediaRole('source-video', 'videoUrl', 'video_url', 'video', true, 1, 1)];
+  if (page.family === 'Vidu Q4' && workflow === 'reference-to-video')
+    return [
+      mediaRole(
+        'reference-image',
+        'referenceImageUrls',
+        'reference_image_urls',
+        'image',
+        true,
+        1,
+        12
+      ),
+      {
+        ...mediaRole(
+          'reference-audio',
+          'referenceAudioUrls',
+          'reference_audio_urls',
+          'audio',
+          false,
+          0,
+          3
+        ),
+        formats: ['audio/mpeg']
+      }
+    ];
+  if (
+    page.family.startsWith('Kling 4.0') &&
+    ['reference-to-video', 'multi-shot-video', 'video-edit'].includes(workflow)
+  ) {
+    const edit = workflow === 'video-edit';
+    return [
+      ...(edit
+        ? [mediaRole('source-video', 'videoUrl', 'video_url', 'video', true, 1, 1)]
+        : [
+            mediaRole(
+              'start-frame',
+              'imageUrls',
+              'image_urls',
+              'image',
+              false,
+              0,
+              workflow === 'multi-shot-video' && page.family === 'Kling 4.0' ? 2 : 1
+            )
+          ]),
+      mediaRole(
+        'reference-image',
+        'referenceImageUrls',
+        'reference_image_urls',
+        'image',
+        false,
+        0,
+        10
+      ),
+      ...(!edit || page.family.endsWith('Flash')
+        ? [
+            mediaRole(
+              'reference-video',
+              'referenceVideoUrls',
+              'reference_video_urls',
+              'video',
+              false,
+              0,
+              edit ? 4 : 5
+            )
+          ]
+        : [])
+    ];
+  }
+
   if (workflow === 'avatar-video')
     return [
       mediaRole('image', 'imageUrls', 'image_urls', 'image', true, 1, 1),
@@ -811,6 +1031,9 @@ function rolesFor(page: Page, modelId: string, workflow: VideoWorkflow): InputRo
     // from the first image.
     if (
       page.family === 'Hailuo 03' ||
+      page.family === 'Gemini Omni 1.2 Flash' ||
+      page.family === 'Flux 3 Max' ||
+      page.family === 'Kling 4.0' ||
       page.family.startsWith('H3 Max') ||
       page.family === 'Gemini Omni 1.1 Flash' ||
       page.family.startsWith('Seedance 2') ||
@@ -1131,6 +1354,8 @@ function fieldsFor(page: Page, modelId: string, workflow: VideoWorkflow): FieldD
   const isMultiShot = workflow === 'multi-shot-video';
   const promptExcluded = workflow === 'motion-control' || workflow.startsWith('character-');
   const promptOptional =
+    (page.family === 'Vidu Q4' && workflow === 'image-to-video') ||
+    (page.family === 'Kling 4.0 Flash' && workflow === 'image-to-video') ||
     workflow === 'avatar-video' ||
     (page.family.startsWith('Happy Horse') &&
       ['image-to-video', 'video-edit'].includes(workflow)) ||
@@ -1139,10 +1364,16 @@ function fieldsFor(page: Page, modelId: string, workflow: VideoWorkflow): FieldD
   const durations = effectiveDurations(page, modelId, workflow);
   const resolutions = effectiveResolutions(page, modelId, workflow);
   const omitDuration =
+    (page.family.startsWith('Kling 4.0') &&
+      (workflow === 'video-edit' || workflow === 'multi-shot-video')) ||
+    (page.family === 'Gemini Omni 1.2 Flash' && workflow === 'video-to-video') ||
     (page.family === 'Happy Horse' && workflow === 'video-edit') ||
     (['Omni Flash', 'Gemini Omni 1.1 Flash'].includes(page.family) &&
       workflow === 'video-to-video');
   const omitRatio =
+    (page.family === 'Gemini Omni 1.2 Flash' && workflow === 'video-to-video') ||
+    (['Vidu Q4', 'PixVerse V6 Max', 'Kling 4.0', 'Kling 4.0 Flash'].includes(page.family) &&
+      ['image-to-video', 'video-edit'].includes(workflow)) ||
     (page.family === 'Kling 1.6' &&
       modelId.endsWith('/standard') &&
       workflow !== 'text-to-video') ||
@@ -1154,7 +1385,7 @@ function fieldsFor(page: Page, modelId: string, workflow: VideoWorkflow): FieldD
       field('multiPrompt', 'multi_prompt', 'object-list', 'essential', {
         required: true,
         min: 1,
-        max: 6
+        ...(page.family === 'Kling 4.0' ? {} : { max: 6 })
       })
     );
   else if (!promptExcluded)
@@ -1162,7 +1393,10 @@ function fieldsFor(page: Page, modelId: string, workflow: VideoWorkflow): FieldD
       field('prompt', 'prompt', 'text', 'essential', {
         required: !promptOptional,
         min: page.prompt?.[0] ?? 1,
-        max: page.prompt?.[1] ?? 5000
+        max:
+          page.family === 'PixVerse V6 Max' && workflow === 'image-to-video'
+            ? 2048
+            : (page.prompt?.[1] ?? 5000)
       })
     );
   if (workflow === 'keyframe-to-video')
@@ -1195,6 +1429,13 @@ function fieldsFor(page: Page, modelId: string, workflow: VideoWorkflow): FieldD
         })
       );
   }
+  if (page.family.startsWith('Kling 4.0') && ['video-edit', 'multi-shot-video'].includes(workflow))
+    fields.push(
+      field('duration', 'duration', 'integer', 'common', {
+        min: 3,
+        max: page.family.endsWith('Flash') ? 20 : 30
+      })
+    );
   const ratios = effectiveRatios(page, modelId, workflow);
   if (!omitRatio && ratios)
     fields.push(
@@ -1221,7 +1462,9 @@ function fieldsFor(page: Page, modelId: string, workflow: VideoWorkflow): FieldD
     fields.push(field('cfgScale', 'cfg_scale', 'number', 'advanced', { min: 0, max: 1 }));
   if (page.promptOptimizer)
     fields.push(
-      field('promptOptimizer', 'prompt_optimizer', 'boolean', 'advanced', { default: true })
+      field('promptOptimizer', 'prompt_optimizer', 'boolean', 'advanced', {
+        default: true
+      })
     );
   if (page.mode) fields.push(field('mode', 'mode', 'enum', 'common', { enum: page.mode }));
   if (page.seed)
@@ -1231,19 +1474,36 @@ function fieldsFor(page: Page, modelId: string, workflow: VideoWorkflow): FieldD
       field('enableSafetyChecker', 'enable_safety_checker', 'boolean', 'common', { default: false })
     );
   if (page.fixedLens)
-    fields.push(field('fixedLens', 'fixed_lens', 'boolean', 'advanced', { default: false }));
-  if (page.generateAudio)
-    fields.push(field('generateAudio', 'generate_audio', 'boolean', 'common', { default: false }));
+    fields.push(
+      field('fixedLens', 'fixed_lens', 'boolean', 'advanced', {
+        default: false
+      })
+    );
+  if (page.generateAudio && !(page.family === 'Vidu Q4' && workflow === 'image-to-video'))
+    fields.push(
+      field('generateAudio', 'generate_audio', 'boolean', 'common', {
+        default: false
+      })
+    );
   if (page.sound) {
     const fixedFrameOff = page.family === 'Kling 2.6' && workflow === 'frame-to-video';
     if (!fixedFrameOff)
-      fields.push(field('sound', 'sound', 'boolean', 'common', { required: true, default: true }));
+      fields.push(
+        field('sound', 'sound', 'boolean', 'common', {
+          required: true,
+          default: true
+        })
+      );
   }
   if (page.audio === 'string') fields.push(field('audio', 'audio', 'text', 'advanced'));
   // Wan 3.0 spells its output audio switch `audio` rather than `generate_audio`, so the guided
   // boolean keeps the shared request key and submits the page's own parameter name.
   if (page.audio === 'boolean')
-    fields.push(field('generateAudio', 'audio', 'boolean', 'common', { default: true }));
+    fields.push(
+      field('generateAudio', 'audio', 'boolean', 'common', {
+        default: page.family !== 'PixVerse V6 Max'
+      })
+    );
   if (page.audio === 'setting' && workflow === 'video-edit')
     fields.push(
       field('audioSetting', 'audio_setting', 'enum', 'common', {
@@ -1252,12 +1512,28 @@ function fieldsFor(page: Page, modelId: string, workflow: VideoWorkflow): FieldD
       })
     );
   if (page.multiShots && !isMultiShot)
-    fields.push(field('multiShots', 'multi_shots', 'boolean', 'advanced', { default: false }));
-  if (page.elements && workflow === 'reference-to-video')
     fields.push(
-      field('elements', 'kling_elements', 'elements', 'advanced', {
-        required: page.family.startsWith('Kling 3.0')
+      field('multiShots', 'multi_shots', 'boolean', 'advanced', {
+        default: false
       })
+    );
+  if (
+    page.elements &&
+    (workflow === 'reference-to-video' ||
+      (page.family.startsWith('Kling 4.0') &&
+        ['video-edit', 'multi-shot-video'].includes(workflow)))
+  )
+    fields.push(
+      field(
+        'elements',
+        'kling_elements',
+        page.family.startsWith('Kling 4.0') ? 'object-list' : 'elements',
+        'advanced',
+        {
+          ...(page.family.startsWith('Kling 4.0') ? { max: 7 } : {}),
+          required: page.family.startsWith('Kling 3.0')
+        }
+      )
     );
   if (page.elements && workflow === 'motion-control')
     fields.push(field('elements', 'kling_elements', 'elements', 'advanced'));
@@ -1344,7 +1620,8 @@ function entry(page: Page, model: Model, workflow: VideoWorkflow): VideoRegistry
   const ratios = effectiveRatios(page, model.id, workflow);
   const fields = fieldsFor(page, model.id, workflow);
   const fixedInput: Record<string, unknown> = {};
-  if (workflow === 'multi-shot-video') fixedInput.multi_shots = true;
+  if (workflow === 'multi-shot-video' && !page.family.startsWith('Kling 4.0'))
+    fixedInput.multi_shots = true;
   else if (page.family.startsWith('Kling 3.0') || page.family.startsWith('Kling O3'))
     fixedInput.multi_shots = false;
   if (page.family === 'Kling 2.6' && workflow === 'frame-to-video') fixedInput.sound = false;
@@ -1390,9 +1667,12 @@ function entry(page: Page, model: Model, workflow: VideoWorkflow): VideoRegistry
   };
 }
 
-export const VIDEO_REGISTRY_ENTRIES: readonly VideoRegistryEntry[] = pages.flatMap((page) =>
-  page.models.flatMap((model) => model.workflows.map((workflow) => entry(page, model, workflow)))
-);
+export const VIDEO_REGISTRY_ENTRIES: readonly VideoRegistryEntry[] = [
+  ...pages.flatMap((page) =>
+    page.models.flatMap((model) => model.workflows.map((workflow) => entry(page, model, workflow)))
+  ),
+  ...LIVE_VIDEO_REGISTRY_ENTRIES
+];
 export const VIDEO_CURRENT_ENTRIES = VIDEO_REGISTRY_ENTRIES.filter(
   (entry) => entry.status === 'current'
 );

@@ -1,4 +1,5 @@
 import manifestJson from '../src/lib/features/registry/evidence/official-source-manifest.json';
+import { indexedModelPages } from './registry-discovery';
 import {
   fetchRegistrySource,
   type RegistrySourceEvidence,
@@ -72,9 +73,9 @@ const indexBody = await fetch(
 });
 function indexedPages(modality: 'image' | 'video'): Set<string> {
   return new Set(
-    [...indexBody.matchAll(new RegExp(`${modality}-series/([^\\s)]+)\\.md`, 'g'))]
-      .map((match) => match[1])
-      .filter((value): value is string => Boolean(value))
+    indexedModelPages(indexBody)
+      .filter((page) => page.modality === modality)
+      .map((page) => page.pageSlug)
   );
 }
 function baselinePages(modality: 'image' | 'video'): Set<string> {

@@ -4,7 +4,7 @@ export type OfficialSourceStatus = 'available' | 'unavailable' | 'contradictory'
 
 export interface OfficialSourceRecord {
   id: string;
-  category: 'index' | 'model' | 'operations' | 'pricing' | 'audit-only';
+  category: 'index' | 'model' | 'catalog' | 'operations' | 'pricing' | 'audit-only';
   representation: 'text' | 'markdown' | 'json' | 'html';
   url: string;
   modality?: 'image' | 'video';
@@ -29,6 +29,18 @@ export interface OfficialSourceManifest {
 }
 
 export const OFFICIAL_SOURCE_MANIFEST = manifestJson as OfficialSourceManifest;
+
+/** Capability-only models have one official JSON contract and no dedicated Markdown page. */
+export function liveCatalogModelSources(modelId: string): {
+  markdown: OfficialSourceRecord;
+  json: OfficialSourceRecord;
+} {
+  const source = OFFICIAL_SOURCE_MANIFEST.sources.find(
+    (candidate) => candidate.id === `catalog:${modelId}` && candidate.category === 'catalog'
+  );
+  if (!source) throw new Error(`Missing official capability evidence for ${modelId}.`);
+  return { markdown: source, json: source };
+}
 
 export function officialModelSources(
   modality: 'image' | 'video',

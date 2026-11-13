@@ -52,6 +52,12 @@ export async function safeLocalMediaPath(mediaRoot: string, candidate: string): 
 
 export function privateMediaHeaders(contentType: string, size: number): Headers {
   return new Headers({
+    ...(contentType === 'image/svg+xml'
+      ? {
+          'content-security-policy':
+            "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src 'none'; frame-ancestors 'none'"
+        }
+      : {}),
     'accept-ranges': 'bytes',
     'cache-control': 'private, max-age=3600',
     'content-length': String(size),

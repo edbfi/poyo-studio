@@ -9,12 +9,14 @@ import {
 } from './files';
 
 const allowedTypes = new Set([
+  'image/svg+xml',
   'image/jpeg',
   'image/png',
   'image/gif',
   'image/webp',
   'video/mp4',
   'video/webm',
+  'video/x-matroska',
   'video/quicktime'
 ]);
 

@@ -742,3 +742,32 @@ describe('output downloader security boundaries', () => {
     });
   });
 });
+
+test('SVG outputs are detected, safely downloaded, and active SVG is rejected before publication', async () => {
+  const fixture = await createJobFixture();
+  cleanups.push(fixture.cleanup);
+  for (const [suffix, svg, accepted] of [
+    [
+      'safe',
+      '<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0L10 10"/></svg>',
+      true
+    ],
+    ['active', '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>', false]
+  ] as const) {
+    const { output } = readyOutput(fixture, `svg-${suffix}`, { contentType: 'image/svg+xml' });
+    const downloader = new OutputDownloader({
+      repository: fixture.repository,
+      paths: fixture.paths,
+      resolveHost: publicDns,
+      fetch: async () => new Response(svg, { headers: { 'content-type': 'image/svg+xml' } })
+    });
+    if (accepted) {
+      const verified = await downloader.download(output.id);
+      expect(verified.contentType).toBe('image/svg+xml');
+      expect(verified.localPath).toEndWith('.svg');
+    } else {
+      await expect(downloader.download(output.id)).rejects.toThrow('active or external');
+      expect(fixture.repository.output(output.id)?.downloadState).not.toBe('verified');
+    }
+  }
+});

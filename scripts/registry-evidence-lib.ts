@@ -1,6 +1,12 @@
 export type RegistrySourceStatus = 'available' | 'unavailable' | 'contradictory' | 'unstructured';
 
-export type RegistrySourceCategory = 'index' | 'model' | 'operations' | 'pricing' | 'audit-only';
+export type RegistrySourceCategory =
+  | 'index'
+  | 'model'
+  | 'catalog'
+  | 'operations'
+  | 'pricing'
+  | 'audit-only';
 
 export interface RegistrySourceSpec {
   id: string;
@@ -205,7 +211,8 @@ export function extractStructuredOpenApi(body: string): StructuredOpenApi | null
 }
 
 export async function fetchRegistrySource(
-  spec: RegistrySourceSpec
+  spec: RegistrySourceSpec,
+  captureBody?: (body: string) => void
 ): Promise<RegistrySourceEvidence> {
   let response: Response | undefined;
   for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -228,6 +235,7 @@ export async function fetchRegistrySource(
   }
   if (!response) throw new Error(`Unable to fetch registry source ${spec.id} (${spec.url}).`);
   const body = await response.text();
+  captureBody?.(body);
   const canonicalBody = spec.representation === 'html' ? canonicalizePricingHtml(body) : body;
   const status: RegistrySourceStatus =
     response.status < 200 || response.status >= 300

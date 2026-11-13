@@ -121,6 +121,20 @@ export interface ImageRegistryEntry {
   provenance: RegistryProvenance;
 }
 export interface GuidedImageRequest {
+  sourceLanguage?: string;
+  targetLanguage?: string;
+  protectText?: number;
+  synthesisOnImage?: number;
+  translateOnImage?: number;
+  referenceImageUrls?: string[];
+  mode?: string;
+  maxImages?: number;
+  textRecognition?: boolean;
+  version?: string;
+  moderation?: string;
+  complexity?: string;
+  outputCompression?: number;
+  editPrecision?: string;
   prompt?: string;
   imageUrls?: string[];
   maskUrl?: string;
@@ -181,6 +195,15 @@ export interface VideoRegistryEntry {
   provenance: RegistryProvenance;
 }
 export interface GuidedVideoRequest {
+  sourceLanguage?: string;
+  targetLanguage?: string;
+  wyNeedText?: number;
+  voiceRoleId?: number;
+  removeBgAudio?: number;
+  preserveAudio?: boolean;
+  backgroundColor?: string;
+  outputContainerAndCodec?: string;
+  scale?: number;
   prompt?: string;
   negativePrompt?: string;
   imageUrls?: string[];
@@ -210,7 +233,7 @@ export interface GuidedVideoRequest {
   referenceVideoDuration?: number;
   sourceVideoDuration?: number;
   multiShots?: boolean;
-  multiPrompt?: Array<{ prompt: string; duration: number }>;
+  multiPrompt?: Array<{ prompt: string; duration?: number }>;
   keyframes?: Array<{ image_url: string; frame_index: number }>;
   elements?: unknown[];
 }
@@ -221,7 +244,11 @@ export interface ExpertOverride {
 export interface NormalizedPreview {
   request: PoyoSubmitRequest;
   guidedInput: Record<string, unknown>;
-  expertDiff: Array<{ key: string; status: 'verified' | 'unverified'; value: unknown }>;
+  expertDiff: Array<{
+    key: string;
+    status: 'verified' | 'unverified';
+    value: unknown;
+  }>;
   warnings: string[];
   estimate?: Estimate;
 }

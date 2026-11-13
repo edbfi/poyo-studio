@@ -32,11 +32,11 @@ function minimum(key: string): GuidedVideoRequest {
 }
 
 describe('audited video registry coverage', () => {
-  test('REG-01/02 accounts for 43 pages, 69 IDs and 151 current workflows', () => {
-    expect(VIDEO_PAGE_SLUGS).toHaveLength(43);
-    expect(new Set(VIDEO_PAGE_SLUGS).size).toBe(43);
-    expect(VIDEO_PUBLIC_IDS).toHaveLength(69);
-    expect(VIDEO_CURRENT_ENTRIES).toHaveLength(151);
+  test('REG-01/02 accounts for 50 pages, 82 IDs and 176 current workflows', () => {
+    expect(VIDEO_PAGE_SLUGS).toHaveLength(50);
+    expect(new Set(VIDEO_PAGE_SLUGS).size).toBe(50);
+    expect(VIDEO_PUBLIC_IDS).toHaveLength(82);
+    expect(VIDEO_CURRENT_ENTRIES).toHaveLength(176);
     expect(VIDEO_EXCLUDED_ENTRIES).toHaveLength(0);
     expect(VIDEO_AUDIT_RECORDS).toHaveLength(8);
     expect(VIDEO_AUDIT_RECORDS.filter((record) => record.status === 'legacy')).toHaveLength(2);
@@ -58,7 +58,7 @@ describe('audited video registry coverage', () => {
   });
 
   test('REG-02 includes avatars and excludes legacy records from selectors', () => {
-    expect(videoCatalogue('avatar')).toHaveLength(2);
+    expect(videoCatalogue('avatar')).toHaveLength(3);
     expect(videoCatalogue().every((entry) => entry.status === 'current')).toBe(true);
     expect(() => normalizeVideoRequest('kling-avatar-2.0/standard:avatar-video', {})).toThrow(
       'image requires at least 1 input'
@@ -82,7 +82,7 @@ describe('audited video registry coverage', () => {
           "SELECT COUNT(*) count FROM registry_entries WHERE modality='video'"
         )
         .get()?.count
-    ).toBe(159);
+    ).toBe(184);
     expect(
       database
         .query<{ count: number }, []>(
@@ -93,7 +93,7 @@ describe('audited video registry coverage', () => {
     expect(
       database.query<{ count: number }, []>('SELECT COUNT(*) count FROM registry_entries').get()
         ?.count
-    ).toBe(227);
+    ).toBe(284);
     database.close();
   });
 });
@@ -153,6 +153,7 @@ describe('reviewed video conditional adapters', () => {
       'wan3.0-reference-to-video',
       'wan3.0-prime-text-to-video',
       'wan3.0-prime-image-to-video',
+      'vidu-q4',
       'wan3.0-prime-reference-to-video'
     ]);
     for (const entry of VIDEO_CURRENT_ENTRIES) {

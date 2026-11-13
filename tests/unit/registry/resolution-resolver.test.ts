@@ -53,11 +53,11 @@ describe('supportedResolutionTokens', () => {
       '1080p'
     ]);
   });
-  test('parses every resolution token the shipped registries expose', () => {
+  test('parses every explicit resolution tier while leaving automatic selection to the provider', () => {
     const tokens = [...IMAGE_REGISTRY_ENTRIES, ...VIDEO_REGISTRY_ENTRIES].flatMap(
       (entry) => entry.fields.find((field) => field.key === 'resolution')?.enum ?? []
     );
     expect(tokens.length).toBeGreaterThan(0);
-    expect(supportedResolutionTokens(tokens)).toEqual([...tokens]);
+    expect(supportedResolutionTokens(tokens)).toEqual(tokens.filter((token) => token !== 'auto'));
   });
 });

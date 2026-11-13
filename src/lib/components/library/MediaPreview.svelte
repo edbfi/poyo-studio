@@ -32,6 +32,12 @@ let zoom = $state(1);
 let fullscreen = $state(false);
 let fullscreenAvailable = $state(false);
 let viewer = $state<HTMLElement | null>(null);
+let playbackFailed = $state(false);
+
+$effect(() => {
+  void src;
+  playbackFailed = false;
+});
 
 let zoomPercent = $derived(Math.round(zoom * 100));
 
@@ -74,8 +80,18 @@ $effect(() => {
       aria-label={alt}
       {preload}
       {controls}
+      onerror={() => (playbackFailed = true)}
       playsinline
     ></video>
+    {#if playbackFailed}
+      <div
+        class="absolute inset-0 grid place-items-center bg-stage px-4 text-center text-stage-muted"
+      >
+        <p class="text-xs font-semibold">
+          This browser cannot play this video. Use Download copy to open it in a media player.
+        </p>
+      </div>
+    {/if}
   {:else}
     <div class="grid size-full min-h-28 place-items-center px-4 text-center text-stage-muted">
       <div>
@@ -137,6 +153,11 @@ $effect(() => {
                     class="max-h-full max-w-full object-contain"
                     style={`transform: scale(${zoom}); transform-origin: center;`}
                   >
+                {:else if playbackFailed}
+                  <p class="text-center text-sm text-stage-muted">
+                    This browser cannot play this video. Close the viewer and use Download copy to
+                    open it in a media player.
+                  </p>
                 {:else}
                   <!-- svelte-ignore a11y_media_has_caption -- generated media does not provide a caption track -->
                   <video
@@ -145,6 +166,7 @@ $effect(() => {
                     class="max-h-full max-w-full object-contain"
                     preload="metadata"
                     controls
+                    onerror={() => (playbackFailed = true)}
                     autoplay={false}
                     playsinline
                   ></video>

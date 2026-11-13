@@ -235,3 +235,30 @@ describe('verified media output boundary', () => {
     ).toBe(1);
   });
 });
+
+test('serves a verified SVG as an image with sandbox protection for preview and download', async () => {
+  const { fixture, outputId } = await outputFixture();
+  const path = join(fixture.paths.media, 'vector.svg');
+  await mkdir(fixture.paths.media, { recursive: true });
+  await writeFile(path, '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>');
+  fixture.database
+    .query(
+      "UPDATE job_outputs SET local_path=?,content_type='image/svg+xml',download_state='verified' WHERE id=?"
+    )
+    .run(path, outputId);
+  for (const attachment of [false, true]) {
+    const response = await serveVerifiedMediaOutput(
+      new Request(`http://localhost/api/media/${outputId}`),
+      fixture.database,
+      fixture.paths.media,
+      outputId,
+      { attachment }
+    );
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toBe('image/svg+xml');
+    expect(response.headers.get('content-security-policy')).toContain('sandbox;');
+    expect(response.headers.get('content-disposition')?.startsWith('attachment')).toBe(
+      attachment ? true : undefined
+    );
+  }
+});
