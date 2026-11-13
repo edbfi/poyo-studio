@@ -1,4 +1,5 @@
 import manifestJson from '../src/lib/features/registry/evidence/official-source-manifest.json';
+import { indexedModelPages } from './registry-discovery';
 import {
   fetchRegistrySource,
   type RegistrySourceEvidence,
@@ -136,5 +137,3 @@ const report = {
 };
 console.log(JSON.stringify(report, null, 2));
 if (hasDrift) process.exit(1);
-
-import { indexedModelPages } from './registry-discovery';

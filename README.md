@@ -53,7 +53,8 @@ reviewed schemas and request fixtures. Run `bun run validate:registry` to check 
 offline, including complete coverage of the committed documentation index and capability snapshots.
 
 Run `bun run registry:audit:network` to detect changes in official documents and newly indexed
-model pages without paid generation calls. Bootstrap newly indexed source pairs with
+model pages without paid generation calls. Existing capability-catalog snapshots are drift-checked;
+new capability-only IDs must be discovered separately from the live catalog list. Bootstrap newly indexed source pairs with
 `bun scripts/discover-registry-sources.ts` before adding registry entries; this command does not
 enable models or refresh reviewed fixtures. For a reviewed model update, add its schema and constraints,
 then run `bun run registry:evidence:refresh` and inspect the changed source evidence and request
