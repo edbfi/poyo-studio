@@ -839,10 +839,11 @@ export class LibraryRepository extends DatabaseRepository {
           `SELECT COUNT(*) count FROM jobs j WHERE ${countClauses.join(' AND ')}`
         )
         .get(...countBindings)?.count ?? 0;
+    const jobs = new JobRepository(this.database);
     return {
       items: items.map((row) => ({
         ...jobDto(row),
-        automaticRetry: new JobRepository(this.database).retryInfo(row.id)
+        automaticRetry: jobs.retryInfo(row.id)
       })),
       nextCursor: hasMore && lastItem ? encodeCursor(lastItem) : null,
       total
@@ -895,6 +896,7 @@ export class LibraryRepository extends DatabaseRepository {
       this.database
         .query<{ count: number }, Binding[]>(`SELECT COUNT(*) count FROM (${activities})`)
         .get(...countBindings)?.count ?? 0;
+    const jobs = new JobRepository(this.database);
     return {
       items: pageRows.map((row) => {
         const activity = activityDto(row);
@@ -902,7 +904,7 @@ export class LibraryRepository extends DatabaseRepository {
           ...activity,
           job: {
             ...activity.job,
-            automaticRetry: new JobRepository(this.database).retryInfo(row.id)
+            automaticRetry: jobs.retryInfo(row.id)
           }
         };
       }),
