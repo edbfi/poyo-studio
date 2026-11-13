@@ -2,6 +2,7 @@
 export interface ProviderDiagnostic {
   version: 1;
   httpStatus: number | null;
+  observedCreditsAmount: number | null;
   responseCode: string | number | null;
   errorCode: string | number | null;
   errorType: string | null;

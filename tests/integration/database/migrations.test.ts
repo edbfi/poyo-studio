@@ -34,6 +34,8 @@ const expectedTables = [
   'cleanup_policies',
   'cleanup_previews',
   'download_attempts',
+  'generation_retry_reservations',
+  'generation_retry_roots',
   'job_events',
   'job_inputs',
   'job_outputs',
@@ -65,8 +67,8 @@ describe('database migrations', () => {
     }
   });
 
-  test('registers the exact version-1 through version-3 migration chain', () => {
-    expect(migrations.map((migration) => migration.version)).toEqual([1, 2, 3]);
+  test('registers the exact version-1 through version-4 migration chain', () => {
+    expect(migrations.map((migration) => migration.version)).toEqual([1, 2, 3, 4]);
     expect(migrations.at(-1)?.version).toBe(DATABASE_SCHEMA_VERSION);
   });
 
@@ -255,8 +257,8 @@ describe('database migrations', () => {
         upgraded
           .query<{ version: number }, []>('SELECT version FROM schema_migrations ORDER BY version')
           .all()
-      ).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }]);
-      expect(databaseHealth(upgraded).schemaVersion).toBe(3);
+      ).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }, { version: 4 }]);
+      expect(databaseHealth(upgraded).schemaVersion).toBe(4);
       expect(
         upgraded
           .query<{ count: number }, []>(
@@ -274,7 +276,7 @@ describe('database migrations', () => {
         reopened
           .query<{ count: number }, []>('SELECT COUNT(*) AS count FROM schema_migrations')
           .get()?.count
-      ).toBe(3);
+      ).toBe(4);
       expect(
         reopened
           .query<{ id: string }, []>("SELECT id FROM job_outputs WHERE id = 'sentinel-output'")

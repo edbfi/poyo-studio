@@ -82,6 +82,9 @@ function withProviderDiagnostic<T>(
     if (!(error instanceof PoyoError)) throw error;
     throw new PoyoError({
       ...error.toSafeDto(),
+      cause: error.cause ?? error,
+      retryAfterMs: error.retryAfterMs,
+      httpStatus: httpStatus ?? error.httpStatus,
       providerDiagnostic: providerDiagnostic(payload, httpStatus)
     });
   }
@@ -94,7 +97,16 @@ export function parseSubmitResponse(payload: unknown, httpStatus?: number): Poyo
 function parseSubmitData(payload: unknown, httpStatus?: number): PoyoSubmitResult {
   const data = wrappedData(payload, 'submit');
   const statusRaw = requiredString(data.status, 'submit', 'status');
+  const terminal = normalizeTaskStatus(statusRaw) === 'failed' || statusRaw === 'finished';
+  const terminalDetail =
+    terminal && Object.hasOwn(data, 'files')
+      ? parseStatusData(
+          { data: { ...data, credits_amount: data.credits_amount ?? null } },
+          httpStatus
+        )
+      : undefined;
   return {
+    ...(terminalDetail ? { terminalDetail } : {}),
     providerDiagnostic: providerDiagnostic(payload, httpStatus),
     taskId: requiredString(data.task_id, 'submit', 'task_id'),
     statusRaw: safeProviderToken(statusRaw) ?? 'unknown',
@@ -153,6 +165,7 @@ function parseStatusData(payload: unknown, httpStatus?: number): PoyoStatusResul
     throw malformedResponseError('status', 'Poyo returned a negative credits_amount field.');
   }
   return {
+    filesExplicit: Array.isArray(data.files),
     taskId: requiredString(data.task_id, 'status', 'task_id'),
     providerDiagnostic: providerDiagnostic(payload, httpStatus),
     statusRaw: safeProviderToken(statusRaw) ?? 'unknown',

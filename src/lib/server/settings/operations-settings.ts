@@ -1,5 +1,10 @@
 import type { LocalCleanupPolicy } from '../../features/cleanup/contracts';
 import { REMOTE_CLEANUP_CAPABILITY } from '../../features/cleanup/contracts';
+import {
+  DEFAULT_GENERATION_RETRIES,
+  type GenerationRetryPolicy,
+  normalizeGenerationRetries
+} from '../../features/generation/retries';
 import type { SettingsDto } from '../../features/settings/contracts';
 import { DEFAULT_CLEANUP_POLICY, normalizeCleanupPolicy } from '../cleanup/policy';
 import { CleanupRepository } from '../cleanup/repository';
@@ -10,6 +15,7 @@ import { readMediaPrivacySettings, saveMediaPrivacySettings } from './media-priv
 import type { SettingsRepository } from './settings-repository';
 
 export interface OperationsSettings {
+  generationRetries: GenerationRetryPolicy;
   polling: { intervalMs: number; staleAfterMs: number };
   downloads: { automatic: boolean };
   logs: LoggerRotationSettings;
@@ -17,6 +23,7 @@ export interface OperationsSettings {
 }
 
 export const DEFAULT_OPERATIONS_SETTINGS: OperationsSettings = {
+  generationRetries: DEFAULT_GENERATION_RETRIES,
   polling: { intervalMs: 10_000, staleAfterMs: 15 * 60_000 },
   downloads: { automatic: true },
   logs: {
@@ -62,7 +69,17 @@ export function normalizeOperationsSettings(value: unknown): OperationsSettings 
   if (!['light', 'dark', 'system'].includes(String(mode))) {
     throw new Error('Theme mode is not supported.');
   }
+  const retries = input.generationRetries;
+  if (retries !== undefined) {
+    if (!retries || typeof retries !== 'object' || Array.isArray(retries))
+      throw new Error('Generation retries must be an object.');
+    const policy = retries as Record<string, unknown>;
+    if (typeof policy.enabled !== 'boolean')
+      throw new Error('Generation retries enabled must be boolean.');
+    boundedInteger(policy.maxRetries, 'Additional generation retries', 1, 5);
+  }
   return {
+    generationRetries: normalizeGenerationRetries(retries),
     polling: { intervalMs, staleAfterMs },
     downloads: { automatic: downloads.automatic },
     logs: {
@@ -93,9 +110,10 @@ export class OperationsSettingsService {
   }
 
   get(): OperationsSettings {
-    return (
-      this.repository.get<OperationsSettings>('operations')?.value ?? DEFAULT_OPERATIONS_SETTINGS
-    );
+    const stored = this.repository.get<OperationsSettings>('operations')?.value;
+    return stored
+      ? { ...stored, generationRetries: normalizeGenerationRetries(stored.generationRetries) }
+      : DEFAULT_OPERATIONS_SETTINGS;
   }
 
   update(input: { operations?: unknown; localCleanup?: unknown; mediaPrivacy?: unknown }): {

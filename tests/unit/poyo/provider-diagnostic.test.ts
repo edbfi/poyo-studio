@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { redactString } from '../../../src/lib/server/diagnostics/redaction';
-import { normalizePoyoError } from '../../../src/lib/server/poyo/errors';
+import { normalizePoyoError, PoyoError } from '../../../src/lib/server/poyo/errors';
 import { parseStatusResponse, parseSubmitResponse } from '../../../src/lib/server/poyo/parsers';
 import {
   jobProviderDiagnostic,
@@ -11,7 +11,7 @@ import evidence from '../../fixtures/poyo/rejection-diagnostics.json';
 
 describe('bounded provider rejection diagnostics (no retry classification)', () => {
   test('retains documented envelope and failure metadata with explicit provenance', () => {
-    expect(evidence.provenance.gate).toBe('diagnostics-only');
+    expect(evidence.provenance.gate).toBe('exact-authoritative-poll-signature');
     const error = normalizePoyoError('submit', 200, evidence.documentedValidationError);
     expect(error.providerDiagnostic).toMatchObject({
       httpStatus: 200,
@@ -168,5 +168,45 @@ describe('bounded provider rejection diagnostics (no retry classification)', () 
       responseCode: '400',
       errorCode: null
     });
+  });
+  test('empty message fields are absent while nonempty validation detail is present', () => {
+    for (const detail of ['', '   ', [], [{ msg: '' }]])
+      expect(providerDiagnostic({ detail }).errorMessagePresent).toBe(false);
+    expect(providerDiagnostic({ detail: [{ msg: 'max 10MB' }] }).errorMessagePresent).toBe(true);
+    expect(providerDiagnostic({ data: { credits_amount: 0 } }).observedCreditsAmount).toBe(0);
+    for (const credits_amount of [NaN, Infinity, -1, '0'])
+      expect(providerDiagnostic({ data: { credits_amount } }).observedCreditsAmount).toBeNull();
+  });
+  test('parser enrichment preserves the internal cause and retry timing without exposing them', () => {
+    const cause = new Error('PrivateCredentialAbCd1234_5678');
+    const original = new PoyoError({
+      category: 'malformed_response',
+      technicalCode: 'malformed_response',
+      operation: 'submit',
+      message: 'Invalid task identity',
+      retryable: false,
+      retryAfterMs: 2500,
+      cause
+    });
+    const payload = {
+      data: {
+        status: 'failed',
+        get task_id() {
+          throw original;
+        },
+        created_time: 'now'
+      }
+    };
+    try {
+      parseSubmitResponse(payload, 202);
+      throw new Error('Expected parser failure');
+    } catch (error) {
+      expect(error).toBeInstanceOf(PoyoError);
+      if (!(error instanceof PoyoError)) throw error;
+      expect(error.cause).toBe(cause);
+      expect(error.retryAfterMs).toBe(2500);
+      expect(error.httpStatus).toBe(202);
+      expect(JSON.stringify(error.toSafeDto())).not.toContain('PrivateCredential');
+    }
   });
 });

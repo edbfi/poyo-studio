@@ -7,7 +7,7 @@ import {
   systemSleeper
 } from './backoff';
 import { malformedResponseError, networkError, normalizePoyoError, PoyoError } from './errors';
-import { providerDiagnostic } from './provider-diagnostic';
+import { normalizedBusinessCode, providerDiagnostic } from './provider-diagnostic';
 import {
   type Clock,
   POYO_API_BASE_URL,
@@ -220,7 +220,7 @@ export class PoyoTransport {
         }
         if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
           const code = (payload as { code?: unknown }).code;
-          if (typeof code === 'number' && code !== 200) {
+          if (code !== undefined && normalizedBusinessCode(code) !== 200) {
             throw normalizePoyoError(request.operation, response.status, payload, retryAfterMs);
           }
         }
@@ -239,6 +239,8 @@ export class PoyoTransport {
           error = new PoyoError({
             ...error.toSafeDto(),
             retryAfterMs: error.retryAfterMs,
+            cause: error.cause ?? error,
+            httpStatus: observedHttpStatus,
             providerDiagnostic: providerDiagnostic(null, observedHttpStatus)
           });
         await safelyLog(() =>

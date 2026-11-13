@@ -77,6 +77,7 @@ export interface OnboardingStateDto {
 }
 
 export interface SettingsDto {
+  generationRetries: import('../generation/retries').GenerationRetryPolicy;
   apiKey: ApiKeySettingsDto;
   storage: StorageSettingsDto;
   polling: { intervalMs: number; staleAfterMs: number };

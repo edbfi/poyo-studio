@@ -39,6 +39,20 @@ export function safeProviderToken(value: unknown): string | null {
   return typeof value === 'string' && publicTokens.has(value) ? value : null;
 }
 
+/** Only documented business codes, with exact decimal-string compatibility. */
+export function normalizedBusinessCode(value: unknown): number | null {
+  if (value === 0 || value === '0') return 0;
+  if (typeof value === 'number') return publicCodes.has(value) ? value : null;
+  return typeof value === 'string' &&
+    publicCodes.has(Number(value)) &&
+    String(Number(value)) === value
+    ? Number(value)
+    : null;
+}
+function meaningfulMessage(value: unknown): boolean {
+  if (typeof value === 'string') return value.trim().length > 0;
+  return Array.isArray(value) && value.some((entry) => meaningfulMessage(record(entry).msg));
+}
 function code(value: unknown): string | number | null {
   if (typeof value === 'number') return publicCodes.has(value) ? value : null;
   if (
@@ -58,6 +72,13 @@ export function sanitizeProviderDiagnostic(value: unknown): ProviderDiagnostic {
   const data = record(value);
   return {
     version: 1,
+    observedCreditsAmount:
+      typeof data.observedCreditsAmount === 'number' &&
+      Number.isFinite(data.observedCreditsAmount) &&
+      data.observedCreditsAmount >= 0 &&
+      data.observedCreditsAmount <= 1_000_000_000
+        ? data.observedCreditsAmount
+        : null,
     httpStatus:
       typeof data.httpStatus === 'number' &&
       Number.isInteger(data.httpStatus) &&
@@ -93,7 +114,8 @@ export function providerDiagnostic(payload: unknown, httpStatus?: number): Provi
     errorCodePresent: (error.code ?? data.error_code) != null,
     errorTypePresent: (error.type ?? data.error_type) != null,
     statusPresent: data.status != null,
-    errorMessagePresent: message !== undefined && message !== null,
+    errorMessagePresent: meaningfulMessage(message),
+    observedCreditsAmount: data.credits_amount,
     documentedMessage: message
   });
 }

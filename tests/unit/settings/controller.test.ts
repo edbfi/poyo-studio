@@ -37,6 +37,7 @@ function key(overrides: Partial<ApiKeySettingsDto> = {}): ApiKeySettingsDto {
 
 function settings(apiKey = key()): SettingsDto {
   return {
+    generationRetries: { enabled: false, maxRetries: 3 },
     apiKey,
     storage: {
       source: 'project-default'

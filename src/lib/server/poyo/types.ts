@@ -28,6 +28,7 @@ export interface PoyoSubmitRequest {
 }
 
 export interface PoyoSubmitResult {
+  terminalDetail?: PoyoStatusResult;
   providerDiagnostic?: ProviderDiagnostic;
   taskId: string;
   statusRaw: string;
@@ -54,6 +55,7 @@ export interface PoyoOutputFile {
 }
 
 export interface PoyoStatusResult {
+  filesExplicit?: boolean;
   providerDiagnostic?: ProviderDiagnostic;
   taskId: string;
   statusRaw: string;

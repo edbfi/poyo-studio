@@ -29,7 +29,7 @@ import { modelCatalogue } from '../../features/registry/catalogue';
 import { IMAGE_REGISTRY_ENTRIES } from '../../features/registry/image-registry';
 import { VIDEO_REGISTRY_ENTRIES } from '../../features/registry/video-registry';
 import { packDurableJobEventPayload } from '../jobs/event-attention';
-import { taskChargeFromParts } from '../jobs/repository';
+import { JobRepository, taskChargeFromParts } from '../jobs/repository';
 import type { RemoteStatus } from '../jobs/types';
 import { ManagedSourceRepository } from '../media/managed-sources';
 import { neutralSourceUploadName } from '../media/source-intake';
@@ -70,6 +70,9 @@ export class ViewerSequenceChangedError extends Error {
 }
 
 type JobListRow = {
+  local_outcome: import('../../features/generation/retries').LocalOutcome | null;
+  settled_at: string | null;
+  dispatch_sent_at: string | null;
   id: string;
   entry_key: string | null;
   workflow: string;
@@ -333,10 +336,11 @@ function addActivityFilters(
     queued:
       "j.local_phase IN ('queued','validating','uploading','submission_prepared','submitting')",
     running: "j.local_phase IN ('monitoring','downloading') AND j.remote_status!='failed'",
-    completed: "j.local_phase='complete' AND j.remote_status!='failed'",
+    completed: "j.local_phase='complete' AND j.remote_status='finished'",
     failed: "j.remote_status='failed'",
     attention: "j.local_phase='requires_attention'",
-    stale: "j.attention_code='stale'"
+    stale: "j.attention_code='stale'",
+    stopped: "j.local_outcome='stopped-before-dispatch'"
   };
   if (filters.status !== 'all') clauses.push(states[filters.status]);
   if (filters.q) {
@@ -422,7 +426,7 @@ function addLibraryFilters(
   }
   const statusClauses: Record<Exclude<LibraryFiltersDto['status'], 'all'>, string> = {
     available:
-      "EXISTS(SELECT 1 FROM job_outputs os WHERE os.job_id=j.id AND os.download_state='verified' AND os.local_path IS NOT NULL)",
+      "j.local_phase='complete' AND j.remote_status='finished' AND EXISTS(SELECT 1 FROM job_outputs os WHERE os.job_id=j.id AND os.download_state='verified' AND os.local_path IS NOT NULL)",
     attention:
       "(j.local_phase='requires_attention' OR EXISTS(SELECT 1 FROM job_outputs os WHERE os.job_id=j.id AND os.download_state IN ('failed','expired')))",
     'remote-only':
@@ -505,6 +509,7 @@ function jobDto(row: JobListRow): JobListItemDto {
   const ipGuardReason = publicIpv4GuardReason(row.attention_code);
   return {
     id: row.id,
+    localOutcome: row.local_outcome,
     entryKey: row.entry_key,
     displayName: model?.displayName ?? row.public_model_id,
     provider: model?.provider ?? 'Unknown provider',
@@ -532,11 +537,25 @@ function jobDto(row: JobListRow): JobListItemDto {
   };
 }
 function activityCost(row: ActivityRow): Extract<JobActivityDto, { kind: 'job-created' }>['cost'] {
+  if (row.local_outcome === 'stopped-before-dispatch' && row.settled_at)
+    return {
+      kind: 'not-submitted',
+      credits: 0,
+      source: 'not-submitted',
+      settledAt: row.settled_at
+    };
+  if (
+    (['failed', 'finished'].includes(row.remote_status) && row.actual_credits === null) ||
+    (row.dispatch_sent_at !== null &&
+      row.local_phase === 'requires_attention' &&
+      row.remote_status === 'unknown')
+  )
+    return { kind: 'unavailable' };
   const charge = taskChargeFromParts({
     credits: row.actual_credits,
     remoteStatus: row.remote_status,
     remoteStatusRaw: row.remote_status_raw,
-    settledAt: row.last_polled_at
+    settledAt: row.settled_at
   });
   if (charge) {
     return {
@@ -650,7 +669,7 @@ function viewerSequencePageHydrateQuery(ids: string[]): string {
 }
 
 function listSelect(): string {
-  return `j.id,j.entry_key,j.workflow,j.public_model_id,j.local_phase,j.remote_status,j.remote_status_raw,j.failure_domain,j.attention_code,j.progress,j.estimated_credits,j.actual_credits,j.prompt_text,j.last_polled_at,j.created_at,j.started_at,j.updated_at,j.completed_at,
+  return `(SELECT sent_at FROM submission_intents WHERE job_id=j.id) dispatch_sent_at,j.local_outcome,COALESCE(j.settled_at,(SELECT observed_at FROM job_events WHERE job_id=j.id AND event_type='status.observed' AND remote_status IN ('finished','failed') ORDER BY event_id LIMIT 1)) settled_at,j.id,j.entry_key,j.workflow,j.public_model_id,j.local_phase,j.remote_status,j.remote_status_raw,j.failure_domain,j.attention_code,j.progress,j.estimated_credits,j.actual_credits,j.prompt_text,j.last_polled_at,j.created_at,j.started_at,j.updated_at,j.completed_at,
     (SELECT COUNT(*) FROM job_outputs o WHERE o.job_id=j.id) output_count,
     (SELECT COUNT(*) FROM job_outputs o WHERE o.job_id=j.id AND o.download_state='verified') verified_count,
     (SELECT CASE WHEN COUNT(*)=0 THEN NULL WHEN SUM(o.download_state='verified')=COUNT(*) THEN 'verified' WHEN SUM(o.download_state IN ('failed','expired'))>0 THEN 'attention' WHEN SUM(o.download_state='downloading')>0 THEN 'downloading' ELSE 'pending' END FROM job_outputs o WHERE o.job_id=j.id) output_state,
@@ -784,10 +803,11 @@ export class LibraryRepository extends DatabaseRepository {
       queued:
         "j.local_phase IN ('queued','validating','uploading','submission_prepared','submitting')",
       running: "j.local_phase IN ('monitoring','downloading') AND j.remote_status!='failed'",
-      completed: "j.local_phase='complete' AND j.remote_status!='failed'",
+      completed: "j.local_phase='complete' AND j.remote_status='finished'",
       failed: "j.remote_status='failed'",
       attention: "j.local_phase='requires_attention'",
-      stale: "j.attention_code='stale'"
+      stale: "j.attention_code='stale'",
+      stopped: "j.local_outcome='stopped-before-dispatch'"
     };
     if (filters.status !== 'all') clauses.push(states[filters.status]);
     if (filters.q) {
@@ -820,7 +840,10 @@ export class LibraryRepository extends DatabaseRepository {
         )
         .get(...countBindings)?.count ?? 0;
     return {
-      items: items.map(jobDto),
+      items: items.map((row) => ({
+        ...jobDto(row),
+        automaticRetry: new JobRepository(this.database).retryInfo(row.id)
+      })),
       nextCursor: hasMore && lastItem ? encodeCursor(lastItem) : null,
       total
     };
@@ -873,7 +896,16 @@ export class LibraryRepository extends DatabaseRepository {
         .query<{ count: number }, Binding[]>(`SELECT COUNT(*) count FROM (${activities})`)
         .get(...countBindings)?.count ?? 0;
     return {
-      items: pageRows.map(activityDto),
+      items: pageRows.map((row) => {
+        const activity = activityDto(row);
+        return {
+          ...activity,
+          job: {
+            ...activity.job,
+            automaticRetry: new JobRepository(this.database).retryInfo(row.id)
+          }
+        };
+      }),
       nextCursor: rows.length > cappedLimit && lastRow ? encodeActivityCursor(lastRow) : null,
       total
     };
@@ -1302,12 +1334,29 @@ export class LibraryRepository extends DatabaseRepository {
           failureDomain: event.failure_domain,
           progress: event.progress,
           observedAt: event.observed_at,
-          authority: event.event_type === 'status.observed' ? ('poyo' as const) : ('local' as const)
+          authority: ['status.observed', 'status.diagnostic'].includes(event.event_type)
+            ? ('poyo' as const)
+            : ('local' as const)
         };
       });
     const configuration = projectSafeConfiguration(JSON.parse(row.guided_request_json));
     return {
       ...jobDto(row),
+      automaticRetry: new JobRepository(this.database).retryInfo(id),
+      retryAttempts: this.database
+        .query<
+          {
+            id: string;
+            ordinal: number;
+            remoteStatus: string;
+            localPhase: string;
+            chargedCredits: number | null;
+          },
+          [string]
+        >(
+          `SELECT id,auto_ordinal ordinal,remote_status remoteStatus,local_phase localPhase,CASE WHEN local_outcome='stopped-before-dispatch' THEN 0 WHEN remote_status IN ('failed','finished') THEN actual_credits ELSE NULL END chargedCredits FROM jobs WHERE auto_root_id=(SELECT auto_root_id FROM jobs WHERE id=?) ORDER BY auto_ordinal`
+        )
+        .all(id),
       prompt: row.prompt_text,
       poyoTaskLinked: row.poyo_task_id !== null,
       submissionState: row.submission_state,

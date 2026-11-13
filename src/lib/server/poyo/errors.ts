@@ -1,6 +1,7 @@
 import type { ProviderDiagnostic } from '../../features/diagnostics/provider-diagnostic';
 import { redactString } from '../diagnostics/redaction';
 import {
+  normalizedBusinessCode,
   providerDiagnostic,
   safeProviderToken,
   sanitizeProviderDiagnostic
@@ -185,10 +186,13 @@ export function normalizePoyoError(
   const upstreamMessage = liveDetail(envelope?.error?.message) ?? liveDetail(envelope?.detail);
   const normalizedError = (options: PoyoErrorOptions) =>
     new PoyoError({ ...options, providerDiagnostic: diagnostic });
-  const businessCode = typeof envelope?.code === 'number' ? envelope.code : httpStatus;
+  const businessCode = normalizedBusinessCode(envelope?.code) ?? httpStatus;
   const status = businessCode >= 400 ? businessCode : httpStatus;
   const businessFailure =
-    typeof envelope?.code === 'number' && envelope.code !== 200 && envelope.code < 400;
+    envelope?.code !== undefined &&
+    envelope.code !== 200 &&
+    envelope.code !== '200' &&
+    businessCode < 400;
   const type = upstreamType?.toLowerCase() ?? '';
 
   if (status === 401 || status === 403 || type.includes('authentication')) {
@@ -205,7 +209,7 @@ export function normalizePoyoError(
   if (status === 402 || type.includes('insufficient_credits')) {
     return normalizedError({
       category: 'insufficient_credits',
-      technicalCode: upstreamType ?? 'insufficient_credits',
+      technicalCode: upstreamType ?? `http_${status}`,
       message: 'The Poyo account does not have enough credits for this request.',
       retryable: false,
       operation,
@@ -216,7 +220,7 @@ export function normalizePoyoError(
   if (status === 429 || type.includes('rate_limit')) {
     return normalizedError({
       category: 'rate_limit',
-      technicalCode: upstreamType ?? 'rate_limited',
+      technicalCode: upstreamType ?? `http_${status}`,
       message: 'Poyo rate-limited the request. It can be retried when safe.',
       retryable: true,
       operation,
@@ -228,7 +232,7 @@ export function normalizePoyoError(
   if (status === 408 || type.includes('timeout')) {
     return normalizedError({
       category: 'network',
-      technicalCode: upstreamType ?? 'upstream_timeout',
+      technicalCode: upstreamType ?? `http_${status}`,
       message: 'Poyo reported a request timeout. The remote generation state may still exist.',
       retryable: true,
       operation,
@@ -258,7 +262,7 @@ export function normalizePoyoError(
   if (status === 404 && operation === 'status') {
     return normalizedError({
       category: 'task',
-      technicalCode: upstreamType ?? 'task_not_found',
+      technicalCode: upstreamType ?? `http_${status}`,
       message: 'The Poyo task could not be found.',
       retryable: false,
       operation,

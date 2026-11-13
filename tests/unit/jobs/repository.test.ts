@@ -163,6 +163,7 @@ describe('durable job repository invariants', () => {
     expect(job.estimatedCredits).toBe(16);
     const created = fixture.repository.eventsAfter(0).find((event) => event.jobId === job.id);
     expect(created?.payload).toEqual({
+      automaticRetry: null,
       estimate: {
         signatureVersion: PRICING_SIGNATURE_VERSION,
         signature:

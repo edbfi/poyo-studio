@@ -18,7 +18,9 @@ export const GET: RequestHandler = async ({ params, setHeaders }) => {
   // studio's loadOutputs(), which always `await response.json()`s, can read a not-found error rather
   // than hitting a parse failure that erases the 404 context.
   if (!detail) return Response.json({ error: { code: 'job_not_found' } }, { status: 404 });
-  const outputs: StudioOutputDto[] = detail.outputs.map((output) => ({
+  const outputs: StudioOutputDto[] = (
+    detail.localPhase === 'complete' && detail.remoteStatus === 'finished' ? detail.outputs : []
+  ).map((output) => ({
     outputId: output.outputId,
     mediaKind: output.mediaKind,
     mediaUrl: output.mediaUrl,

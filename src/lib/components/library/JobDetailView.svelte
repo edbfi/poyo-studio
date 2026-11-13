@@ -48,6 +48,7 @@ let comparisonRight = $derived(
 );
 let requestedAspectRatio = $derived(job.requestedAspectRatio);
 function costLabel(): string {
+  if (job.cost.kind === 'not-submitted') return 'Not submitted · 0 cr';
   if (job.cost.kind === 'charge') return `Charged ${job.cost.credits} cr`;
   if (job.cost.kind === 'estimate') return `Estimated ${job.cost.credits} cr`;
   return 'Unavailable';
@@ -186,6 +187,11 @@ async function copyPrompt(): Promise<void> {
   }
 }
 
+async function stopRetries(): Promise<void> {
+  await fetch(`/api/jobs/${job.id}/stop-retries`,{method:'POST',headers:{'content-type':'application/json'},body:'{}'});
+  await invalidateAll();
+}
+
 function removeOutput(outputId: string): void {
   const choice = deleteChoices[outputId] ?? 'file';
   const consequence =
@@ -268,7 +274,7 @@ function removeOutput(outputId: string): void {
     <div class="min-w-0">
       <p class="eyebrow-label">{job.provider} · {job.workflow}</p>
       <h1 class="mt-1 text-2xl font-semibold tracking-tight">{job.displayName}</h1>
-      <div class="mt-3 flex flex-wrap items-center gap-2"><StatusBadge localPhase={job.localPhase} remoteStatus={job.remoteStatus} attentionCode={job.attentionCode} /><Badge>{job.publicModelId}</Badge>{#if job.poyoTaskLinked}<Badge tone="info">Poyo task linked</Badge>{/if}</div>
+      <div class="mt-3 flex flex-wrap items-center gap-2"><StatusBadge localOutcome={job.localOutcome ?? null} localPhase={job.localPhase} remoteStatus={job.remoteStatus} attentionCode={job.attentionCode} /><Badge>{job.publicModelId}</Badge>{#if job.poyoTaskLinked}<Badge tone="info">Poyo task linked</Badge>{/if}</div>
     </div>
     <div class="flex flex-wrap gap-2">
       <LinkButton href={`/studio/${job.modality}?fromJob=${job.id}`} variant="outline">Edit in studio</LinkButton>
@@ -281,6 +287,17 @@ function removeOutput(outputId: string): void {
     </div>
   </header>
 
+  {#if job.automaticRetry}
+    <section class="mt-4 rounded border border-border p-4 text-sm">
+      <p>Attempt {job.automaticRetry.ordinal+1} of {job.automaticRetry.maxRetries+1} · {job.automaticRetry.state.replaceAll('_',' ')}</p>
+      <p>Chain charges reported: {job.automaticRetry.chargedCredits} cr{job.automaticRetry.unknownCharges ? ` · ${job.automaticRetry.unknownCharges} charge(s) pending or unknown` : ''}</p>
+      {#if job.automaticRetry.nextRetryAt}<p>Retry {job.automaticRetry.retriesUsed+1} of {job.automaticRetry.maxRetries} scheduled for {dateTimeLabel(job.automaticRetry.nextRetryAt)}</p>{/if}
+      {#if job.automaticRetry.reason}<p>{job.automaticRetry.reason.replaceAll('-',' ')}</p>{/if}
+      <ol class="mt-2 space-y-1">{#each job.retryAttempts ?? [] as attempt (attempt.id)}<li><a class="underline" href={`/jobs/${attempt.id}`}>Attempt {attempt.ordinal+1}</a> · {attempt.localPhase} · {attempt.remoteStatus} · {attempt.chargedCredits===null ? 'charge pending or unknown' : `${attempt.chargedCredits} cr`}</li>{/each}</ol>
+      <a class="underline" href={`/jobs/${job.automaticRetry.rootId}`}>Root generation</a>
+      {#if job.automaticRetry.state==='running'}<button type="button" onclick={stopRetries} class="focus-ring ml-3 underline">Stop future retries</button><p class="mt-2 text-muted-foreground">Already dispatched work may continue and be charged.</p>{/if}
+    </section>
+  {/if}
   {#if job.attentionCode === 'submission_unknown'}<div class="mt-4 rounded border border-warning/40 bg-warning/10 p-4 text-sm"><strong>Submission outcome is unknown.</strong> Status checks are safe. A new paid retry is available only after you explicitly accept the risk that Poyo may charge for both requests.</div>{/if}
   {#if job.attentionCode === 'ip_guard_blocked'}
     <div class="mt-4 rounded border border-warning/40 bg-warning/10 p-4 text-sm">

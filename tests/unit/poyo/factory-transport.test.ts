@@ -114,9 +114,45 @@ describe('Poyo transport safety boundaries', () => {
         })
       ).rejects.toMatchObject({
         category: 'malformed_response',
+        httpStatus: 202,
         providerDiagnostic: { httpStatus: 202 }
       });
       expect(JSON.stringify(logger.events)).not.toContain('PrivateCredential');
+    }
+  });
+
+  test('normalizes only bounded decimal business-code strings and never repeats a paid submit', async () => {
+    for (const code of ['400', '502', '429', 0]) {
+      let calls = 0;
+      const transport = new PoyoTransport({
+        apiKey: 'test-key',
+        fetch: async () => {
+          calls++;
+          return Response.json({
+            code,
+            error: { type: 'PrivateCredentialAbCd1234_5678', message: 'SingleTokenPromptCanary' }
+          });
+        }
+      });
+      await expect(
+        transport.request({
+          operation: 'submit',
+          method: 'POST',
+          path: '/api/generate/submit',
+          safeToRetry: false
+        })
+      ).rejects.toMatchObject({
+        category:
+          code === '502'
+            ? 'provider'
+            : code === '429'
+              ? 'rate_limit'
+              : code === '400'
+                ? 'unsupported_configuration'
+                : 'submission',
+        technicalCode: code === 0 ? 'business_code_error' : `http_${code}`
+      });
+      expect(calls).toBe(1);
     }
   });
 

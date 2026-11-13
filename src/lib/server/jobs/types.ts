@@ -1,3 +1,4 @@
+import type { AutomaticRetry, LocalOutcome } from '../../features/generation/retries';
 import type { EstimateEnvelope } from '../../features/pricing/contracts';
 import type { PoyoSubmitRequest } from '../poyo/types';
 
@@ -67,6 +68,10 @@ export interface CreateJobRequest {
 }
 
 export interface JobRecord {
+  automaticRetry: AutomaticRetry | null;
+  localOutcome: LocalOutcome | null;
+  settledAt: string | null;
+  terminalAckPending: boolean;
   id: string;
   registryVersion: string | null;
   entryKey: string | null;

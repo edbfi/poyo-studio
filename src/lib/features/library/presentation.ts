@@ -7,7 +7,8 @@ const jobStatuses = new Set<JobFilterStatus>([
   'completed',
   'failed',
   'attention',
-  'stale'
+  'stale',
+  'stopped'
 ]);
 const libraryStatuses = new Set<LibraryStatus>([
   'all',
@@ -146,7 +147,8 @@ export function dateLabel(value: string): string {
 export function statusLabel(
   localPhase: string,
   remoteStatus: string,
-  attentionCode: string | null
+  attentionCode: string | null,
+  localOutcome?: string | null
 ): string {
   if (attentionCode === 'ip_guard_blocked') return 'Blocked by IP guard';
   if (attentionCode === 'submission_unknown') return 'Submission outcome unknown';
@@ -154,7 +156,11 @@ export function statusLabel(
   if (remoteStatus === 'failed') return 'Poyo generation failed';
   if (localPhase === 'requires_attention') return 'Needs attention';
   if (localPhase === 'complete')
-    return remoteStatus === 'finished' ? 'Available locally' : 'Complete';
+    return remoteStatus === 'finished'
+      ? 'Available locally'
+      : localOutcome === 'stopped-before-dispatch'
+        ? 'Stopped before dispatch'
+        : 'Outcome unavailable';
   if (localPhase === 'downloading') return 'Downloading outputs';
   if (remoteStatus === 'running') return 'Generating';
   if (remoteStatus === 'not_started') return 'Queued by Poyo';
@@ -190,7 +196,7 @@ export function statusTone(
 ): 'neutral' | 'info' | 'success' | 'warning' | 'danger' {
   if (remoteStatus === 'failed') return 'danger';
   if (localPhase === 'requires_attention' || attentionCode) return 'warning';
-  if (localPhase === 'complete') return 'success';
+  if (localPhase === 'complete' && remoteStatus === 'finished') return 'success';
   if (remoteStatus === 'running' || remoteStatus === 'not_started') return 'info';
   return 'neutral';
 }

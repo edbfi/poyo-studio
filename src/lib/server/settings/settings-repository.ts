@@ -1,3 +1,5 @@
+import { normalizeGenerationRetries } from '../../features/generation/retries';
+import { JobRepository } from '../jobs/repository';
 import { DatabaseRepository } from '../platform/repository';
 
 interface SettingRow {
@@ -46,10 +48,20 @@ export class SettingsRepository extends DatabaseRepository {
       .get(key);
     if (!row) return null;
 
+    const parsed: unknown = JSON.parse(row.value_json);
+    const operations =
+      parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+        ? (parsed as Record<string, unknown>)
+        : null;
     return {
       key: row.key,
       version: row.value_version,
-      value: JSON.parse(row.value_json) as T,
+      value: (key === 'operations' && operations
+        ? {
+            ...operations,
+            generationRetries: normalizeGenerationRetries(operations.generationRetries)
+          }
+        : parsed) as T,
       updatedAt: row.updated_at
     };
   }
@@ -66,18 +78,26 @@ export class SettingsRepository extends DatabaseRepository {
     if (valueJson === undefined) throw new Error('Setting value is not JSON serializable.');
     const updatedAt = now.toISOString();
 
-    this.database
-      .query(
-        `INSERT INTO app_settings(key, value_version, value_json, updated_at)
+    return this.transaction(() => {
+      this.database
+        .query(
+          `INSERT INTO app_settings(key, value_version, value_json, updated_at)
          VALUES (?, ?, ?, ?)
          ON CONFLICT(key) DO UPDATE SET
            value_version = excluded.value_version,
            value_json = excluded.value_json,
            updated_at = excluded.updated_at`
-      )
-      .run(key, version, valueJson, updatedAt);
+        )
+        .run(key, version, valueJson, updatedAt);
 
-    return { key, version, value, updatedAt };
+      if (
+        key === 'operations' &&
+        !normalizeGenerationRetries((value as { generationRetries?: unknown })?.generationRetries)
+          .enabled
+      )
+        new JobRepository(this.database).stopAllAutomaticRetries();
+      return { key, version, value, updatedAt };
+    });
   }
 
   delete(key: string): boolean {

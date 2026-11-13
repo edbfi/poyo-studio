@@ -17,7 +17,7 @@ afterEach(async () => Promise.all(cleanups.splice(0).map((cleanup) => cleanup())
 // All network responses below are injected synthetic mutations or documented examples.
 // No real Poyo API request is made and none of these are incident captures.
 describe('durable provider diagnostic paths', () => {
-  test('keeps a detailed failure after a terminal ack without resettling or repeated diagnostic events', async () => {
+  test('settles an under-detailed terminal ack once from a later poll without repeated events', async () => {
     const fixture = await createJobFixture();
     cleanups.push(fixture.cleanup);
     const job = fixture.repository.create({
@@ -40,14 +40,21 @@ describe('durable provider diagnostic paths', () => {
         200
       )
     );
-    const before = fixture.repository.get(job.id);
-    const status = parseStatusResponse(evidence.documentedFailedStatus, 200);
+    const status = parseStatusResponse(
+      {
+        ...evidence.documentedFailedStatus,
+        data: { ...evidence.documentedFailedStatus.data, task_id: 'task-diagnostic' }
+      },
+      200
+    );
     fixture.repository.applyStatus(job.id, status, 1000);
+    const before = fixture.repository.get(job.id);
     fixture.repository.applyStatus(job.id, status, 1000);
     expect(fixture.repository.get(job.id)).toEqual(before);
+    expect(before?.remoteStatus).toBe('failed');
     const diagnostics = fixture.repository
       .eventsAfter(0)
-      .filter((e) => e.eventType === 'status.diagnostic');
+      .filter((e) => e.eventType === 'status.observed');
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0]?.payload?.providerDiagnostic).toMatchObject({
       source: 'status',

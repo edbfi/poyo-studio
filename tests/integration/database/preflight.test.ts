@@ -192,10 +192,10 @@ describe('read-only database bootstrap preflight', () => {
     expect(await Bun.file(parent).exists()).toBe(false);
   });
 
-  test('accepts a canonical version-3 database without creating sidecars', async () => {
+  test('accepts a canonical version-4 database without creating sidecars', async () => {
     const databasePath = await path();
     await createCompatibleDatabase(databasePath);
-    expect(await preflightDatabase(databasePath)).toEqual({ state: 'compatible', maxVersion: 3 });
+    expect(await preflightDatabase(databasePath)).toEqual({ state: 'compatible', maxVersion: 4 });
     expect(await Bun.file(`${databasePath}-wal`).exists()).toBe(false);
     expect(await Bun.file(`${databasePath}-shm`).exists()).toBe(false);
     expect(await Bun.file(`${databasePath}-journal`).exists()).toBe(false);
@@ -264,7 +264,7 @@ describe('read-only database bootstrap preflight', () => {
 
     await expect(preflightDatabase(databasePath)).resolves.toEqual({
       state: 'compatible',
-      maxVersion: 3
+      maxVersion: 4
     });
 
     expect(await snapshot(databasePath)).toEqual(before);
@@ -280,8 +280,8 @@ describe('read-only database bootstrap preflight', () => {
     ).toEqual(beforeSidecars);
   });
 
-  test('rejects drifted canonical version-1 through version-3 schemas without mutation', async () => {
-    for (const version of [1, 2, 3]) {
+  test('rejects drifted canonical version-1 through version-4 schemas without mutation', async () => {
+    for (const version of [1, 2, 3, 4]) {
       const databasePath = await path();
       if (version === 1) await createCanonicalVersionOneDatabase(databasePath);
       else if (version === 2) await createCanonicalVersionTwoDatabase(databasePath);
@@ -353,8 +353,8 @@ describe('read-only database bootstrap preflight', () => {
     await expectRejectedWithoutMutation(databasePath);
   });
 
-  test('rejects wrong canonical version-1 through version-3 migration identities without mutation', async () => {
-    for (const version of [1, 2, 3]) {
+  test('rejects wrong canonical version-1 through version-4 migration identities without mutation', async () => {
+    for (const version of [1, 2, 3, 4]) {
       const databasePath = await path();
       if (version === 1) await createCanonicalVersionOneDatabase(databasePath);
       else if (version === 2) await createCanonicalVersionTwoDatabase(databasePath);
@@ -377,8 +377,8 @@ describe('read-only database bootstrap preflight', () => {
     await expectRejectedWithoutMutation(databasePath);
   });
 
-  test('rejects former development version-2 through version-4 identities without mutation', async () => {
-    for (const version of [2, 3, 4]) {
+  test('rejects former development version-2 through version-5 identities without mutation', async () => {
+    for (const version of [2, 3, 4, 5]) {
       const databasePath = await path();
       await createCanonicalVersionOneDatabase(databasePath);
       await mutateSchema(
@@ -397,7 +397,7 @@ describe('read-only database bootstrap preflight', () => {
     await mutateSchema(
       databasePath,
       `INSERT INTO schema_migrations(version, name, checksum, applied_at)
-       VALUES (4, 'future migration', 'future-checksum', '2026-07-17T00:00:00.000Z')`
+       VALUES (5, 'future migration', 'future-checksum', '2026-07-17T00:00:00.000Z')`
     );
 
     await expectRejectedWithoutMutation(databasePath);
@@ -410,7 +410,7 @@ describe('read-only database bootstrap preflight', () => {
 
     await expect(preflightDatabase(databasePath)).resolves.toEqual({
       state: 'compatible',
-      maxVersion: 3
+      maxVersion: 4
     });
 
     expect(await sizeOf(`${databasePath}-wal`)).toBe(0);
@@ -438,7 +438,7 @@ describe('read-only database bootstrap preflight', () => {
 
     await expect(preflightDatabase(databasePath)).resolves.toEqual({
       state: 'compatible',
-      maxVersion: 3
+      maxVersion: 4
     });
 
     expect(await sizeOf(`${databasePath}-journal`)).toBe(0);
@@ -489,7 +489,7 @@ describe('read-only database bootstrap preflight', () => {
 
     await expect(preflightDatabase(databasePath)).resolves.toEqual({
       state: 'compatible',
-      maxVersion: 3
+      maxVersion: 4
     });
   });
 
@@ -513,7 +513,7 @@ describe('read-only database bootstrap preflight', () => {
     }
     await expect(preflightDatabase(databasePath)).resolves.toEqual({
       state: 'compatible',
-      maxVersion: 3
+      maxVersion: 4
     });
   });
 
@@ -528,7 +528,7 @@ describe('read-only database bootstrap preflight', () => {
       if (fixture === 'canonical') {
         await expect(preflightDatabase(databasePath)).resolves.toEqual({
           state: 'compatible',
-          maxVersion: 3
+          maxVersion: 4
         });
       } else {
         // Migration metadata without the schema it records.

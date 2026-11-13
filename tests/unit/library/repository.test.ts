@@ -621,6 +621,11 @@ describe('safe library activity projections', () => {
         '2026-07-15T12:00:00.000Z',
         '2026-07-15T12:00:00.000Z'
       );
+      fixture.database
+        .query(
+          "INSERT INTO job_events(job_id,event_type,local_phase,remote_status,failure_domain,observed_at) VALUES ('activity-charge-job','status.observed','complete','finished','none','2026-07-15T12:00:00.000Z')"
+        )
+        .run();
       insertOutput.run(
         'activity-charge-output',
         'activity-charge-job',
@@ -647,6 +652,11 @@ describe('safe library activity projections', () => {
         '2026-07-15T11:00:00.000Z',
         '2026-07-15T11:00:00.000Z'
       );
+      fixture.database
+        .query(
+          "UPDATE jobs SET local_phase='monitoring',remote_status='not_started' WHERE id='activity-estimate-job'"
+        )
+        .run();
       insertCreatedEvent.run(
         'activity-estimate-job',
         JSON.stringify({
