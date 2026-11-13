@@ -8,6 +8,8 @@ import type { ApiKeySettingsDto, MediaPrivacySettings, SettingsDto } from './con
 import { parseMediaPrivacySettings } from './media-privacy';
 
 export interface SettingsDraft {
+  generationRetriesEnabled: boolean;
+  generationMaxRetries: number;
   pollingSeconds: number;
   staleMinutes: number;
   automaticDownloads: boolean;
@@ -34,6 +36,8 @@ const day = 24 * hour;
 
 export function settingsDraft(settings: SettingsDto): SettingsDraft {
   return {
+    generationRetriesEnabled: settings.generationRetries?.enabled ?? false,
+    generationMaxRetries: settings.generationRetries?.maxRetries ?? 3,
     pollingSeconds: settings.polling.intervalMs / 1000,
     staleMinutes: settings.polling.staleAfterMs / 60_000,
     automaticDownloads: settings.downloads.automatic,
@@ -64,7 +68,17 @@ function integer(value: number, name: string): number {
 }
 
 export function operationsRequest(draft: SettingsDraft) {
+  if (
+    !Number.isInteger(draft.generationMaxRetries) ||
+    draft.generationMaxRetries < 1 ||
+    draft.generationMaxRetries > 5
+  )
+    throw new Error('Additional retries must be an integer from 1 to 5.');
   return {
+    generationRetries: {
+      enabled: draft.generationRetriesEnabled,
+      maxRetries: draft.generationMaxRetries
+    },
     polling: {
       intervalMs: integer(draft.pollingSeconds * 1000, 'Polling interval'),
       staleAfterMs: integer(draft.staleMinutes * 60_000, 'Stale threshold')

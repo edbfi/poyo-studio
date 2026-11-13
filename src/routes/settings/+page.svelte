@@ -631,6 +631,34 @@ function applyCleanup(): void {
         </section>
 
         <section id="jobs" class="py-6" aria-labelledby="jobs-heading">
+          <div class="mb-6 rounded border border-border p-4">
+            <h3 class="section-heading">Automatic generation retries</h3>
+            <label class="mt-3 flex items-center gap-2 text-sm"
+              ><input type="checkbox" bind:checked={draft.generationRetriesEnabled}>
+              Enable for new image generations</label
+            >
+            <label class="mt-3 block text-sm"
+              >Additional attempts (1–5)<input
+                type="number"
+                min="1"
+                max="5"
+                step="1"
+                bind:value={draft.generationMaxRetries}
+                class="focus-ring ml-3 rounded border border-input bg-background px-3 py-2"
+              ></label
+            >
+            <p class="mt-3 text-sm text-muted-foreground">
+              Off by default. Only retries an acknowledged task when Poyo reports the exact
+              documented policy rejection, zero credits, and no outputs. Other failures require
+              attention. Input settings stay the same.
+            </p>
+            <p class="mt-2 text-sm text-muted-foreground">
+              Up to {1 + draft.generationMaxRetries} paid submissions per new generation; maximum
+              estimate is {1 + draft.generationMaxRetries} × the per-attempt estimate. Disabling
+              permanently stops pending retry chains. Work already dispatched can still be charged.
+              Changing the limit affects future generations.
+            </p>
+          </div>
           <h3 id="jobs-heading" class="section-heading">Polling and recovery</h3>
           <p class="mt-2 text-sm leading-6 text-muted-foreground">
             These values control normal status cadence and when interrupted work is marked stale.

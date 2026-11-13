@@ -1,0 +1,38 @@
+{
+  "provenance": {
+    "kind": "official-documentation-examples",
+    "inspectedAt": "2026-11-13",
+    "sources": [
+      "https://docs.poyo.ai/api-manual/error-codes.md",
+      "https://docs.poyo.ai/api-manual/task-management/status.md",
+      "https://docs.poyo.ai/api-manual/image-series/flux-dev.md",
+      "https://docs.poyo.ai/api-manual/image-series/nano-banana.md"
+    ],
+    "gate": "exact-authoritative-poll-signature",
+    "limitations": [
+      "Official task-status and error-code examples support only an acknowledged task polled as failed with the exact documented message, exactly zero credits, and no files.",
+      "Documentation examples are provenance-backed fixtures, not live incident captures. No paid generation was made.",
+      "No-task HTTP rejections remain ineligible: nonacceptance and nonbilling are not established.",
+      "Submit acknowledgements, cancellations, reworded messages, malformed responses, and ignored late observations are not eligible."
+    ]
+  },
+  "documentedValidationError": {
+    "code": 400,
+    "error": {
+      "message": "task_id is required",
+      "type": "validation_error"
+    }
+  },
+  "documentedFailedStatus": {
+    "code": 200,
+    "data": {
+      "task_id": "task-unified-1757165031-uyujaw3d",
+      "status": "failed",
+      "credits_amount": 0,
+      "files": [],
+      "created_time": "2025-11-12T10:30:00",
+      "progress": 0,
+      "error_message": "The prompt violates our content policy"
+    }
+  }
+}

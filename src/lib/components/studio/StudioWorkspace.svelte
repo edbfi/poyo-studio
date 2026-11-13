@@ -19,11 +19,13 @@ import {
   probeBrowserMedia,
   validateLocalFileSelection
 } from '#lib/features/generation/media-preflight.js';
+import { requestStopRetries } from '#lib/features/generation/stop-retries.js';
 import {
   applyBatchJob,
   beginPaidBatchRetry,
   createBatchItem,
   duplicateBatchItem,
+  isJob,
   readStudioBatch,
   restoreBatchItemForRegistry,
   restoreBatchRoleInputs,
@@ -61,6 +63,8 @@ import {
   compareStudioJobRecency,
   mergeKnownStudioSnapshot,
   nextStudioResultCandidate,
+  pruneTerminalStudioJobs,
+  restoreStudioSessionSelection,
   type StudioJobEventUpdate,
   type StudioResultCandidateStates,
   type StudioSessionJobs,
@@ -184,6 +188,7 @@ let recoveryConcluded = $state(false);
 let recoveryExhausted = $state(false);
 let activeJob = $state<StudioJobDto | null>(null);
 let sessionJobs = $state<StudioSessionJobs>({});
+let mutedSessionRoots = $state<Record<string, boolean>>({});
 let resultJob = $state<StudioJobDto | null>(null);
 let connection = $state<'connecting' | 'connected' | 'reconnecting'>('connecting');
 let balance = $state(initialData.balance);
@@ -215,6 +220,9 @@ let draftPersistSuspended = $state(false);
 let restoredMessage = $state('');
 let outputs = $state<StudioOutputDto[] | null>(null);
 let outputsError = $state('');
+let stoppingRetries = $state(false);
+let retryStopFeedback = $state('');
+let retryStopFailed = $state(false);
 let selectedOutput = $state(0);
 let downloadCopyFeedback = $state('');
 let downloadPending = $state<string | null>(null);
@@ -764,6 +772,61 @@ $effect(() => {
   });
 });
 
+let sessionJobsStorageKey = $derived(`poyo-studio-session-jobs:${data.modality}`);
+function persistSessionJobs(): void {
+  try {
+    sessionStorage.setItem(
+      sessionJobsStorageKey,
+      JSON.stringify(Object.values(sessionJobs).slice(-100))
+    );
+  } catch {
+    /* Tracking continues in memory. */
+  }
+}
+$effect(() => {
+  if (hydrated) persistSessionJobs();
+});
+function restoreSessionJobs(explicitContext: boolean): void {
+  try {
+    const stored: unknown = JSON.parse(sessionStorage.getItem(sessionJobsStorageKey) ?? '[]');
+    if (!Array.isArray(stored) || stored.length > 100 || !stored.every(isJob)) return;
+    const restored = restoreStudioSessionSelection(
+      { ...Object.fromEntries(stored.map((job) => [job.id, job])), ...sessionJobs },
+      explicitContext,
+      activeJob
+    );
+    sessionJobs = restored.jobs;
+    activeJob = restored.activeJob;
+    mutedSessionRoots = restored.mutedRoots;
+    persistSessionJobs();
+  } catch {
+    /* Ignore malformed or older session storage. */
+  }
+}
+function clearTerminalSessionResults(): void {
+  sessionJobs = pruneTerminalStudioJobs(sessionJobs);
+  if (activeJob && (activeJob.localPhase === 'complete' || activeJob.remoteStatus === 'failed'))
+    activeJob = null;
+  resultJob = null;
+  outputs = null;
+  outputsError = '';
+  completedTaskCharge = null;
+  selectedOutput = 0;
+  outputCandidateStates = Object.fromEntries(
+    Object.entries(outputCandidateStates).filter(([id]) => sessionJobs[id])
+  );
+  persistSessionJobs();
+}
+
+function activateSessionJob(job: StudioJobDto): StudioJobDto {
+  clearTerminalSessionResults();
+  const root = job.automaticRetry?.rootId ?? job.id;
+  const next = { ...mutedSessionRoots };
+  delete next[root];
+  mutedSessionRoots = next;
+  return acceptSessionJob(job);
+}
+
 function acceptSessionJob(job: StudioJobDto): StudioJobDto {
   const previous = sessionJobs[job.id];
   sessionJobs = upsertStudioSessionJob(sessionJobs, job);
@@ -798,6 +861,7 @@ async function loadResultCandidate(job: StudioJobDto): Promise<void> {
       actualCredits?: number | null;
       taskCharge?: TaskCharge | null;
     };
+    if (!sessionJobs[job.id]) return;
     if (!response.ok || !result.outputs?.some((output) => output.mediaUrl)) {
       outputCandidateStates = {
         ...outputCandidateStates,
@@ -818,6 +882,7 @@ async function loadResultCandidate(job: StudioJobDto): Promise<void> {
       if (hasApiKey) void refreshBalanceSnapshot();
     }
   } catch {
+    if (!sessionJobs[job.id]) return;
     outputCandidateStates = { ...outputCandidateStates, [job.id]: 'transient' };
     if (!resultJob)
       outputsError = 'The generated media could not be loaded. Open the job to review it.';
@@ -825,7 +890,11 @@ async function loadResultCandidate(job: StudioJobDto): Promise<void> {
 }
 
 $effect(() => {
-  const candidate = nextStudioResultCandidate(sessionJobs, outputCandidateStates);
+  const candidate = nextStudioResultCandidate(
+    sessionJobs,
+    outputCandidateStates,
+    mutedSessionRoots
+  );
   if (!candidate) return;
   void loadResultCandidate(candidate);
 });
@@ -1058,6 +1127,7 @@ async function refreshBalanceSnapshot(): Promise<void> {
 }
 
 async function submit(): Promise<void> {
+  retryStopFeedback = '';
   if (submitting || submissionLocked || !hasApiKey) return;
   const action: PendingAction = {
     actionId: crypto.randomUUID(),
@@ -1102,7 +1172,7 @@ async function submit(): Promise<void> {
       return;
     }
     clearPendingAction(action.actionId);
-    activeJob = acceptSessionJob(result.job);
+    activeJob = activateSessionJob(result.job);
     submissionUnknown = false;
     submissionLocked = false;
     if (revision === previewRevision) dirty = false;
@@ -1300,6 +1370,7 @@ async function reconcileBatchItem(item: StudioBatchItem): Promise<boolean> {
 }
 
 async function submitBatchItem(itemId: string): Promise<void> {
+  retryStopFeedback = '';
   const item = batch.items.find((candidate) => candidate.id === itemId);
   if (item?.state !== 'draft') return;
   replaceBatchItem({ ...item, state: 'submitting', error: null });
@@ -1362,6 +1433,7 @@ async function submitBatch(): Promise<void> {
 
 async function retryBatchItem(item: StudioBatchItem): Promise<void> {
   if (item.state !== 'failed') return;
+  retryStopFeedback = '';
   if (!item.job) {
     const actionId = crypto.randomUUID();
     const retry = {
@@ -1503,6 +1575,7 @@ function resetDraft(): void {
     ];
     return;
   }
+  clearTerminalSessionResults();
   guided = initialGuidedValues(selectedEntry);
   automaticFields = initialAutomaticFields(selectedEntry);
   roleInputs = {};
@@ -1522,11 +1595,7 @@ function resetDraft(): void {
 }
 
 function dismissResultPreview(): void {
-  resultJob = null;
-  outputs = null;
-  outputsError = '';
-  completedTaskCharge = null;
-  selectedOutput = 0;
+  clearTerminalSessionResults();
 }
 
 function requestStudioDownload(output: StudioOutputDto): void {
@@ -1598,8 +1667,33 @@ function startResize(event: PointerEvent): void {
   window.addEventListener('pointerup', stop, { once: true });
 }
 
+async function stopRetries(id: string): Promise<void> {
+  if (stoppingRetries) return;
+  stoppingRetries = true;
+  retryStopFeedback = '';
+  retryStopFailed = false;
+  try {
+    const job = await requestStopRetries(id);
+    acceptSessionJob(job);
+    if (activeJob?.id === id) activeJob = job;
+    retryStopFeedback =
+      'Future retries stopped. Already dispatched work may continue and be charged.';
+  } catch {
+    retryStopFailed = true;
+    retryStopFeedback = 'Could not stop future retries. Try again or stop them from the job page.';
+  } finally {
+    stoppingRetries = false;
+  }
+}
+
 function updateFromJobEvent(event: MessageEvent<string>): void {
-  const update = JSON.parse(event.data) as StudioJobEventUpdate;
+  let update: StudioJobEventUpdate;
+  try {
+    update = JSON.parse(event.data) as StudioJobEventUpdate;
+  } catch {
+    return;
+  }
+  if (update.payload?.child && !isJob(update.payload.child)) return;
   if (update.outstandingProjection) outstandingProjection = update.outstandingProjection;
   const batchItem = batch.items.find((item) => item.job?.id === update.jobId);
   if (batchItem?.job) {
@@ -1613,6 +1707,16 @@ function updateFromJobEvent(event: MessageEvent<string>): void {
   const updatedJob = sessionJobs[update.jobId];
   retryTransientOutputAfterJobUpdate(update.jobId, previousJob, updatedJob);
   if (activeJob?.id === update.jobId && updatedJob) activeJob = updatedJob;
+  if (activeJob && sessionJobs[activeJob.id]) activeJob = sessionJobs[activeJob.id] ?? activeJob;
+  const child = update.payload?.child;
+  if (
+    child &&
+    sessionJobs[child.id] &&
+    activeJob &&
+    (activeJob.id === child.automaticRetry?.rootId ||
+      activeJob.automaticRetry?.rootId === child.automaticRetry?.rootId)
+  )
+    activeJob = sessionJobs[child.id] ?? child;
 }
 
 function acceptDurableEvent(event: MessageEvent<string>): boolean {
@@ -1652,7 +1756,7 @@ async function reconcilePendingAction(): Promise<void> {
       onlyNotFound = false;
       const result = (await response.json()) as { job?: StudioJobDto };
       if (!response.ok || !result.job) continue;
-      activeJob = acceptSessionJob(result.job);
+      activeJob = activateSessionJob(result.job);
       entryKey = pending.entryKey;
       submissionUnknown = false;
       recoveryConcluded = false;
@@ -1706,7 +1810,11 @@ onMount(() => {
   }
   // Restore the last studio draft unless an explicit preset/job URL or an unresolved paid
   // action is driving the initial state. Preserve only what is still valid for the model.
-  const explicitContext = Boolean(initialData.preset) || Boolean(readPendingAction());
+  const contextParams = new URL(window.location.href).searchParams;
+  const explicitContext =
+    Boolean(initialData.preset) ||
+    Boolean(readPendingAction()) ||
+    ['preset', 'fromJob', 'sourceOutput'].some((key) => contextParams.has(key));
   if (!explicitContext) {
     const draft = readStudioDraft(data.modality);
     if (draft) {
@@ -1749,6 +1857,7 @@ onMount(() => {
     // stored "last setup" draft. An explicit reset re-enables auto-save.
     draftPersistSuspended = true;
   }
+  restoreSessionJobs(explicitContext);
   hydrated = true;
   // Balance freshness: refresh once if it is missing or stale, then tick a clock so the "stale"
   // indicator stays live without hammering the upstream balance endpoint.
@@ -1780,6 +1889,13 @@ onMount(() => {
       retryTransientOutputAfterJobUpdate(job.id, previousJobs[job.id], sessionJobs[job.id]);
     const matching = activeJob ? snapshot.jobs.find((job) => job.id === activeJob?.id) : undefined;
     if (matching) activeJob = sessionJobs[matching.id] ?? activeJob;
+    if (activeJob?.automaticRetry) {
+      const root = activeJob.automaticRetry.rootId;
+      const latest = Object.values(sessionJobs)
+        .filter((job) => job.automaticRetry?.rootId === root)
+        .toSorted((a, b) => (b.automaticRetry?.ordinal ?? 0) - (a.automaticRetry?.ordinal ?? 0))[0];
+      if (latest) activeJob = latest;
+    }
   });
   events.addEventListener('job', (event) => {
     const message = event as MessageEvent<string>;
@@ -2538,7 +2654,19 @@ onMount(() => {
     </div>
 
     <div class="media-stage grid place-items-center px-5 py-10 text-center">
-      {#if resultJob && outputs?.some((output) => output.mediaUrl) && !activeJobOwnsStage}
+      {#if submitting}
+        <div class="max-w-xl" role="status">
+          <h2
+            id={`${data.modality}-stage-heading`}
+            class="text-xl font-semibold tracking-tight text-stage-foreground"
+          >
+            Preparing {data.modality} generation
+          </h2>
+          <p class="mt-2 text-sm leading-6 text-stage-muted">
+            Validating the request and preparing its sources. The new job is not confirmed yet.
+          </p>
+        </div>
+      {:else if resultJob && outputs?.some((output) => output.mediaUrl) && !activeJobOwnsStage}
         {@const shown = outputs.filter((output) => output.mediaUrl)}
         {@const current = shown[Math.min(selectedOutput, shown.length - 1)]}
         {#if current?.mediaUrl}
@@ -2647,7 +2775,7 @@ onMount(() => {
             <AppIcon
               name={activeJob.remoteStatus === 'failed'
                 ? 'pending'
-                : activeJob.localPhase === 'complete'
+                : activeJob.localPhase === 'complete' && activeJob.remoteStatus === 'finished'
                   ? 'success'
                   : activeJob.failureDomain !== 'none'
                     ? 'pending'
@@ -2673,7 +2801,11 @@ onMount(() => {
                 : activeJob.remoteStatus === 'failed'
                   ? 'Poyo generation failed'
                   : activeJob.localPhase === 'complete'
-                    ? 'Generation verified locally'
+                    ? activeJob.remoteStatus === 'finished'
+                      ? 'Generation verified locally'
+                      : activeJob.localOutcome === 'stopped-before-dispatch'
+                        ? 'Stopped before dispatch'
+                        : 'Outcome unavailable'
                     : activeJob.localPhase === 'requires_attention'
                       ? 'Job needs attention'
                       : activeJob.localPhase === 'downloading'
@@ -2698,15 +2830,63 @@ onMount(() => {
                   : activeJob.failureDomain === 'poll'
                     ? `Status check delayed. Last successful check ${activeJob.lastPolledAt ?? 'is not available'}.`
                     : activeJob.localPhase === 'complete'
-                      ? outputsError
-                        ? outputsError
-                        : loadingOutputs
-                          ? 'Loading the generated media…'
-                          : 'The Poyo task finished and its downloaded outputs passed local verification.'
+                      ? activeJob.remoteStatus !== 'finished'
+                        ? activeJob.localOutcome === 'stopped-before-dispatch'
+                          ? 'This attempt was stopped before dispatch. It has no generated output and no submission charge.'
+                          : 'The outcome is unavailable. Review the job before submitting another paid generation.'
+                        : outputsError
+                          ? outputsError
+                          : loadingOutputs
+                            ? 'Loading the generated media…'
+                            : 'The Poyo task finished and its downloaded outputs passed local verification.'
                       : activeJob.localPhase === 'downloading'
                         ? 'Poyo finished. The output is downloading and being verified locally before it appears here.'
                         : `Real state: ${activeJob.localPhase.replaceAll('_', ' ')} · ${activeJob.remoteStatus.replaceAll('_', ' ')}.`}
           </p>
+          {#if activeJob.automaticRetry}
+            <div class="mt-4 text-sm text-stage-muted">
+              <p>
+                {activeJob.automaticRetry.ordinal === 0
+                  ? 'Initial attempt'
+                  : `Retry ${activeJob.automaticRetry.ordinal} of ${activeJob.automaticRetry.maxRetries}`}
+                · {activeJob.automaticRetry.state.replaceAll('_', ' ')}
+              </p>
+              <p>
+                Chain charges reported:
+                {creditsLabel(activeJob.automaticRetry.chargedCredits)}
+                cr{activeJob.automaticRetry.unknownCharges
+                  ? ` · ${activeJob.automaticRetry.unknownCharges} attempt charge(s) pending or unknown`
+                  : ''}
+              </p>
+              {#if activeJob.automaticRetry.nextRetryAt}
+                <p>
+                  Retry {activeJob.automaticRetry.retriesUsed + 1} of
+                  {activeJob.automaticRetry.maxRetries}
+                  scheduled for
+                  {dateTimeLabel(activeJob.automaticRetry.nextRetryAt)}
+                </p>
+              {/if}
+              {#if activeJob.automaticRetry.reason}
+                <p>{activeJob.automaticRetry.reason.replaceAll('-', ' ')}</p>
+              {/if}
+              <a class="underline" href={`/jobs/${activeJob.automaticRetry.rootId}`}
+                >View chain history</a
+              >
+              {#if activeJob.automaticRetry.state === 'running'}
+                <button
+                  type="button"
+                  class="focus-ring ml-3 underline"
+                  disabled={stoppingRetries}
+                  onclick={() => activeJob && stopRetries(activeJob.id)}
+                >
+                  {stoppingRetries ? 'Stopping…' : 'Stop future retries'}
+                </button>
+              {/if}
+              {#if retryStopFeedback}
+                <p class="mt-2" role={retryStopFailed ? 'alert' : 'status'}>{retryStopFeedback}</p>
+              {/if}
+            </div>
+          {/if}
           {#if activeJob.progress !== null}
             <div class="mx-auto mt-5 max-w-sm text-left">
               <div class="flex justify-between text-xs text-stage-muted">
@@ -2734,7 +2914,7 @@ onMount(() => {
               <Button
                 variant="ghost"
                 class="text-stage-muted hover:bg-stage-elevated hover:text-stage-foreground"
-                onclick={() => (activeJob = null)}
+                onclick={clearTerminalSessionResults}
                 >Remix settings</Button
               >
             {/if}
@@ -2823,6 +3003,35 @@ onMount(() => {
               unavailable · {preview ? 'generation remains enabled' : 'complete setup to generate'}
             {/if}
           </span>
+          {#if data.modality === 'image' && data.generationRetries?.enabled}
+            <span class="text-warning"
+              >Automatic retries enabled: up to {1 + data.generationRetries.maxRetries} paid
+              submissions per generation. Maximum estimate:
+              {currentEstimate?.credits == null
+                ? 'unavailable'
+                : `${creditsLabel((1 + data.generationRetries.maxRetries) * currentEstimate.credits)} cr`}
+              ({1 + data.generationRetries.maxRetries}
+              × per-attempt estimate). Only the exact documented zero-credit policy rejection is
+              eligible.</span
+            >
+          {/if}
+          {#if retryStopFeedback && !activeJobOwnsStage}
+            <span role={retryStopFailed ? 'alert' : 'status'}>{retryStopFeedback}</span>
+          {/if}
+          {#if activeJob?.localSettlement}
+            <span class="text-muted-foreground">Not submitted · 0 cr</span>
+          {/if}
+          {#if activeJob?.automaticRetry}
+            <span class="text-muted-foreground"
+              >{activeJob.automaticRetry.ordinal === 0
+                ? 'Initial attempt'
+                : `Retry ${activeJob.automaticRetry.ordinal} of ${activeJob.automaticRetry.maxRetries}`}
+              · {activeJob.automaticRetry.state.replaceAll('_', ' ')} ·
+              <a class="underline" href={`/jobs/${activeJob.automaticRetry.rootId}`}
+                >Chain history</a
+              ></span
+            >
+          {/if}
           {#if displayedTaskCharge}
             <span class="text-muted-foreground">
               <strong class="font-semibold text-foreground">Charged:</strong>
@@ -2891,6 +3100,7 @@ onMount(() => {
 
       <div class="studio-command-actions">
         <BatchReview
+          retryPolicy={data.generationRetries ?? { enabled: false, maxRetries: 3 }}
           modality={data.modality}
           items={batch.items}
           submitting={batchSubmitting}

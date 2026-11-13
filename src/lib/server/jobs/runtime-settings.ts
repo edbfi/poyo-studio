@@ -1,3 +1,4 @@
+import { normalizeGenerationRetries } from '../../features/generation/retries';
 import { runtimePoyoBaseUrl } from '../poyo/factory';
 import {
   DEFAULT_OPERATIONS_SETTINGS,
@@ -75,7 +76,14 @@ export function runtimeJobCreateDelay(environment: Record<string, string | undef
 export function runtimeOperationsSettings(value: unknown): OperationsSettings {
   if (value === undefined) return DEFAULT_OPERATIONS_SETTINGS;
   try {
-    return normalizeOperationsSettings(value);
+    const stored =
+      value && typeof value === 'object' && !Array.isArray(value)
+        ? (value as Record<string, unknown>)
+        : {};
+    return normalizeOperationsSettings({
+      ...stored,
+      generationRetries: normalizeGenerationRetries(stored.generationRetries)
+    });
   } catch {
     return DEFAULT_OPERATIONS_SETTINGS;
   }

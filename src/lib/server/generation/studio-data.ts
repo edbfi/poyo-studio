@@ -9,6 +9,7 @@ import {
   VIDEO_REGISTRY_VERSION
 } from '../../features/registry/video-registry';
 import { latestBalance } from '../account/balance';
+import { JobRepository } from '../jobs/repository';
 import { getJobRuntime } from '../jobs/runtime';
 import { studioReuseEntry } from '../library/repository';
 import { getPlatformServices } from '../platform/runtime';
@@ -159,6 +160,7 @@ export async function loadStudioData(
     outstandingProjection: jobs.repository.outstandingProjection(),
     apiKey: await platform.apiKey.status(),
     mediaTools: await platform.mediaTools.getReadiness(),
+    generationRetries: new JobRepository(platform.database).generationRetryPolicy(),
     sanitizeLocalMedia: readMediaPrivacySettings(platform.settings).sanitizeLocalMedia,
     preset: preset?.values.modality === modality ? preset : null
   };

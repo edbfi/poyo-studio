@@ -96,3 +96,10 @@ export interface PricingSnapshotView {
   freshness: EstimateFreshness;
   availability: EstimateAvailability;
 }
+
+export interface LocalSettlement {
+  classification: 'local-settlement';
+  source: 'not-submitted';
+  credits: 0;
+  settledAt: string;
+}

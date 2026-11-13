@@ -25,6 +25,10 @@ export interface JobRuntimeSettings {
   automaticDownloads: boolean;
 }
 export interface JobCoordinatorOptions {
+  refreshManagedSource?: (
+    id: string,
+    kind: 'image' | 'video'
+  ) => Promise<{ id: string; url: string }>;
   repository: JobRepository;
   poyo: JobPoyoGateway;
   downloader: OutputDownloader;
@@ -154,7 +158,20 @@ export class JobCoordinator {
           }
         }
       });
-      this.options.repository.acknowledgeSubmission(jobId, claim.token, result);
+      const acknowledged = this.options.repository.acknowledgeSubmission(
+        jobId,
+        claim.token,
+        result
+      );
+      const settled = this.requireJob(jobId);
+      if (
+        acknowledged &&
+        (settled.remoteStatus === 'finished' || settled.remoteStatus === 'failed')
+      ) {
+        await this.sampleCostBalance(jobId, claim.actionId, 'after');
+        if (settled.remoteStatus === 'finished' && this.settings().automaticDownloads)
+          await this.downloadPending(jobId);
+      }
       return this.requireJob(jobId);
     } catch (error) {
       if (
@@ -174,14 +191,20 @@ export class JobCoordinator {
         }
       } else if (
         error instanceof PoyoError &&
-        !['network', 'provider', 'rate_limit'].includes(error.category)
+        !['network', 'provider', 'rate_limit', 'malformed_response'].includes(error.category)
       )
-        this.options.repository.rejectSubmission(jobId, claim.token, error.technicalCode);
+        this.options.repository.rejectSubmission(
+          jobId,
+          claim.token,
+          error.technicalCode,
+          error.providerDiagnostic
+        );
       else
         this.options.repository.markSubmissionUnknown(
           jobId,
           claim.token,
-          error instanceof PoyoError ? error.technicalCode : 'transport_unknown'
+          error instanceof PoyoError ? error.technicalCode : 'transport_unknown',
+          error instanceof PoyoError ? error.providerDiagnostic : undefined
         );
       return this.requireJob(jobId);
     }
@@ -199,6 +222,7 @@ export class JobCoordinator {
     try {
       const settings = this.settings();
       const status = await this.options.poyo.getStatus(job.poyoTaskId, signal ? { signal } : {});
+      if (!this.options.repository.ownsWork(claim)) return this.requireJob(jobId);
       const updated = this.options.repository.applyStatus(jobId, status, settings.pollDelayMs);
       const wasTerminal = job.remoteStatus === 'finished' || job.remoteStatus === 'failed';
       const isTerminal = updated.remoteStatus === 'finished' || updated.remoteStatus === 'failed';
@@ -212,7 +236,8 @@ export class JobCoordinator {
       }
       return updated;
     } catch (error) {
-      if (signal?.aborted) return this.requireJob(jobId);
+      if (signal?.aborted || !this.options.repository.ownsWork(claim))
+        return this.requireJob(jobId);
       if (error instanceof PoyoError && error.category === 'policy') {
         return this.options.repository.recordPollBlocked(jobId, error.technicalCode);
       }
@@ -220,7 +245,8 @@ export class JobCoordinator {
       return this.options.repository.recordPollFailure(
         jobId,
         error instanceof PoyoError ? error.technicalCode : 'poll_error',
-        !manual && age > this.settings().staleAfterMs
+        !manual && age > this.settings().staleAfterMs,
+        error instanceof PoyoError ? error.providerDiagnostic : undefined
       );
     } finally {
       this.options.repository.releaseWork(claim);
@@ -287,9 +313,38 @@ export class JobCoordinator {
     return job;
   }
   async recoverOnce(signal?: AbortSignal): Promise<void> {
+    if (!this.options.repository.generationRetryPolicy().enabled)
+      this.options.repository.stopAllAutomaticRetries();
     for (const job of this.options.repository.listActive()) {
       if (signal?.aborted) return;
       await this.reconcile(job.id, signal).catch(() => undefined);
+    }
+    if (signal?.aborted) return;
+    const claim = this.options.repository.claimAutomaticRetry(this.workerId, this.workLeaseMs);
+    if (!claim) return;
+    const interval = setInterval(
+      () => {
+        try {
+          this.options.repository.renewAutomaticRetry(claim, this.workLeaseMs);
+        } catch {
+          /* An unrenewed lease fences child creation. */
+        }
+      },
+      Math.max(1, Math.min(20000, Math.floor(this.workLeaseMs / 3)))
+    );
+    interval.unref();
+    try {
+      const child = await this.options.repository.fulfillAutomaticRetry(
+        claim,
+        this.options.refreshManagedSource ??
+          (async () => {
+            throw new Error('Managed source refresh is unavailable.');
+          })
+      );
+      if (child && !signal?.aborted) await this.reconcile(child.id, signal);
+    } finally {
+      clearInterval(interval);
+      this.options.repository.releaseAutomaticRetry(claim);
     }
   }
 }

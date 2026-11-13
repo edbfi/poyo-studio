@@ -56,6 +56,7 @@ describe('validated operations settings', () => {
       );
       expect(cleanupRows()).toBe(0);
       const operations = {
+        generationRetries: { enabled: false, maxRetries: 3 },
         polling: { intervalMs: 10_000, staleAfterMs: 600_000 },
         downloads: { automatic: false },
         logs: {

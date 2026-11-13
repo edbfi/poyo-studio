@@ -6,11 +6,12 @@ interface Props {
   localPhase: string;
   remoteStatus: string;
   attentionCode?: string | null;
+  localOutcome?: string | null;
 }
 
-let { localPhase, remoteStatus, attentionCode = null }: Props = $props();
+let { localPhase, remoteStatus, attentionCode = null, localOutcome = null }: Props = $props();
 </script>
 
 <Badge tone={statusTone(localPhase, remoteStatus, attentionCode)}>
-  {statusLabel(localPhase, remoteStatus, attentionCode)}
+  {statusLabel(localPhase, remoteStatus, attentionCode, localOutcome)}
 </Badge>

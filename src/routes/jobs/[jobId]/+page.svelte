@@ -24,7 +24,15 @@ onMount(() => {
   events.addEventListener('job', (event) => {
     const jobEvent = event as MessageEvent<string>;
     if (!acceptDurableEvent(jobEvent)) return;
-    if (!shouldRefreshJobDetail(jobEvent.data, data.job.id, data.job.modality)) return;
+    if (
+      !shouldRefreshJobDetail(
+        jobEvent.data,
+        data.job.id,
+        data.job.modality,
+        data.job.automaticRetry?.rootId ?? null
+      )
+    )
+      return;
     void invalidateAll();
   });
   return () => events.close();

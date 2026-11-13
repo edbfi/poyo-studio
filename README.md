@@ -24,6 +24,31 @@ responsive light/dark interface.
 
 The project is independent and is not an official Poyo.ai client.
 
+## Automatic image retries
+
+Automatic generation retries are off by default. In Settings, opt in for new image generations
+and choose 1–5 additional attempts (default 3, at most 4 submissions including the initial attempt).
+Settings and Studio show the maximum submissions and an estimate for the chain; estimates are not
+spending caps. The limit is snapshotted when a root job is created, and later limit changes apply
+to new roots. Turning retries off permanently stops pending chains; turning them on does not revive them.
+
+Eligibility is deliberately narrow: an acknowledged task must be polled with raw status `failed`,
+exact error message `The prompt violates our content policy`, exactly zero reported credits, and
+an explicitly empty files array. This signature comes from Poyo's official
+[task status](https://docs.poyo.ai/api-manual/task-management/status.md) and
+[error codes](https://docs.poyo.ai/api-manual/error-codes.md) examples. It covers text-to-image and
+image-to-image generation (including the registry's `image-edit` workflow spelling). It is not
+a promise of eventual success or coverage for other failure messages. HTTP/no-task rejections,
+submit acknowledgements, cancellations, unknown dispatches, malformed responses, partial outputs,
+and download failures never trigger an automatic resubmission.
+
+Each retry is a separate attempt in Activity with a root link and individual charge. Prompt,
+seed presence/value, model, output count, safety/moderation settings, and Expert overrides stay
+unchanged. Retained local sources are verified and uploaded again using only their source bindings.
+A missing source or changed registry blocks the chain for review. Stop future retries from Studio
+or job detail; work already handed to the provider may continue and be charged. An unsent stopped
+attempt has a separate zero-cost “not submitted” settlement and is never shown as a successful output.
+
 ## Model coverage
 
 The November 13, 2026 comparison against [Poyo's documentation index](https://docs.poyo.ai/llms.txt)

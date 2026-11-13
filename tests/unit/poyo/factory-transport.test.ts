@@ -93,6 +93,104 @@ describe('Poyo transport safety boundaries', () => {
     expect(delays).toEqual([100, 200]);
   });
 
+  test('keeps actual HTTP metadata when successful response decoding fails', async () => {
+    for (const oversized of [false, true]) {
+      const logger = new MemoryPoyoMetadataLogger();
+      const transport = new PoyoTransport({
+        apiKey: 'test-key',
+        logger,
+        maxResponseBytes: 32,
+        fetch: async () =>
+          new Response(oversized ? 'PrivateCredentialAbCd1234_5678'.repeat(10) : '{bad', {
+            status: 202
+          })
+      });
+      await expect(
+        transport.request({
+          operation: 'submit',
+          method: 'POST',
+          path: '/api/generate/submit',
+          safeToRetry: false
+        })
+      ).rejects.toMatchObject({
+        category: 'malformed_response',
+        httpStatus: 202,
+        providerDiagnostic: { httpStatus: 202 }
+      });
+      expect(JSON.stringify(logger.events)).not.toContain('PrivateCredential');
+    }
+  });
+
+  test('normalizes only bounded decimal business-code strings and never repeats a paid submit', async () => {
+    for (const code of ['400', '502', '429', 0]) {
+      let calls = 0;
+      const transport = new PoyoTransport({
+        apiKey: 'test-key',
+        fetch: async () => {
+          calls++;
+          return Response.json({
+            code,
+            error: { type: 'PrivateCredentialAbCd1234_5678', message: 'SingleTokenPromptCanary' }
+          });
+        }
+      });
+      await expect(
+        transport.request({
+          operation: 'submit',
+          method: 'POST',
+          path: '/api/generate/submit',
+          safeToRetry: false
+        })
+      ).rejects.toMatchObject({
+        category:
+          code === '502'
+            ? 'provider'
+            : code === '429'
+              ? 'rate_limit'
+              : code === '400'
+                ? 'unsupported_configuration'
+                : 'submission',
+        technicalCode: code === 0 ? 'business_code_error' : `http_${code}`
+      });
+      expect(calls).toBe(1);
+    }
+  });
+
+  test('classifies unknown numeric business codes without publishing them or replaying submits', async () => {
+    for (const code of [504, 599, 50012345678901, 1e18, '504', '599', 409, 418]) {
+      let calls = 0;
+      const logger = new MemoryPoyoMetadataLogger();
+      const transport = new PoyoTransport({
+        apiKey: 'test-key',
+        logger,
+        fetch: async () => {
+          calls++;
+          return Response.json({ code, error: { message: 'An operation failed.' } });
+        }
+      });
+      let failure: unknown;
+      try {
+        await transport.request({
+          operation: 'submit',
+          method: 'POST',
+          path: '/api/generate/submit',
+          safeToRetry: false
+        });
+      } catch (error) {
+        failure = error;
+      }
+      expect(failure).toMatchObject({
+        category: Number(code) >= 500 ? 'provider' : 'submission',
+        technicalCode: Number(code) >= 500 ? 'upstream_error' : 'business_code_error',
+        httpStatus: 200,
+        providerDiagnostic: { responseCode: null, responseCodePresent: true }
+      });
+      expect(JSON.stringify(failure)).not.toContain(String(code));
+      expect(JSON.stringify(logger.events)).not.toContain(String(code));
+      expect(calls).toBe(1);
+    }
+  });
+
   test('PYO-06 caps malformed responses and does not leak media through request metadata', async () => {
     const logger = new MemoryPoyoMetadataLogger();
     const transport = new PoyoTransport({

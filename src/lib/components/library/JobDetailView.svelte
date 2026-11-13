@@ -3,6 +3,7 @@ import { untrack } from 'svelte';
 import AppIcon from '#lib/components/ui/AppIcon.svelte';
 import Badge from '#lib/components/ui/Badge.svelte';
 import LinkButton from '#lib/components/ui/LinkButton.svelte';
+import { requestStopRetries } from '#lib/features/generation/stop-retries.js';
 import { downloadCopy } from '#lib/features/library/attachment-request.js';
 import type {
   ImageJobNavigationDto,
@@ -14,7 +15,8 @@ import {
   byteSizeLabel,
   dateTimeLabel,
   elapsedLabel,
-  mediaFrameAspectRatio
+  mediaFrameAspectRatio,
+  retryAttemptLabel
 } from '#lib/features/library/presentation.js';
 import { goto, invalidate, invalidateAll } from '$app/navigation';
 import MediaPreview from './MediaPreview.svelte';
@@ -48,6 +50,7 @@ let comparisonRight = $derived(
 );
 let requestedAspectRatio = $derived(job.requestedAspectRatio);
 function costLabel(): string {
+  if (job.cost.kind === 'not-submitted') return 'Not submitted · 0 cr';
   if (job.cost.kind === 'charge') return `Charged ${job.cost.credits} cr`;
   if (job.cost.kind === 'estimate') return `Estimated ${job.cost.credits} cr`;
   return 'Unavailable';
@@ -186,6 +189,15 @@ async function copyPrompt(): Promise<void> {
   }
 }
 
+function stopRetries(): void {
+  if(pending) return;
+  void action('stop-retries',async()=>{
+    await requestStopRetries(job.id,(path)=>post(path));
+    feedback='Future retries stopped. Already dispatched work may continue and be charged.';
+    await invalidateAll();
+  });
+}
+
 function removeOutput(outputId: string): void {
   const choice = deleteChoices[outputId] ?? 'file';
   const consequence =
@@ -268,7 +280,7 @@ function removeOutput(outputId: string): void {
     <div class="min-w-0">
       <p class="eyebrow-label">{job.provider} · {job.workflow}</p>
       <h1 class="mt-1 text-2xl font-semibold tracking-tight">{job.displayName}</h1>
-      <div class="mt-3 flex flex-wrap items-center gap-2"><StatusBadge localPhase={job.localPhase} remoteStatus={job.remoteStatus} attentionCode={job.attentionCode} /><Badge>{job.publicModelId}</Badge>{#if job.poyoTaskLinked}<Badge tone="info">Poyo task linked</Badge>{/if}</div>
+      <div class="mt-3 flex flex-wrap items-center gap-2"><StatusBadge localOutcome={job.localOutcome ?? null} localPhase={job.localPhase} remoteStatus={job.remoteStatus} attentionCode={job.attentionCode} /><Badge>{job.publicModelId}</Badge>{#if job.poyoTaskLinked}<Badge tone="info">Poyo task linked</Badge>{/if}</div>
     </div>
     <div class="flex flex-wrap gap-2">
       <LinkButton href={`/studio/${job.modality}?fromJob=${job.id}`} variant="outline">Edit in studio</LinkButton>
@@ -281,6 +293,17 @@ function removeOutput(outputId: string): void {
     </div>
   </header>
 
+  {#if job.automaticRetry}
+    <section class="mt-4 rounded border border-border p-4 text-sm">
+      <p>Attempt {job.automaticRetry.ordinal+1} of {job.automaticRetry.maxRetries+1} · {job.automaticRetry.state.replaceAll('_',' ')}</p>
+      <p>Chain charges reported: {job.automaticRetry.chargedCredits} cr{job.automaticRetry.unknownCharges ? ` · ${job.automaticRetry.unknownCharges} charge(s) pending or unknown` : ''}</p>
+      {#if job.automaticRetry.nextRetryAt}<p>Retry {job.automaticRetry.retriesUsed+1} of {job.automaticRetry.maxRetries} scheduled for {dateTimeLabel(job.automaticRetry.nextRetryAt)}</p>{/if}
+      {#if job.automaticRetry.reason}<p>{job.automaticRetry.reason.replaceAll('-',' ')}</p>{/if}
+      <ol class="mt-2 space-y-1">{#each job.retryAttempts ?? [] as attempt (attempt.id)}<li><a class="underline" href={`/jobs/${attempt.id}`}>Attempt {attempt.ordinal+1}</a> · {retryAttemptLabel(attempt)}</li>{/each}</ol>
+      <a class="underline" href={`/jobs/${job.automaticRetry.rootId}`}>Root generation</a>
+      {#if job.automaticRetry.state==='running'}<button type="button" onclick={stopRetries} disabled={pending !== null} class="focus-ring ml-3 underline">{pending==='stop-retries' ? 'Stopping…' : 'Stop future retries'}</button><p class="mt-2 text-muted-foreground">Already dispatched work may continue and be charged.</p>{/if}
+    </section>
+  {/if}
   {#if job.attentionCode === 'submission_unknown'}<div class="mt-4 rounded border border-warning/40 bg-warning/10 p-4 text-sm"><strong>Submission outcome is unknown.</strong> Status checks are safe. A new paid retry is available only after you explicitly accept the risk that Poyo may charge for both requests.</div>{/if}
   {#if job.attentionCode === 'ip_guard_blocked'}
     <div class="mt-4 rounded border border-warning/40 bg-warning/10 p-4 text-sm">
@@ -380,7 +403,11 @@ function removeOutput(outputId: string): void {
       <section aria-labelledby="history-heading" class="mt-8 border-t border-border pt-6">
         <div class="flex flex-wrap items-end justify-between gap-2"><div><p class="eyebrow-label">Lifecycle</p><h2 id="history-heading" class="mt-1 text-base font-semibold">Status history</h2></div><p class="text-xs text-muted-foreground">Showing {Math.min(visibleHistoryCount, job.history.length)} of {job.history.length}</p></div>
         <ol class="mt-4 space-y-0 border-l border-border pl-5">
-          {#each visibleHistory as event (event.eventId)}<li class="relative pb-5"><span class="absolute top-1 -left-[1.47rem] size-2 rounded-full bg-border"></span><div class="flex flex-wrap items-baseline justify-between gap-2"><p class="text-sm font-semibold">{event.eventType.replaceAll('.', ' ')}</p><time class="text-xs text-muted-foreground" datetime={event.observedAt}>{dateTimeLabel(event.observedAt)}</time></div><p class="mt-1 text-xs text-muted-foreground">{event.authority === 'poyo' ? 'Poyo observation' : 'Local event'} · {event.localPhase} · {event.remoteStatus}{event.progress !== null ? ` · ${Math.round(event.progress)}%` : ''}</p></li>{/each}
+          {#each visibleHistory as event (event.eventId)}<li class="relative pb-5"><span class="absolute top-1 -left-[1.47rem] size-2 rounded-full bg-border"></span><div class="flex flex-wrap items-baseline justify-between gap-2"><p class="text-sm font-semibold">{event.eventType.replaceAll('.', ' ')}</p><time class="text-xs text-muted-foreground" datetime={event.observedAt}>{dateTimeLabel(event.observedAt)}</time></div><p class="mt-1 text-xs text-muted-foreground">{event.authority === 'poyo' ? 'Poyo observation' : 'Local event'} · {event.localPhase} · {event.remoteStatus}{event.progress !== null ? ` · ${Math.round(event.progress)}%` : ''}</p>
+            {#if event.providerDiagnostic}
+              <details class="mt-2 text-xs"><summary class="cursor-pointer font-semibold">Provider diagnostics</summary><p class="mt-2 text-muted-foreground">Arbitrary provider messages are omitted for privacy. These observations do not establish retry eligibility or billing.</p><pre class="mt-2 overflow-x-auto rounded bg-muted p-3">{JSON.stringify(event.providerDiagnostic, null, 2)}</pre></details>
+            {/if}
+          </li>{/each}
         </ol>
         {#if visibleHistoryCount < job.history.length}<button type="button" class="focus-ring rounded border border-border px-3 py-2 text-xs font-semibold" onclick={() => (visibleHistoryCount += historyPageSize)}>Show 20 older events</button>{/if}
       </section>

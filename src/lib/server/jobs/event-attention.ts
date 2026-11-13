@@ -1,4 +1,5 @@
 import { type PublicIpv4GuardReason, publicIpv4GuardReason } from '../poyo/errors';
+import { readJobProviderDiagnostic } from '../poyo/provider-diagnostic';
 
 export const JOB_EVENT_METADATA_KEY = '__poyoStudioEvent';
 
@@ -59,9 +60,14 @@ export function packDurableJobEventPayload(
 
 function sanitizePublicPayload(payload: Record<string, unknown> | null) {
   if (!payload) return null;
-  const reason = publicIpv4GuardReason(payload.code);
-  if (!reason) return payload;
-  const { code: _code, ...nonTechnicalPayload } = payload;
+  const { providerDiagnostic: _diagnostic, ...otherPayload } = payload;
+  const diagnostic = readJobProviderDiagnostic(payload);
+  const safePayload = diagnostic
+    ? { ...otherPayload, providerDiagnostic: diagnostic }
+    : otherPayload;
+  const reason = publicIpv4GuardReason(safePayload.code);
+  if (!reason) return safePayload;
+  const { code: _code, ...nonTechnicalPayload } = safePayload;
   return {
     ...nonTechnicalPayload,
     policy: 'ip_guard_blocked',

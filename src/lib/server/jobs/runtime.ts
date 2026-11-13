@@ -3,6 +3,7 @@ import { getPlatformServices } from '../platform/runtime';
 import { createPoyoClient } from '../poyo/factory';
 import { JobCoordinator, type JobPoyoGateway, JobWorker } from './coordinator';
 import { OutputDownloader } from './downloader';
+import { createManagedSourceUploadRefresher } from './managed-source-upload';
 import { JobRepository } from './repository';
 import {
   runtimeJobTimings,
@@ -42,6 +43,7 @@ async function createRuntime(): Promise<JobRuntime> {
   });
   const coordinator = new JobCoordinator({
     repository,
+    refreshManagedSource: createManagedSourceUploadRefresher(platform),
     poyo: gateway,
     downloader,
     runtimeSettings: () => {

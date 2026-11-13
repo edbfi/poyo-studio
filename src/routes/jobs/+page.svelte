@@ -23,7 +23,8 @@ const statusFilters = [
   ['completed', 'Completed'],
   ['failed', 'Failed'],
   ['attention', 'Needs attention'],
-  ['stale', 'Stale']
+  ['stale', 'Stale'],
+  ['stopped', 'Stopped before dispatch']
 ] as const;
 
 function filterHref(status: string): string {
@@ -55,6 +56,7 @@ function nextHref(): string {
 
 function costLabel(cost: ActivityCostDto | null): string {
   if (!cost || cost.kind === 'unavailable') return '—';
+  if (cost.kind === 'not-submitted') return 'Not submitted · 0 cr';
   if (cost.kind === 'charge') return `Charged ${cost.credits} cr`;
   return `Estimated ${cost.credits} cr · ${cost.provenance}`;
 }
@@ -259,6 +261,7 @@ onMount(() => {
                     >
                     {#if activity.kind === 'job-created'}
                       <StatusBadge
+                        localOutcome={activity.job.localOutcome ?? null}
                         localPhase={activity.job.localPhase}
                         remoteStatus={activity.job.remoteStatus}
                         attentionCode={activity.job.attentionCode}
@@ -278,6 +281,15 @@ onMount(() => {
                   <p class="mt-1 truncate text-xs text-muted-foreground">
                     {#if activity.kind === 'attachment-request'}
                       {activity.fileName ?? 'Output'}
+                      ·
+                    {/if}
+                    {#if activity.job.automaticRetry}
+                      <a class="underline" href={`/jobs/${activity.job.automaticRetry.rootId}`}
+                        >Attempt {activity.job.automaticRetry.ordinal + 1} of
+                        {activity.job.automaticRetry.maxRetries + 1}
+                        ·
+                        {activity.job.automaticRetry.state.replaceAll('_', ' ')}</a
+                      >
                       ·
                     {/if}
                     {activity.job.displayName}

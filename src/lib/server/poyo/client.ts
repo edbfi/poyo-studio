@@ -109,8 +109,12 @@ export class PoyoClient {
       ...(request.callbackUrl ? { callback_url: request.callbackUrl } : {}),
       input: request.input
     };
+    let httpStatus: number | undefined;
     const payload = await this.transport.request({
       operation: 'submit',
+      onResponse: (status) => {
+        httpStatus = status;
+      },
       method: 'POST',
       path: '/api/generate/submit',
       body: jsonBody(body),
@@ -119,7 +123,7 @@ export class PoyoClient {
       safeToRetry: false,
       ...requestOptions(options)
     });
-    return parseSubmitResponse(payload);
+    return parseSubmitResponse(payload, httpStatus);
   }
 
   async getStatus(taskId: string, options: PoyoRequestOptions = {}): Promise<PoyoStatusResult> {
@@ -133,14 +137,18 @@ export class PoyoClient {
         operation: 'status'
       });
     }
+    let httpStatus: number | undefined;
     const payload = await this.transport.request({
       operation: 'status',
+      onResponse: (status) => {
+        httpStatus = status;
+      },
       method: 'GET',
       path: `/api/generate/status/${encodeURIComponent(id)}`,
       safeToRetry: true,
       ...requestOptions(options)
     });
-    return parseStatusResponse(payload);
+    return parseStatusResponse(payload, httpStatus);
   }
 
   async upload(source: UploadSource, options: PoyoRequestOptions = {}): Promise<PoyoUploadResult> {

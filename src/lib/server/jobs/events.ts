@@ -8,6 +8,17 @@ export function safeJobDto(job: JobRecord) {
   const attention = safeJobEventAttention(job.attentionCode);
   return {
     id: job.id,
+    automaticRetry: job.automaticRetry,
+    localOutcome: job.localOutcome,
+    localSettlement:
+      job.localOutcome === 'stopped-before-dispatch' && job.settledAt
+        ? {
+            classification: 'local-settlement' as const,
+            source: 'not-submitted' as const,
+            credits: 0 as const,
+            settledAt: job.settledAt
+          }
+        : null,
     entryKey: job.entryKey,
     workflow: job.workflow,
     publicModelId: job.publicModelId,
@@ -24,7 +35,7 @@ export function safeJobDto(job: JobRecord) {
       credits: job.actualCredits,
       remoteStatus: job.remoteStatus,
       remoteStatusRaw: job.remoteStatusRaw,
-      settledAt: job.lastPolledAt
+      settledAt: job.settledAt
     }),
     retryOfJobId: job.retryOfJobId,
     nextPollAt: job.nextPollAt,

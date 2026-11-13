@@ -184,17 +184,17 @@ export class CleanupRepository extends DatabaseRepository {
   listTargets(consequence: CleanupConsequence): CleanupTargetRecord[] {
     const outputs = this.listOutputs();
     const sources = this.database
-      .query<SourceRow, []>(
+      .query<SourceRow, [string]>(
         `SELECT ms.id,ms.media_kind,ms.relative_path,ms.byte_size,ms.created_at,
           EXISTS(SELECT 1 FROM job_inputs ji JOIN job_outputs o ON o.job_id=ji.job_id WHERE ji.managed_source_id=ms.id AND o.favorite=1) favorite,
           EXISTS(SELECT 1 FROM job_inputs ji JOIN job_outputs o ON o.job_id=ji.job_id WHERE ji.managed_source_id=ms.id AND o.pinned=1) pinned,
-          EXISTS(SELECT 1 FROM job_inputs ji JOIN jobs j ON j.id=ji.job_id WHERE ji.managed_source_id=ms.id AND j.local_phase!='complete') active_reference,
+          (EXISTS(SELECT 1 FROM job_inputs ji JOIN jobs j ON j.id=ji.job_id WHERE ji.managed_source_id=ms.id AND j.local_phase!='complete') OR EXISTS(SELECT 1 FROM job_inputs ji JOIN generation_retry_reservations q ON q.parent_id=ji.job_id JOIN generation_retry_roots r ON r.root_id=q.root_id WHERE ji.managed_source_id=ms.id AND ((q.state IN ('pending','refreshing') AND r.state='running') OR (q.lease_token IS NOT NULL AND q.lease_expires_at>?)))) active_reference,
           COALESCE((SELECT json_group_array(job_id) FROM (SELECT DISTINCT ji.job_id FROM job_inputs ji WHERE ji.managed_source_id=ms.id ORDER BY ji.job_id)),'[]') job_ids_json,
           COALESCE((SELECT json_group_array(normalized_name) FROM (SELECT DISTINCT t.normalized_name FROM job_inputs ji JOIN job_tags jt ON jt.job_id=ji.job_id JOIN tags t ON t.id=jt.tag_id WHERE ji.managed_source_id=ms.id ORDER BY t.normalized_name)),'[]') tags_json
          FROM managed_sources ms WHERE ms.availability='available'
          ORDER BY ms.created_at,ms.id`
       )
-      .all()
+      .all(this.now().toISOString())
       .map((row) => {
         const jobIds = parseStrings(row.job_ids_json);
         return {

@@ -6,7 +6,14 @@ import {
   systemClock,
   systemSleeper
 } from './backoff';
-import { malformedResponseError, networkError, normalizePoyoError, PoyoError } from './errors';
+import {
+  malformedResponseError,
+  networkError,
+  normalizedBusinessCode,
+  normalizePoyoError,
+  PoyoError
+} from './errors';
+import { providerDiagnostic } from './provider-diagnostic';
 import {
   type Clock,
   POYO_API_BASE_URL,
@@ -27,6 +34,8 @@ export interface TransportRequest {
   signal?: AbortSignal;
   timeoutMs?: number;
   beforeDispatch?: () => Promise<void> | void;
+  /** Status metadata for parsers; never passes headers or the raw response body. */
+  onResponse?: (httpStatus: number) => void;
 }
 
 export type PoyoFetch = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
@@ -180,6 +189,7 @@ export class PoyoTransport {
 
       const controller = new AbortController();
       let timedOut = false;
+      let observedHttpStatus: number | undefined;
       const timeoutMs = request.timeoutMs ?? this.defaultTimeoutMs;
       const timeout = setTimeout(() => {
         timedOut = true;
@@ -207,6 +217,8 @@ export class PoyoTransport {
           ...(request.body === undefined ? {} : { body: request.body })
         };
         const response = await this.fetchImplementation(`${this.baseUrl}${request.path}`, init);
+        observedHttpStatus = response.status;
+        request.onResponse?.(response.status);
         const payload = await readBoundedJson(response, request.operation, this.maxResponseBytes);
         const retryAfterMs = parseRetryAfter(response.headers.get('retry-after'), this.clock.now());
         if (!response.ok) {
@@ -214,8 +226,8 @@ export class PoyoTransport {
         }
         if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
           const code = (payload as { code?: unknown }).code;
-          if (typeof code === 'number' && code !== 200) {
-            throw normalizePoyoError(request.operation, code, payload, retryAfterMs);
+          if (code !== undefined && normalizedBusinessCode(code) !== 200) {
+            throw normalizePoyoError(request.operation, response.status, payload, retryAfterMs);
           }
         }
         await safelyLog(() =>
@@ -227,8 +239,16 @@ export class PoyoTransport {
         );
         return payload;
       } catch (cause) {
-        const error =
+        let error =
           cause instanceof PoyoError ? cause : networkError(request.operation, cause, timedOut);
+        if (observedHttpStatus !== undefined && !error.providerDiagnostic)
+          error = new PoyoError({
+            ...error.toSafeDto(),
+            retryAfterMs: error.retryAfterMs,
+            cause: error.cause ?? error,
+            httpStatus: observedHttpStatus,
+            providerDiagnostic: providerDiagnostic(null, observedHttpStatus)
+          });
         await safelyLog(() =>
           this.logger.requestFailed(
             { ...baseMetadata, elapsedMs: Math.max(0, this.clock.now() - startedAt) },

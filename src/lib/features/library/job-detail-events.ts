@@ -9,7 +9,8 @@ const imageNavigationEventTypes = new Set([
 export function shouldRefreshJobDetail(
   data: string,
   currentJobId: string,
-  modality: 'image' | 'video'
+  modality: 'image' | 'video',
+  currentRootId: string | null = null
 ): boolean {
   let event: unknown;
   try {
@@ -22,5 +23,15 @@ export function shouldRefreshJobDetail(
   const { jobId, eventType } = event as Record<string, unknown>;
   if (typeof jobId !== 'string' || typeof eventType !== 'string') return false;
   if (jobId === currentJobId) return true;
+  const payload = (event as Record<string, unknown>).payload;
+  if (currentRootId && payload && typeof payload === 'object') {
+    const chain = (payload as Record<string, unknown>).automaticRetry;
+    if (
+      chain &&
+      typeof chain === 'object' &&
+      (chain as Record<string, unknown>).rootId === currentRootId
+    )
+      return true;
+  }
   return modality === 'image' && imageNavigationEventTypes.has(eventType);
 }

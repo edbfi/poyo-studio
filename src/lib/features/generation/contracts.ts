@@ -45,6 +45,7 @@ export interface StudioRoleInput {
 }
 
 export interface StudioLoadData {
+  generationRetries?: import('./retries').GenerationRetryPolicy;
   modality: 'image' | 'video';
   entries: StudioEntry[];
   preferences: StudioModelPreference[];
@@ -77,6 +78,9 @@ export interface StudioOutputDto {
 }
 
 export interface StudioJobDto {
+  automaticRetry?: import('./retries').AutomaticRetry | null;
+  localOutcome?: import('./retries').LocalOutcome | null;
+  localSettlement?: import('../pricing/contracts').LocalSettlement | null;
   id: string;
   workflow: string;
   publicModelId: string;

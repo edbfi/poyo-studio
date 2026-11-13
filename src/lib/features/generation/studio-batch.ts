@@ -227,9 +227,19 @@ function isRequestInput(value: unknown): value is StudioCreateJobRequest['inputs
   );
 }
 
-function isJob(value: unknown): value is StudioJobDto {
+export function isJob(value: unknown): value is StudioJobDto {
   if (!isRecord(value)) return false;
   return (
+    (value.automaticRetry === undefined ||
+      value.automaticRetry === null ||
+      isAutomaticRetry(value.automaticRetry)) &&
+    (value.localOutcome === undefined ||
+      value.localOutcome === null ||
+      value.localOutcome === 'generation' ||
+      value.localOutcome === 'stopped-before-dispatch') &&
+    (value.localSettlement === undefined ||
+      value.localSettlement === null ||
+      isLocalSettlement(value.localSettlement)) &&
     boundedString(value.id, 256) &&
     boundedString(value.workflow, 128) &&
     boundedString(value.publicModelId, 256) &&
@@ -416,7 +426,7 @@ export function summarizeSettledBatchCharges(
   const actions = new Set<string>();
   let credits = 0;
   for (const item of items) {
-    const charge = item.job?.taskCharge;
+    const charge = item.job?.taskCharge ?? item.job?.localSettlement;
     const actionId = item.request.actionId;
     if (!charge || actions.has(actionId)) continue;
     actions.add(actionId);
@@ -430,7 +440,7 @@ export function summarizeSettledBatchCharges(
 
 export function batchStateForJob(job: StudioJobDto): StudioBatchItemState {
   if (job.remoteStatus === 'failed') return 'failed';
-  if (job.localPhase === 'complete') return 'complete';
+  if (job.localPhase === 'complete') return job.remoteStatus === 'finished' ? 'complete' : 'failed';
   if (job.localPhase === 'downloading') return 'downloading';
   if (job.localPhase === 'requires_attention') return 'failed';
   if (job.remoteStatus === 'running') return 'running';
@@ -658,4 +668,43 @@ export function clearStudioBatch(modality: 'image' | 'video'): void {
   } catch {
     // Browser storage is best-effort. Durable jobs remain in the server-side repository.
   }
+}
+
+function isLocalSettlement(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    Object.keys(value).sort().join(',') === 'classification,credits,settledAt,source' &&
+    value.classification === 'local-settlement' &&
+    value.source === 'not-submitted' &&
+    value.credits === 0 &&
+    isIsoTimestamp(value.settledAt)
+  );
+}
+function isAutomaticRetry(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return (
+    Object.keys(value).sort().join(',') ===
+      'chargedCredits,maxRetries,nextRetryAt,ordinal,parentId,reason,retriesUsed,rootId,state,unknownCharges' &&
+    boundedString(value.rootId, 256) &&
+    nullableString(value.parentId, 256) &&
+    Number.isInteger(value.maxRetries) &&
+    Number(value.maxRetries) >= 1 &&
+    Number(value.maxRetries) <= 5 &&
+    Number.isInteger(value.ordinal) &&
+    Number(value.ordinal) >= 0 &&
+    Number(value.ordinal) <= Number(value.maxRetries) &&
+    Number.isInteger(value.retriesUsed) &&
+    Number(value.retriesUsed) >= Number(value.ordinal) &&
+    Number(value.retriesUsed) <= Number(value.maxRetries) &&
+    ['running', 'stopped', 'blocked', 'exhausted', 'succeeded', 'needs_attention'].includes(
+      String(value.state)
+    ) &&
+    nullableString(value.reason, 128) &&
+    (value.nextRetryAt === null || isIsoTimestamp(value.nextRetryAt)) &&
+    typeof value.chargedCredits === 'number' &&
+    Number.isFinite(value.chargedCredits) &&
+    value.chargedCredits >= 0 &&
+    Number.isInteger(value.unknownCharges) &&
+    Number(value.unknownCharges) >= 0
+  );
 }

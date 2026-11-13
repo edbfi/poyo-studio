@@ -1,3 +1,6 @@
+import type { JobProviderDiagnostic } from '../diagnostics/provider-diagnostic';
+import type { AutomaticRetry, LocalOutcome } from '../generation/retries';
+
 const exactIsoUtcInstant = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d{3})?Z$/;
 
 export function isExactIsoUtcInstant(value: unknown): value is string {
@@ -25,7 +28,8 @@ export type JobFilterStatus =
   | 'completed'
   | 'failed'
   | 'attention'
-  | 'stale';
+  | 'stale'
+  | 'stopped';
 
 export type LibraryStatus = 'all' | 'available' | 'attention' | 'remote-only' | 'deleted';
 
@@ -57,6 +61,8 @@ export interface SafeMediaSummary {
 }
 
 export interface JobListItemDto {
+  automaticRetry?: AutomaticRetry | null;
+  localOutcome?: LocalOutcome | null;
   id: string;
   entryKey: string | null;
   displayName: string;
@@ -84,6 +90,7 @@ export interface JobListItemDto {
   representative: SafeMediaSummary | null;
 }
 export type ActivityCostDto =
+  | { kind: 'not-submitted'; credits: 0; source: 'not-submitted'; settledAt: string }
   | {
       kind: 'charge';
       credits: number;
@@ -214,6 +221,7 @@ export interface JobOutputDto extends SafeMediaSummary {
 }
 
 export interface JobHistoryDto {
+  providerDiagnostic?: JobProviderDiagnostic;
   eventId: number;
   eventType: string;
   localPhase: string;
@@ -243,7 +251,16 @@ export interface SafeConfigurationFieldDto {
   value: string;
 }
 
+export interface RetryAttemptSummaryDto {
+  id: string;
+  ordinal: number;
+  remoteStatus: string;
+  localPhase: string;
+  localOutcome: import('../generation/retries').LocalOutcome | null;
+  chargedCredits: number | null;
+}
 export interface JobDetailDto extends JobListItemDto {
+  retryAttempts?: RetryAttemptSummaryDto[];
   prompt: string | null;
   poyoTaskLinked: boolean;
   submissionState: string | null;

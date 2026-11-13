@@ -1,4 +1,9 @@
-import { malformedResponseError } from './errors';
+import { malformedResponseError, PoyoError } from './errors';
+import {
+  DOCUMENTED_POLICY_REJECTION_MESSAGE,
+  providerDiagnostic,
+  safeProviderToken
+} from './provider-diagnostic';
 import type {
   PoyoBalanceResult,
   PoyoOperation,
@@ -70,12 +75,45 @@ export function normalizeTaskStatus(status: string): PoyoTaskStatus {
   return 'unknown';
 }
 
-export function parseSubmitResponse(payload: unknown): PoyoSubmitResult {
+function withProviderDiagnostic<T>(
+  payload: unknown,
+  httpStatus: number | undefined,
+  parse: () => T
+): T {
+  try {
+    return parse();
+  } catch (error) {
+    if (!(error instanceof PoyoError)) throw error;
+    throw new PoyoError({
+      ...error.toSafeDto(),
+      cause: error.cause ?? error,
+      retryAfterMs: error.retryAfterMs,
+      httpStatus: httpStatus ?? error.httpStatus,
+      providerDiagnostic: providerDiagnostic(payload, httpStatus)
+    });
+  }
+}
+
+export function parseSubmitResponse(payload: unknown, httpStatus?: number): PoyoSubmitResult {
+  return withProviderDiagnostic(payload, httpStatus, () => parseSubmitData(payload, httpStatus));
+}
+
+function parseSubmitData(payload: unknown, httpStatus?: number): PoyoSubmitResult {
   const data = wrappedData(payload, 'submit');
   const statusRaw = requiredString(data.status, 'submit', 'status');
+  const terminal = normalizeTaskStatus(statusRaw) === 'failed' || statusRaw === 'finished';
+  const terminalDetail =
+    terminal && Object.hasOwn(data, 'files')
+      ? parseStatusData(
+          { data: { ...data, credits_amount: data.credits_amount ?? null } },
+          httpStatus
+        )
+      : undefined;
   return {
+    ...(terminalDetail ? { terminalDetail } : {}),
+    providerDiagnostic: providerDiagnostic(payload, httpStatus),
     taskId: requiredString(data.task_id, 'submit', 'task_id'),
-    statusRaw,
+    statusRaw: safeProviderToken(statusRaw) ?? 'unknown',
     status: normalizeTaskStatus(statusRaw),
     createdTime: requiredString(data.created_time, 'submit', 'created_time')
   };
@@ -103,8 +141,14 @@ function parseOutputFile(value: unknown): PoyoOutputFile {
   };
 }
 
-export function parseStatusResponse(payload: unknown): PoyoStatusResult {
+export function parseStatusResponse(payload: unknown, httpStatus?: number): PoyoStatusResult {
+  return withProviderDiagnostic(payload, httpStatus, () => parseStatusData(payload, httpStatus));
+}
+
+function parseStatusData(payload: unknown, httpStatus?: number): PoyoStatusResult {
+  const root = record(payload, 'status', 'JSON');
   const data = wrappedData(payload, 'status');
+  const errorMessage = optionalString(data.error_message, 'status', 'error_message');
   const statusRaw = requiredString(data.status, 'status', 'status');
   const progress = data.progress;
   if (
@@ -126,14 +170,23 @@ export function parseStatusResponse(payload: unknown): PoyoStatusResult {
     throw malformedResponseError('status', 'Poyo returned a negative credits_amount field.');
   }
   return {
+    filesExplicit: Array.isArray(data.files),
     taskId: requiredString(data.task_id, 'status', 'task_id'),
-    statusRaw,
+    providerDiagnostic: providerDiagnostic(payload, httpStatus),
+    statusRaw: safeProviderToken(statusRaw) ?? 'unknown',
     status: normalizeTaskStatus(statusRaw),
     creditsAmount,
     files: files.map(parseOutputFile),
     createdTime: requiredString(data.created_time, 'status', 'created_time'),
     progress: typeof progress === 'number' ? progress : null,
-    errorMessage: optionalString(data.error_message, 'status', 'error_message')
+    // Retry evidence comes only from the documented success envelope's task field.
+    // Diagnostic error.message/detail fallbacks must never become rejection proof.
+    errorMessage:
+      root.code === 200 &&
+      root.data === data &&
+      errorMessage === DOCUMENTED_POLICY_REJECTION_MESSAGE
+        ? errorMessage
+        : null
   };
 }
 

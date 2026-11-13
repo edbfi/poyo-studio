@@ -14,7 +14,13 @@ export interface StudioJobEventUpdate {
   observedAt: string;
   attentionCode?: string | null;
   ipGuardReason?: 'match' | 'unavailable' | 'misconfigured' | null;
-  payload?: { taskCharge?: TaskCharge } | null;
+  payload?: {
+    taskCharge?: TaskCharge;
+    child?: StudioJobDto;
+    automaticRetry?: StudioJobDto['automaticRetry'];
+    localOutcome?: StudioJobDto['localOutcome'];
+    localSettlement?: StudioJobDto['localSettlement'];
+  } | null;
   outstandingProjection?: OutstandingSpendProjection;
 }
 
@@ -66,11 +72,52 @@ export function applyStudioJobEvent(
   jobs: StudioSessionJobs,
   update: StudioJobEventUpdate
 ): StudioSessionJobs {
+  const chain = update.payload?.automaticRetry;
+  if (chain) {
+    jobs = Object.fromEntries(
+      Object.entries(jobs).map(([id, job]) =>
+        job.automaticRetry?.rootId === chain.rootId
+          ? [
+              id,
+              {
+                ...job,
+                automaticRetry: {
+                  ...chain,
+                  ordinal: job.automaticRetry.ordinal,
+                  parentId: job.automaticRetry.parentId
+                },
+                updatedAt:
+                  timestamp(update.observedAt) > timestamp(job.updatedAt)
+                    ? update.observedAt
+                    : job.updatedAt
+              }
+            ]
+          : [id, job]
+      )
+    );
+  }
+  const child = update.payload?.child;
+  if (
+    child?.automaticRetry &&
+    Object.values(jobs).some(
+      (job) =>
+        job.id === child.automaticRetry?.rootId ||
+        job.automaticRetry?.rootId === child.automaticRetry?.rootId
+    )
+  )
+    jobs = upsertStudioSessionJob(jobs, child);
   const current = jobs[update.jobId];
   if (!current) return jobs;
   const taskCharge = update.payload?.taskCharge;
   return upsertStudioSessionJob(jobs, {
     ...current,
+    ...(update.payload && Object.hasOwn(update.payload, 'automaticRetry')
+      ? { automaticRetry: update.payload.automaticRetry ?? null }
+      : {}),
+    ...(update.payload && Object.hasOwn(update.payload, 'localOutcome')
+      ? { localOutcome: update.payload.localOutcome ?? null }
+      : {}),
+    ...(update.payload?.localSettlement ? { localSettlement: update.payload.localSettlement } : {}),
     localPhase: update.localPhase,
     remoteStatus: update.remoteStatus,
     failureDomain: update.failureDomain,
@@ -79,7 +126,7 @@ export function applyStudioJobEvent(
     ...(taskCharge ? { actualCredits: taskCharge.credits, taskCharge } : {}),
     updatedAt: update.observedAt,
     completedAt:
-      update.localPhase === 'complete' && update.remoteStatus !== 'failed'
+      update.localPhase === 'complete' && update.remoteStatus === 'finished'
         ? (current.completedAt ?? update.observedAt)
         : current.completedAt
   });
@@ -91,7 +138,18 @@ export function mergeKnownStudioSnapshot(
 ): StudioSessionJobs {
   let next = jobs;
   for (const job of snapshot) {
-    if (!jobs[job.id]) continue;
+    if (
+      !jobs[job.id] &&
+      !(
+        job.automaticRetry &&
+        Object.values(jobs).some(
+          (known) =>
+            known.id === job.automaticRetry?.rootId ||
+            known.automaticRetry?.rootId === job.automaticRetry?.rootId
+        )
+      )
+    )
+      continue;
     next = upsertStudioSessionJob(next, job);
   }
   return next;
@@ -105,7 +163,7 @@ export function compareStudioJobRecency(left: StudioJobDto, right: StudioJobDto)
 
 export function successfulStudioJobsByRecency(jobs: StudioSessionJobs): StudioJobDto[] {
   return Object.values(jobs)
-    .filter((job) => job.localPhase === 'complete' && job.remoteStatus !== 'failed')
+    .filter((job) => job.localPhase === 'complete' && job.remoteStatus === 'finished')
     .toSorted((left, right) => compareStudioJobRecency(right, left));
 }
 
@@ -115,8 +173,47 @@ export function latestSuccessfulStudioJob(jobs: StudioSessionJobs): StudioJobDto
 
 export function nextStudioResultCandidate(
   jobs: StudioSessionJobs,
-  states: StudioResultCandidateStates
+  states: StudioResultCandidateStates,
+  mutedRoots: Record<string, boolean> = {}
 ): StudioJobDto | null {
   if (Object.values(states).includes('loading')) return null;
-  return successfulStudioJobsByRecency(jobs).find((job) => states[job.id] === undefined) ?? null;
+  return (
+    successfulStudioJobsByRecency(jobs).find(
+      (job) => !mutedRoots[job.automaticRetry?.rootId ?? job.id] && states[job.id] === undefined
+    ) ?? null
+  );
+}
+
+/** Clear dismissed history while keeping paid work and retry-chain anchors tracked. */
+export function pruneTerminalStudioJobs(jobs: StudioSessionJobs): StudioSessionJobs {
+  return Object.fromEntries(
+    Object.entries(jobs).filter(
+      ([, job]) => !isTerminal(job) || job.automaticRetry?.state === 'running'
+    )
+  );
+}
+
+export function restoreStudioSessionSelection(
+  jobs: StudioSessionJobs,
+  explicitContext: boolean,
+  current: StudioJobDto | null
+): {
+  jobs: StudioSessionJobs;
+  activeJob: StudioJobDto | null;
+  mutedRoots: Record<string, boolean>;
+} {
+  const restored = explicitContext ? pruneTerminalStudioJobs(jobs) : jobs;
+  return {
+    jobs: restored,
+    mutedRoots: explicitContext
+      ? Object.fromEntries(
+          Object.values(restored).map((job) => [job.automaticRetry?.rootId ?? job.id, true])
+        )
+      : {},
+    activeJob: explicitContext
+      ? current
+      : (Object.values(restored)
+          .filter((job) => !isTerminal(job))
+          .toSorted((a, b) => compareStudioJobRecency(b, a))[0] ?? current)
+  };
 }
