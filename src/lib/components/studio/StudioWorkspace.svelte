@@ -819,6 +819,7 @@ function clearTerminalSessionResults(): void {
 }
 
 function activateSessionJob(job: StudioJobDto): StudioJobDto {
+  clearTerminalSessionResults();
   const root = job.automaticRetry?.rootId ?? job.id;
   const next = { ...mutedSessionRoots };
   delete next[root];
@@ -1140,7 +1141,6 @@ async function submit(): Promise<void> {
     return;
   }
   submitting = true;
-  clearTerminalSessionResults();
   const validated = await validateSubmissionSnapshot(snapshot, revision);
   if (!validated) {
     submitting = false;

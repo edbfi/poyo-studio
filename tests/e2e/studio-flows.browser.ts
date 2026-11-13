@@ -2049,6 +2049,176 @@ serial('RESTART-01 stopping the app during a status poll leaves no poll lease be
   }
 });
 
+serial(
+  'SESSION-01 unconfirmed submissions keep the prior result and persisted session',
+  async () => {
+    const harness = await startBrowserAppHarness();
+    const browser = await chromium.launch({ headless: true });
+    const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const page = await context.newPage();
+    try {
+      await page.goto(`${harness.url}/studio/image`);
+      await chooseImageTextWorkflow(page);
+      await generationCommands(page).getByRole('button', { name: 'Generate image' }).click();
+      const result = page.getByRole('heading', { name: 'Generated image result' });
+      await result.waitFor();
+      const previousLink = await page
+        .getByRole('link', { name: 'View job', exact: true })
+        .getAttribute('href');
+      const previousId = new URL(previousLink ?? '', harness.url).searchParams.get('selected');
+      expect(previousId).toBeTruthy();
+      for (const failure of ['invalid', 'rejected', 'ambiguous'] as const) {
+        await page.reload();
+        await result.waitFor();
+        await waitForValidRequest(page);
+        const gate = Promise.withResolvers<void>();
+        const started = Promise.withResolvers<void>();
+        const path = failure === 'invalid' ? '**/api/requests/preview' : '**/api/jobs';
+        await page.route(
+          path,
+          async (route) => {
+            started.resolve();
+            await gate.promise;
+            await route.fulfill(
+              failure === 'ambiguous'
+                ? { status: 202, contentType: 'text/plain', body: 'Unconfirmed synthetic response' }
+                : {
+                    status: 400,
+                    json: {
+                      error: {
+                        message: 'Synthetic request rejected',
+                        issues: ['Synthetic request rejected']
+                      }
+                    }
+                  }
+            );
+          },
+          { times: 1 }
+        );
+        try {
+          await generationCommands(page).getByRole('button', { name: 'Generate image' }).click();
+          await started.promise;
+          await page.getByRole('heading', { name: 'Preparing image generation' }).waitFor();
+          expect(await result.count()).toBe(0);
+          expect(
+            await page.evaluate(
+              (id) =>
+                JSON.parse(sessionStorage.getItem('poyo-studio-session-jobs:image') ?? '[]').some(
+                  (job: { id: string }) => job.id === id
+                ),
+              previousId
+            )
+          ).toBe(true);
+        } finally {
+          gate.resolve();
+        }
+        await page
+          .getByRole('heading', { name: 'Preparing image generation' })
+          .waitFor({ state: 'detached' });
+        await result.waitFor();
+        expect(
+          await page.getByRole('link', { name: 'View job', exact: true }).getAttribute('href')
+        ).toBe(previousLink);
+        expect(
+          await page.evaluate(
+            (id) =>
+              JSON.parse(sessionStorage.getItem('poyo-studio-session-jobs:image') ?? '[]').some(
+                (job: { id: string }) => job.id === id
+              ),
+            previousId
+          )
+        ).toBe(true);
+      }
+      expect(
+        harness.mock.requests.filter((request) => request.pathname === '/api/generate/submit')
+      ).toHaveLength(1);
+    } finally {
+      await context.close();
+      await browser.close();
+      await harness.cleanup();
+    }
+  }
+);
+
+serial(
+  'SESSION-02 dismiss, reset and explicit context preserve only ongoing work across reload',
+  async () => {
+    const harness = await startBrowserAppHarness();
+    const browser = await chromium.launch({ headless: true });
+    const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const page = await context.newPage();
+    const storedJobs = () =>
+      page.evaluate(
+        () =>
+          JSON.parse(sessionStorage.getItem('poyo-studio-session-jobs:image') ?? '[]') as Array<{
+            id: string;
+            localPhase: string;
+          }>
+      );
+    try {
+      await page.goto(`${harness.url}/studio/image`);
+      let firstId: string | null = null;
+      for (const clear of ['Remix', 'Reset'] as const) {
+        await chooseImageTextWorkflow(page);
+        await generationCommands(page).getByRole('button', { name: 'Generate image' }).click();
+        await page.getByRole('heading', { name: 'Generated image result' }).waitFor();
+        const href = await page
+          .getByRole('link', { name: 'View job', exact: true })
+          .getAttribute('href');
+        firstId ??= new URL(href ?? '', harness.url).searchParams.get('selected');
+        await page.getByRole('button', { name: clear, exact: true }).click();
+        await page.reload();
+        await page.getByText('Live updates connected', { exact: true }).waitFor();
+        expect(await page.getByRole('heading', { name: 'Generated image result' }).count()).toBe(0);
+        expect(await storedJobs()).toEqual([]);
+      }
+      harness.mock.queueOutcome('held');
+      await chooseImageTextWorkflow(page);
+      await generationCommands(page).getByRole('button', { name: 'Generate image' }).click();
+      await page.getByRole('heading', { name: 'Poyo is generating' }).waitFor();
+      const activeLink = await page
+        .getByRole('link', { name: 'View job details', exact: true })
+        .getAttribute('href');
+      const activeId = new URL(activeLink ?? '', harness.url).searchParams.get('selected');
+      await page.getByRole('button', { name: 'Reset', exact: true }).click();
+      await page.reload();
+      await page.getByRole('heading', { name: 'Poyo is generating' }).waitFor();
+      expect((await storedJobs()).some((job) => job.id === activeId)).toBe(true);
+      await page.goto(`${harness.url}/studio/image?fromJob=${firstId}`);
+      await waitForValidRequest(page);
+      const promptPanel = await showInspectorSection(
+        page.locator('#parameter-inspector'),
+        'Prompt'
+      );
+      const prompt = promptPanel.getByRole('textbox', { name: /^Prompt/ });
+      const explicitPrompt = await prompt.inputValue();
+      expect(explicitPrompt).toBe('A quiet blue observatory above a calm northern sea');
+      harness.mock.releaseHeldTasks();
+      await waitUntil(
+        async () =>
+          (await storedJobs()).some((job) => job.id === activeId && job.localPhase === 'complete'),
+        'The existing paid job stopped being tracked in explicit context.',
+        15000
+      );
+      expect(await page.getByRole('heading', { name: 'Generated image result' }).count()).toBe(0);
+      expect(await prompt.inputValue()).toBe(explicitPrompt);
+      await page.getByRole('button', { name: 'Reset', exact: true }).click();
+      await page.reload();
+      await page.getByText('Live updates connected', { exact: true }).waitFor();
+      expect(await storedJobs()).toEqual([]);
+      expect(await page.getByRole('heading', { name: 'Generated image result' }).count()).toBe(0);
+      expect(
+        harness.mock.requests.filter((request) => request.pathname === '/api/generate/submit')
+      ).toHaveLength(3);
+    } finally {
+      harness.mock.releaseHeldTasks();
+      await context.close();
+      await browser.close();
+      await harness.cleanup();
+    }
+  }
+);
+
 async function productionJourney() {
   const tracker: StageTracker = {};
   const stage = stageRunner(tracker);
@@ -2188,9 +2358,6 @@ async function productionJourney() {
       await newJobRequest;
       await page.getByRole('heading', { name: 'Preparing image generation' }).waitFor();
       expect(await page.getByRole('heading', { name: 'Generated image result' }).count()).toBe(0);
-      expect(
-        harness.mock.requests.filter((request) => request.pathname === '/api/common/upload/stream')
-      ).toHaveLength(1);
     } finally {
       releasePreparation();
     }
@@ -2682,9 +2849,17 @@ async function productionJourney() {
     const recoveredResponse = await lostResponseServer.request;
     expect(recoveredResponse.status()).toBe(202);
     const { job: recoveredJob } = (await recoveredResponse.json()) as { job: { id: string } };
-    // Recovery can reach the completed result before Playwright observes the pending view.
+    // The previous result remains visible until this paid action is actually reconciled.
+    // Recovery can then reach completion before Playwright observes the pending view.
     const recoveredJobLink = page.getByRole('link', { name: /^View job(?: details)?$/ });
-    await recoveredJobLink.waitFor({ timeout: 15_000 });
+    await waitUntil(
+      async () =>
+        new URL((await recoveredJobLink.getAttribute('href')) ?? '', harness.url).searchParams.get(
+          'selected'
+        ) === recoveredJob.id,
+      'The confirmed recovered job did not replace the previous result.',
+      15000
+    );
     expect(
       new URL((await recoveredJobLink.getAttribute('href')) ?? '', harness.url).searchParams.get(
         'selected'

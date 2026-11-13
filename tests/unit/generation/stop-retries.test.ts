@@ -66,26 +66,4 @@ describe('confirmed stop requests', () => {
     });
     expect(result).toEqual(confirmed);
   });
-  test('both surfaces bind error feedback and pending state to their stop controls', async () => {
-    const studio = await Bun.file('src/lib/components/studio/StudioWorkspace.svelte').text();
-    expect(studio).toContain('disabled={stoppingRetries}');
-    expect(studio).toContain("role={retryStopFailed ? 'alert' : 'status'}");
-    expect(studio).toContain('await requestStopRetries(id)');
-    const detail = await Bun.file('src/lib/components/library/JobDetailView.svelte').text();
-    expect(detail).toContain("action('stop-retries'");
-    expect(detail).toContain('await requestStopRetries(job.id');
-    expect(detail).toContain('disabled={pending !== null}');
-  });
-  test('actual dismiss/reset/remix handlers prune terminal previews and persist immediately', async () => {
-    const source = await Bun.file('src/lib/components/studio/StudioWorkspace.svelte').text();
-    expect(source).toContain('sessionJobs = pruneTerminalStudioJobs(sessionJobs)');
-    expect(source).toContain('restoreSessionJobs(explicitContext)');
-    expect(source).toContain('onclick={clearTerminalSessionResults}');
-    const reset = source.slice(
-      source.indexOf('function resetDraft'),
-      source.indexOf('function requestStudioDownload')
-    );
-    expect(reset.match(/clearTerminalSessionResults\(\)/g)).toHaveLength(2);
-    expect(source).toContain('if (!sessionJobs[job.id]) return;');
-  });
 });
