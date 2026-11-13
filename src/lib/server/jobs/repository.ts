@@ -1544,9 +1544,9 @@ export class JobRepository extends DatabaseRepository {
           `SELECT COUNT(*) total,SUM(CASE WHEN download_state='verified' THEN 1 ELSE 0 END) verified FROM job_outputs WHERE job_id=?`
         )
         .get(jobId) ?? { total: 0, verified: 0 };
-      if (counts.total !== expected.count)
+      if (counts.total < expected.minimumCount || counts.total > expected.count)
         return this.markMalformedOutputSet(jobId, 'stored_output_count_mismatch', counts.total);
-      return counts.verified === expected.count
+      return counts.verified === counts.total
         ? this.transition(jobId, 'complete', 'none', null, 'job.complete')
         : job;
     });
