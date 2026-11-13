@@ -313,8 +313,7 @@ export const LIVE_VIDEO_REGISTRY_ENTRIES: readonly VideoRegistryEntry[] = [
         'mkv_h264',
         'mkv_vp9',
         'gif'
-      ],
-      default: 'webm_vp9'
+      ]
     }
   ]),
   video('poyo-ai/video-upscaler', 'Video Upscaler', [

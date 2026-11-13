@@ -14780,8 +14780,7 @@
               "mkv_h264",
               "mkv_vp9",
               "gif"
-            ],
-            "default": "webm_vp9"
+            ]
           }
         ],
         "inputRoles": [
@@ -14821,7 +14820,7 @@
           "values": {
             "preserveAudio": true,
             "backgroundColor": "Transparent",
-            "outputContainerAndCodec": "webm_vp9",
+            "outputContainerAndCodec": "mp4_h265",
             "videoUrl": "https://assets.example/source-video-0.mp4"
           },
           "request": {
@@ -14829,7 +14828,7 @@
             "input": {
               "preserve_audio": true,
               "background_color": "Transparent",
-              "output_container_and_codec": "webm_vp9",
+              "output_container_and_codec": "mp4_h265",
               "video_url": "https://assets.example/source-video-0.mp4",
               "enable_safety_checker": false
             }
@@ -14859,7 +14858,7 @@
           "values": {
             "preserveAudio": true,
             "backgroundColor": "Transparent",
-            "outputContainerAndCodec": "webm_vp9"
+            "outputContainerAndCodec": "mp4_h265"
           },
           "issueIncludes": "source-video"
         }
