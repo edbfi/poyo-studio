@@ -14,6 +14,37 @@ const unexpectedManagedSourceRefresh = async (): Promise<{ id: string; url: stri
 };
 
 describe('durable job repository invariants', () => {
+  test('rejects nonserializable caller payloads before cloning or creating a paid intent', async () => {
+    const fixture = await createJobFixture();
+    cleanups.push(fixture.cleanup);
+    for (const value of [undefined, () => 1, Symbol('invalid')]) {
+      for (const input of [{ seed: value }, { nested: { value } }, { nested: [value] }]) {
+        expect(() =>
+          fixture.repository.create({
+            actionId: crypto.randomUUID(),
+            workflow: 'text-to-image',
+            publicModelId: 'provider/model',
+            guidedRequest: {},
+            normalizedPayload: { model: 'provider/model', input }
+          })
+        ).toThrow('not JSON serializable');
+      }
+    }
+    expect(fixture.repository.list()).toHaveLength(0);
+    expect(
+      fixture.database
+        .query<{ count: number }, []>('SELECT COUNT(*) count FROM submission_intents')
+        .get()?.count
+    ).toBe(0);
+    const omitted = fixture.repository.create({
+      actionId: crypto.randomUUID(),
+      workflow: 'text-to-image',
+      publicModelId: 'provider/model',
+      guidedRequest: {},
+      normalizedPayload: { model: 'provider/model', input: {} }
+    });
+    expect(Object.hasOwn(omitted.normalizedPayload.input, 'seed')).toBe(false);
+  });
   test('JOB-01 keeps local, remote, and failure axes orthogonal with atomic transitions', async () => {
     const fixture = await createJobFixture();
     cleanups.push(fixture.cleanup);

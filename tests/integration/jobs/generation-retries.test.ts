@@ -23,8 +23,10 @@ import { runtimeOperationsSettings } from '../../../src/lib/server/jobs/runtime-
 import { studioOutputMetadata } from '../../../src/lib/server/jobs/studio-output-metadata';
 import { LibraryRepository } from '../../../src/lib/server/library/repository';
 import { openDatabase } from '../../../src/lib/server/platform/database';
+import { PoyoClient } from '../../../src/lib/server/poyo/client';
 import { normalizePoyoError, PoyoError } from '../../../src/lib/server/poyo/errors';
 import { parseStatusResponse, parseSubmitResponse } from '../../../src/lib/server/poyo/parsers';
+import { PoyoTransport } from '../../../src/lib/server/poyo/transport';
 import { seedImageRegistry } from '../../../src/lib/server/registry/repository';
 import {
   DEFAULT_OPERATIONS_SETTINGS,
@@ -146,6 +148,92 @@ function managed(f: Fixture) {
 }
 
 describe('exact documented authoritative polled rejection retries', () => {
+  test('unknown numeric server business errors remain ambiguous and never replay a paid submit', async () => {
+    for (const code of [504, 599, '504']) {
+      const f = await setup();
+      const root = create(f);
+      let submits = 0;
+      const client = new PoyoClient(
+        new PoyoTransport({
+          apiKey: 'test-key',
+          fetch: async () => {
+            submits++;
+            return Response.json({ code });
+          }
+        }),
+        { now: () => f.now().getTime() }
+      );
+      const coordinator = new JobCoordinator({
+        repository: f.repository,
+        poyo: {
+          submit: client.submit.bind(client),
+          getStatus: async () => {
+            throw new Error('No task was acknowledged');
+          },
+          getBalance: async () => ({
+            email: 'test@example.test',
+            creditsAmount: 100,
+            fetchedAt: f.now().toISOString()
+          })
+        },
+        now: f.now,
+        automaticDownloads: false,
+        downloader: new OutputDownloader({ repository: f.repository, paths: f.paths })
+      });
+      await coordinator.recoverOnce();
+      expect(f.repository.get(root.id)).toMatchObject({
+        localPhase: 'requires_attention',
+        attentionCode: 'submission_unknown',
+        poyoTaskId: null,
+        automaticRetry: { state: 'needs_attention' }
+      });
+      expect(
+        f.database
+          .query<{ state: string }, [string]>('SELECT state FROM submission_intents WHERE job_id=?')
+          .get(root.id)?.state
+      ).toBe('unknown');
+      f.advance(60001);
+      await coordinator.recoverOnce();
+      await coordinator.recoverOnce();
+      expect(submits).toBe(1);
+      expect(f.repository.claimAutomaticRetry('no-replay', 1000)).toBeNull();
+      expect(
+        f.repository.eventsAfter(0).find((event) => event.eventType === 'submission.unknown')
+          ?.payload?.providerDiagnostic
+      ).toMatchObject({ responseCode: null, responseCodePresent: true, httpStatus: 200 });
+    }
+  });
+
+  test('unchanged polls preserve the job row timestamp while projecting newer chain changes', async () => {
+    const f = await setup();
+    const root = create(f);
+    accept(f, root.id);
+    const running = {
+      ...rejection(root.id),
+      statusRaw: 'running',
+      status: 'running' as const,
+      creditsAmount: null,
+      progress: 0,
+      errorMessage: null
+    };
+    const rawTime = () =>
+      f.database
+        .query<{ updated_at: string }, [string]>('SELECT updated_at FROM jobs WHERE id=?')
+        .get(root.id)?.updated_at;
+    f.advance();
+    f.repository.applyStatus(root.id, running, 1000);
+    const original = rawTime();
+    f.advance();
+    f.repository.stopAutomaticRetries(root.id);
+    const rootTime = f.now().toISOString();
+    expect(rawTime()).toBe(original);
+    expect(f.repository.get(root.id)?.updatedAt).toBe(rootTime);
+    f.advance();
+    const repeated = f.repository.applyStatus(root.id, running, 1000);
+    expect(rawTime()).toBe(original);
+    expect(repeated.updatedAt).toBe(rootTime);
+    expect(repeated.lastPolledAt).toBe(f.now().toISOString());
+  });
   test('defaults off; default three means four total paid attempts; custom limits are exact', async () => {
     for (const [enabled, limit] of [
       [false, 3],
@@ -622,17 +710,26 @@ describe('exact documented authoritative polled rejection retries', () => {
       expect(() =>
         normalizeOperationsSettings({ ...old, generationRetries: { enabled: true, maxRetries } })
       ).toThrow();
-    const undefinedSeed = f.repository.create({
+    expect(() =>
+      f.repository.create({
+        actionId: crypto.randomUUID(),
+        workflow: 'text-to-image',
+        publicModelId: 'flux-dev',
+        guidedRequest: {},
+        normalizedPayload: { model: 'flux-dev', input: { seed: undefined } }
+      })
+    ).toThrow('not JSON serializable');
+    const omittedSeed = f.repository.create({
       actionId: crypto.randomUUID(),
       workflow: 'text-to-image',
       publicModelId: 'flux-dev',
       guidedRequest: {},
-      normalizedPayload: { model: 'flux-dev', input: { seed: undefined } }
+      normalizedPayload: { model: 'flux-dev', input: {} }
     });
     expect(
       f.repository
         .eventsAfter(0)
-        .find((e) => e.jobId === undefinedSeed.id && e.eventType === 'job.created')?.payload
+        .find((e) => e.jobId === omittedSeed.id && e.eventType === 'job.created')?.payload
         ?.seed_explicit
     ).toBe(false);
   });

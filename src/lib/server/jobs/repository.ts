@@ -905,6 +905,7 @@ export class JobRepository extends DatabaseRepository {
       throw new Error('Workflow and public model ID are required.');
     if (!request.normalizedPayload?.model?.trim() || !request.normalizedPayload.input)
       throw new Error('A normalized Poyo payload is required.');
+    assertSafeRequest(request.normalizedPayload);
     const normalizedPayload = JSON.parse(
       JSON.stringify(request.normalizedPayload)
     ) as CreateJobRequest['normalizedPayload'];
@@ -1822,7 +1823,7 @@ export class JobRepository extends DatabaseRepository {
         current.actualCredits !== credits;
       this.database
         .query(
-          `UPDATE jobs SET output_observed=?,local_phase=?,remote_status_raw=?,remote_status=?,failure_domain=?,attention_code=?,progress=?,actual_credits=?,last_polled_at=?,next_poll_at=?,updated_at=?,completed_at=CASE WHEN ?='complete' AND completed_at IS NULL THEN ? ELSE completed_at END WHERE id=?`
+          `UPDATE jobs SET output_observed=?,local_phase=?,remote_status_raw=?,remote_status=?,failure_domain=?,attention_code=?,progress=?,actual_credits=?,last_polled_at=?,next_poll_at=?,updated_at=CASE WHEN ? THEN ? ELSE updated_at END,completed_at=CASE WHEN ?='complete' AND completed_at IS NULL THEN ? ELSE completed_at END WHERE id=?`
         )
         .run(
           outputObserved ? 1 : 0,
@@ -1835,7 +1836,8 @@ export class JobRepository extends DatabaseRepository {
           credits,
           now,
           nextTerminal ? null : new Date(this.now().getTime() + pollDelayMs).toISOString(),
-          changed ? now : current.updatedAt,
+          changed ? 1 : 0,
+          now,
           phase,
           now,
           jobId
