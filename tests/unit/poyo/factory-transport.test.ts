@@ -156,6 +156,41 @@ describe('Poyo transport safety boundaries', () => {
     }
   });
 
+  test('classifies unknown numeric business codes without publishing them or replaying submits', async () => {
+    for (const code of [504, 599, 50012345678901, 1e18, '504', '599', 409, 418]) {
+      let calls = 0;
+      const logger = new MemoryPoyoMetadataLogger();
+      const transport = new PoyoTransport({
+        apiKey: 'test-key',
+        logger,
+        fetch: async () => {
+          calls++;
+          return Response.json({ code, error: { message: 'An operation failed.' } });
+        }
+      });
+      let failure: unknown;
+      try {
+        await transport.request({
+          operation: 'submit',
+          method: 'POST',
+          path: '/api/generate/submit',
+          safeToRetry: false
+        });
+      } catch (error) {
+        failure = error;
+      }
+      expect(failure).toMatchObject({
+        category: Number(code) >= 500 ? 'provider' : 'submission',
+        technicalCode: Number(code) >= 500 ? 'upstream_error' : 'business_code_error',
+        httpStatus: 200,
+        providerDiagnostic: { responseCode: null, responseCodePresent: true }
+      });
+      expect(JSON.stringify(failure)).not.toContain(String(code));
+      expect(JSON.stringify(logger.events)).not.toContain(String(code));
+      expect(calls).toBe(1);
+    }
+  });
+
   test('PYO-06 caps malformed responses and does not leak media through request metadata', async () => {
     const logger = new MemoryPoyoMetadataLogger();
     const transport = new PoyoTransport({

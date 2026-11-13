@@ -1,7 +1,6 @@
 import type { ProviderDiagnostic } from '../../features/diagnostics/provider-diagnostic';
 import { redactString } from '../diagnostics/redaction';
 import {
-  normalizedBusinessCode,
   providerDiagnostic,
   safeProviderToken,
   sanitizeProviderDiagnostic
@@ -172,6 +171,15 @@ function defaultCategory(operation: PoyoOperation): PoyoErrorCategory {
   return 'unknown';
 }
 
+/** Internal classification only; never copy this result into persisted diagnostics. */
+export function normalizedBusinessCode(value: unknown): number | null {
+  if (typeof value === 'string') {
+    if (!/^(?:0|[1-9]\d{2})$/.test(value)) return null;
+    return Number(value);
+  }
+  return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null;
+}
+
 export function normalizePoyoError(
   operation: PoyoOperation,
   httpStatus: number,
@@ -186,8 +194,14 @@ export function normalizePoyoError(
   const upstreamMessage = liveDetail(envelope?.error?.message) ?? liveDetail(envelope?.detail);
   const normalizedError = (options: PoyoErrorOptions) =>
     new PoyoError({ ...options, providerDiagnostic: diagnostic });
-  const businessCode = normalizedBusinessCode(envelope?.code) ?? httpStatus;
+  const envelopeCode = normalizedBusinessCode(envelope?.code);
+  const businessCode = envelopeCode ?? httpStatus;
+  // Classification may inspect unknown numeric codes; only the public allowlist may escape.
+  const publicBusinessCode = normalizedBusinessCode(diagnostic.responseCode);
   const status = businessCode >= 400 ? businessCode : httpStatus;
+  const safeStatus =
+    publicBusinessCode !== null && publicBusinessCode >= 400 ? publicBusinessCode : httpStatus;
+  const statusCode = status === safeStatus ? `http_${status}` : 'business_code_error';
   const businessFailure =
     envelope?.code !== undefined &&
     envelope.code !== 200 &&
@@ -195,36 +209,55 @@ export function normalizePoyoError(
     businessCode < 400;
   const type = upstreamType?.toLowerCase() ?? '';
 
+  const unknownServerCode =
+    publicBusinessCode === null &&
+    ((envelopeCode !== null && envelopeCode >= 500) ||
+      (typeof envelope?.code === 'number' &&
+        Number.isFinite(envelope.code) &&
+        envelope.code >= 500));
+  if (unknownServerCode) {
+    return normalizedError({
+      category: 'provider',
+      technicalCode: 'upstream_error',
+      message: 'Poyo or its upstream provider is temporarily unavailable.',
+      retryable: true,
+      operation,
+      httpStatus: safeStatus,
+      upstreamType,
+      retryAfterMs
+    });
+  }
+
   if (status === 401 || status === 403 || type.includes('authentication')) {
     return normalizedError({
       category: 'authentication',
-      technicalCode: upstreamType ?? `http_${status}`,
+      technicalCode: upstreamType ?? statusCode,
       message: 'Poyo authentication failed. Check the configured API key.',
       retryable: false,
       operation,
-      httpStatus: status,
+      httpStatus: safeStatus,
       upstreamType
     });
   }
   if (status === 402 || type.includes('insufficient_credits')) {
     return normalizedError({
       category: 'insufficient_credits',
-      technicalCode: upstreamType ?? `http_${status}`,
+      technicalCode: upstreamType ?? statusCode,
       message: 'The Poyo account does not have enough credits for this request.',
       retryable: false,
       operation,
-      httpStatus: status,
+      httpStatus: safeStatus,
       upstreamType
     });
   }
   if (status === 429 || type.includes('rate_limit')) {
     return normalizedError({
       category: 'rate_limit',
-      technicalCode: upstreamType ?? `http_${status}`,
+      technicalCode: upstreamType ?? statusCode,
       message: 'Poyo rate-limited the request. It can be retried when safe.',
       retryable: true,
       operation,
-      httpStatus: status,
+      httpStatus: safeStatus,
       upstreamType,
       retryAfterMs
     });
@@ -232,11 +265,11 @@ export function normalizePoyoError(
   if (status === 408 || type.includes('timeout')) {
     return normalizedError({
       category: 'network',
-      technicalCode: upstreamType ?? `http_${status}`,
+      technicalCode: upstreamType ?? statusCode,
       message: 'Poyo reported a request timeout. The remote generation state may still exist.',
       retryable: true,
       operation,
-      httpStatus: status,
+      httpStatus: safeStatus,
       upstreamType
     });
   }
@@ -251,44 +284,44 @@ export function normalizePoyoError(
   ) {
     return normalizedError({
       category: operation.startsWith('upload_') ? 'upload' : 'unsupported_configuration',
-      technicalCode: upstreamType ?? `http_${status}`,
+      technicalCode: upstreamType ?? statusCode,
       message: upstreamMessage ?? 'Poyo rejected the request configuration.',
       retryable: false,
       operation,
-      httpStatus: status,
+      httpStatus: safeStatus,
       upstreamType
     });
   }
   if (status === 404 && operation === 'status') {
     return normalizedError({
       category: 'task',
-      technicalCode: upstreamType ?? `http_${status}`,
+      technicalCode: upstreamType ?? statusCode,
       message: 'The Poyo task could not be found.',
       retryable: false,
       operation,
-      httpStatus: status,
+      httpStatus: safeStatus,
       upstreamType
     });
   }
   if (status >= 500 || type.includes('upstream') || type.includes('service')) {
     return normalizedError({
       category: 'provider',
-      technicalCode: upstreamType ?? `http_${status}`,
+      technicalCode: upstreamType ?? statusCode,
       message: 'Poyo or its upstream provider is temporarily unavailable.',
       retryable: true,
       operation,
-      httpStatus: status,
+      httpStatus: safeStatus,
       upstreamType
     });
   }
 
   return normalizedError({
     category: defaultCategory(operation),
-    technicalCode: upstreamType ?? (businessFailure ? 'business_code_error' : `http_${status}`),
+    technicalCode: upstreamType ?? (businessFailure ? 'business_code_error' : statusCode),
     message: upstreamMessage ?? 'Poyo returned an unrecognized error.',
     retryable: false,
     operation,
-    httpStatus: status,
+    httpStatus: safeStatus,
     upstreamType
   });
 }

@@ -39,16 +39,6 @@ export function safeProviderToken(value: unknown): string | null {
   return typeof value === 'string' && publicTokens.has(value) ? value : null;
 }
 
-/** Only documented business codes, with exact decimal-string compatibility. */
-export function normalizedBusinessCode(value: unknown): number | null {
-  if (value === 0 || value === '0') return 0;
-  if (typeof value === 'number') return publicCodes.has(value) ? value : null;
-  return typeof value === 'string' &&
-    publicCodes.has(Number(value)) &&
-    String(Number(value)) === value
-    ? Number(value)
-    : null;
-}
 function meaningfulMessage(value: unknown): boolean {
   if (typeof value === 'string') return value.trim().length > 0;
   return Array.isArray(value) && value.some((entry) => meaningfulMessage(record(entry).msg));
