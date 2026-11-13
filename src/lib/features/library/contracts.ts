@@ -251,14 +251,16 @@ export interface SafeConfigurationFieldDto {
   value: string;
 }
 
+export interface RetryAttemptSummaryDto {
+  id: string;
+  ordinal: number;
+  remoteStatus: string;
+  localPhase: string;
+  localOutcome: import('../generation/retries').LocalOutcome | null;
+  chargedCredits: number | null;
+}
 export interface JobDetailDto extends JobListItemDto {
-  retryAttempts?: Array<{
-    id: string;
-    ordinal: number;
-    remoteStatus: string;
-    localPhase: string;
-    chargedCredits: number | null;
-  }>;
+  retryAttempts?: RetryAttemptSummaryDto[];
   prompt: string | null;
   poyoTaskLinked: boolean;
   submissionState: string | null;

@@ -19,6 +19,7 @@ import {
   probeBrowserMedia,
   validateLocalFileSelection
 } from '#lib/features/generation/media-preflight.js';
+import { requestStopRetries } from '#lib/features/generation/stop-retries.js';
 import {
   applyBatchJob,
   beginPaidBatchRetry,
@@ -62,6 +63,8 @@ import {
   compareStudioJobRecency,
   mergeKnownStudioSnapshot,
   nextStudioResultCandidate,
+  pruneTerminalStudioJobs,
+  restoreStudioSessionSelection,
   type StudioJobEventUpdate,
   type StudioResultCandidateStates,
   type StudioSessionJobs,
@@ -185,6 +188,7 @@ let recoveryConcluded = $state(false);
 let recoveryExhausted = $state(false);
 let activeJob = $state<StudioJobDto | null>(null);
 let sessionJobs = $state<StudioSessionJobs>({});
+let mutedSessionRoots = $state<Record<string, boolean>>({});
 let resultJob = $state<StudioJobDto | null>(null);
 let connection = $state<'connecting' | 'connected' | 'reconnecting'>('connecting');
 let balance = $state(initialData.balance);
@@ -216,6 +220,9 @@ let draftPersistSuspended = $state(false);
 let restoredMessage = $state('');
 let outputs = $state<StudioOutputDto[] | null>(null);
 let outputsError = $state('');
+let stoppingRetries = $state(false);
+let retryStopFeedback = $state('');
+let retryStopFailed = $state(false);
 let selectedOutput = $state(0);
 let downloadCopyFeedback = $state('');
 let downloadPending = $state<string | null>(null);
@@ -766,26 +773,57 @@ $effect(() => {
 });
 
 let sessionJobsStorageKey = $derived(`poyo-studio-session-jobs:${data.modality}`);
-$effect(() => {
-  if (!hydrated) return;
+function persistSessionJobs(): void {
   try {
     sessionStorage.setItem(
       sessionJobsStorageKey,
       JSON.stringify(Object.values(sessionJobs).slice(-100))
     );
   } catch {
-    /* Session tracking continues in memory if storage is full. */
+    /* Tracking continues in memory. */
   }
+}
+$effect(() => {
+  if (hydrated) persistSessionJobs();
 });
-function restoreSessionJobs(): void {
+function restoreSessionJobs(explicitContext: boolean): void {
   try {
     const stored: unknown = JSON.parse(sessionStorage.getItem(sessionJobsStorageKey) ?? '[]');
     if (!Array.isArray(stored) || stored.length > 100 || !stored.every(isJob)) return;
-    sessionJobs = Object.fromEntries(stored.map((job) => [job.id, job]));
-    activeJob = stored.toSorted((a, b) => compareStudioJobRecency(b, a))[0] ?? null;
+    const restored = restoreStudioSessionSelection(
+      { ...Object.fromEntries(stored.map((job) => [job.id, job])), ...sessionJobs },
+      explicitContext,
+      activeJob
+    );
+    sessionJobs = restored.jobs;
+    activeJob = restored.activeJob;
+    mutedSessionRoots = restored.mutedRoots;
+    persistSessionJobs();
   } catch {
     /* Ignore malformed or older session storage. */
   }
+}
+function clearTerminalSessionResults(): void {
+  sessionJobs = pruneTerminalStudioJobs(sessionJobs);
+  if (activeJob && (activeJob.localPhase === 'complete' || activeJob.remoteStatus === 'failed'))
+    activeJob = null;
+  resultJob = null;
+  outputs = null;
+  outputsError = '';
+  completedTaskCharge = null;
+  selectedOutput = 0;
+  outputCandidateStates = Object.fromEntries(
+    Object.entries(outputCandidateStates).filter(([id]) => sessionJobs[id])
+  );
+  persistSessionJobs();
+}
+
+function activateSessionJob(job: StudioJobDto): StudioJobDto {
+  const root = job.automaticRetry?.rootId ?? job.id;
+  const next = { ...mutedSessionRoots };
+  delete next[root];
+  mutedSessionRoots = next;
+  return acceptSessionJob(job);
 }
 
 function acceptSessionJob(job: StudioJobDto): StudioJobDto {
@@ -822,6 +860,7 @@ async function loadResultCandidate(job: StudioJobDto): Promise<void> {
       actualCredits?: number | null;
       taskCharge?: TaskCharge | null;
     };
+    if (!sessionJobs[job.id]) return;
     if (!response.ok || !result.outputs?.some((output) => output.mediaUrl)) {
       outputCandidateStates = {
         ...outputCandidateStates,
@@ -842,6 +881,7 @@ async function loadResultCandidate(job: StudioJobDto): Promise<void> {
       if (hasApiKey) void refreshBalanceSnapshot();
     }
   } catch {
+    if (!sessionJobs[job.id]) return;
     outputCandidateStates = { ...outputCandidateStates, [job.id]: 'transient' };
     if (!resultJob)
       outputsError = 'The generated media could not be loaded. Open the job to review it.';
@@ -849,7 +889,11 @@ async function loadResultCandidate(job: StudioJobDto): Promise<void> {
 }
 
 $effect(() => {
-  const candidate = nextStudioResultCandidate(sessionJobs, outputCandidateStates);
+  const candidate = nextStudioResultCandidate(
+    sessionJobs,
+    outputCandidateStates,
+    mutedSessionRoots
+  );
   if (!candidate) return;
   void loadResultCandidate(candidate);
 });
@@ -1082,6 +1126,7 @@ async function refreshBalanceSnapshot(): Promise<void> {
 }
 
 async function submit(): Promise<void> {
+  retryStopFeedback = '';
   if (submitting || submissionLocked || !hasApiKey) return;
   const action: PendingAction = {
     actionId: crypto.randomUUID(),
@@ -1126,7 +1171,7 @@ async function submit(): Promise<void> {
       return;
     }
     clearPendingAction(action.actionId);
-    activeJob = acceptSessionJob(result.job);
+    activeJob = activateSessionJob(result.job);
     submissionUnknown = false;
     submissionLocked = false;
     if (revision === previewRevision) dirty = false;
@@ -1324,6 +1369,7 @@ async function reconcileBatchItem(item: StudioBatchItem): Promise<boolean> {
 }
 
 async function submitBatchItem(itemId: string): Promise<void> {
+  retryStopFeedback = '';
   const item = batch.items.find((candidate) => candidate.id === itemId);
   if (item?.state !== 'draft') return;
   replaceBatchItem({ ...item, state: 'submitting', error: null });
@@ -1386,6 +1432,7 @@ async function submitBatch(): Promise<void> {
 
 async function retryBatchItem(item: StudioBatchItem): Promise<void> {
   if (item.state !== 'failed') return;
+  retryStopFeedback = '';
   if (!item.job) {
     const actionId = crypto.randomUUID();
     const retry = {
@@ -1527,6 +1574,7 @@ function resetDraft(): void {
     ];
     return;
   }
+  clearTerminalSessionResults();
   guided = initialGuidedValues(selectedEntry);
   automaticFields = initialAutomaticFields(selectedEntry);
   roleInputs = {};
@@ -1546,11 +1594,7 @@ function resetDraft(): void {
 }
 
 function dismissResultPreview(): void {
-  resultJob = null;
-  outputs = null;
-  outputsError = '';
-  completedTaskCharge = null;
-  selectedOutput = 0;
+  clearTerminalSessionResults();
 }
 
 function requestStudioDownload(output: StudioOutputDto): void {
@@ -1623,19 +1667,21 @@ function startResize(event: PointerEvent): void {
 }
 
 async function stopRetries(id: string): Promise<void> {
+  if (stoppingRetries) return;
+  stoppingRetries = true;
+  retryStopFeedback = '';
+  retryStopFailed = false;
   try {
-    const response = await fetch(`/api/jobs/${id}/stop-retries`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: '{}'
-    });
-    const result = await response.json();
-    if (response.ok && isJob(result.job)) {
-      acceptSessionJob(result.job);
-      if (activeJob?.id === id) activeJob = result.job;
-    }
+    const job = await requestStopRetries(id);
+    acceptSessionJob(job);
+    if (activeJob?.id === id) activeJob = job;
+    retryStopFeedback =
+      'Future retries stopped. Already dispatched work may continue and be charged.';
   } catch {
-    outputsError = 'Could not stop future retries. Try again from the job page.';
+    retryStopFailed = true;
+    retryStopFeedback = 'Could not stop future retries. Try again or stop them from the job page.';
+  } finally {
+    stoppingRetries = false;
   }
 }
 
@@ -1709,7 +1755,7 @@ async function reconcilePendingAction(): Promise<void> {
       onlyNotFound = false;
       const result = (await response.json()) as { job?: StudioJobDto };
       if (!response.ok || !result.job) continue;
-      activeJob = acceptSessionJob(result.job);
+      activeJob = activateSessionJob(result.job);
       entryKey = pending.entryKey;
       submissionUnknown = false;
       recoveryConcluded = false;
@@ -1763,7 +1809,11 @@ onMount(() => {
   }
   // Restore the last studio draft unless an explicit preset/job URL or an unresolved paid
   // action is driving the initial state. Preserve only what is still valid for the model.
-  const explicitContext = Boolean(initialData.preset) || Boolean(readPendingAction());
+  const contextParams = new URL(window.location.href).searchParams;
+  const explicitContext =
+    Boolean(initialData.preset) ||
+    Boolean(readPendingAction()) ||
+    ['preset', 'fromJob', 'sourceOutput'].some((key) => contextParams.has(key));
   if (!explicitContext) {
     const draft = readStudioDraft(data.modality);
     if (draft) {
@@ -1806,7 +1856,7 @@ onMount(() => {
     // stored "last setup" draft. An explicit reset re-enables auto-save.
     draftPersistSuspended = true;
   }
-  restoreSessionJobs();
+  restoreSessionJobs(explicitContext);
   hydrated = true;
   // Balance freshness: refresh once if it is missing or stale, then tick a clock so the "stale"
   // indicator stays live without hammering the upstream balance endpoint.
@@ -2813,10 +2863,14 @@ onMount(() => {
                 <button
                   type="button"
                   class="focus-ring ml-3 underline"
+                  disabled={stoppingRetries}
                   onclick={() => activeJob && stopRetries(activeJob.id)}
                 >
-                  Stop future retries
+                  {stoppingRetries ? 'Stopping…' : 'Stop future retries'}
                 </button>
+              {/if}
+              {#if retryStopFeedback}
+                <p class="mt-2" role={retryStopFailed ? 'alert' : 'status'}>{retryStopFeedback}</p>
               {/if}
             </div>
           {/if}
@@ -2847,7 +2901,7 @@ onMount(() => {
               <Button
                 variant="ghost"
                 class="text-stage-muted hover:bg-stage-elevated hover:text-stage-foreground"
-                onclick={() => (activeJob = null)}
+                onclick={clearTerminalSessionResults}
                 >Remix settings</Button
               >
             {/if}
@@ -2947,6 +3001,9 @@ onMount(() => {
               × per-attempt estimate). Only the exact documented zero-credit policy rejection is
               eligible.</span
             >
+          {/if}
+          {#if retryStopFeedback && !activeJobOwnsStage}
+            <span role={retryStopFailed ? 'alert' : 'status'}>{retryStopFeedback}</span>
           {/if}
           {#if activeJob?.localSettlement}
             <span class="text-muted-foreground">Not submitted · 0 cr</span>

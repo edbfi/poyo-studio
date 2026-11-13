@@ -735,7 +735,11 @@ export class JobRepository extends DatabaseRepository {
     const chain = job.automaticRetry;
     if (chain?.state !== 'running') return;
     if (status.status === 'finished') {
-      this.setRetryState(job, 'succeeded', null);
+      this.setRetryState(
+        job,
+        job.attentionCode === 'malformed_output_set' ? 'needs_attention' : 'succeeded',
+        job.attentionCode === 'malformed_output_set' ? 'malformed-output-set' : null
+      );
       return;
     }
     if (!this.generationRetryPolicy().enabled) {

@@ -121,8 +121,18 @@ export class OperationsSettingsService {
     localCleanup: LocalCleanupPolicy;
     mediaPrivacy: SettingsDto['mediaPrivacy'];
   } {
+    const requested = input.operations;
     const operations =
-      input.operations === undefined ? this.get() : normalizeOperationsSettings(input.operations);
+      requested === undefined
+        ? this.get()
+        : normalizeOperationsSettings(
+            requested &&
+              typeof requested === 'object' &&
+              !Array.isArray(requested) &&
+              !Object.hasOwn(requested, 'generationRetries')
+              ? { ...requested, generationRetries: this.get().generationRetries }
+              : requested
+          );
     const localCleanup =
       input.localCleanup === undefined
         ? (this.cleanup.getPolicy() ?? this.cleanup.savePolicy(DEFAULT_CLEANUP_POLICY))

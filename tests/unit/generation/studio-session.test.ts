@@ -6,6 +6,8 @@ import {
   latestSuccessfulStudioJob,
   mergeKnownStudioSnapshot,
   nextStudioResultCandidate,
+  pruneTerminalStudioJobs,
+  restoreStudioSessionSelection,
   upsertStudioSessionJob
 } from '../../../src/lib/features/generation/studio-session';
 
@@ -182,5 +184,74 @@ describe('studio session jobs', () => {
     expect(nextStudioResultCandidate(jobs, { newer: 'loading' })).toBeNull();
     expect(nextStudioResultCandidate(jobs, { newer: 'empty' })?.id).toBe('older');
     expect(compareStudioJobRecency(older, newer)).toBeLessThan(0);
+  });
+  test('dismiss/reset pruning survives persistence and reload without cancelling active paid work', () => {
+    const completed = job({ id: 'completed', localPhase: 'complete', remoteStatus: 'finished' });
+    const failed = job({ id: 'failed', localPhase: 'complete', remoteStatus: 'failed' });
+    const active = job({ id: 'active' });
+    const chain = {
+      rootId: 'retry-root',
+      parentId: null,
+      ordinal: 0,
+      maxRetries: 3,
+      state: 'running' as const,
+      retriesUsed: 0,
+      nextRetryAt: '2026-07-18T10:00:05.000Z',
+      reason: null,
+      chargedCredits: 0,
+      unknownCharges: 0
+    };
+    const anchor = job({
+      id: 'retry-root',
+      localPhase: 'complete',
+      remoteStatus: 'failed',
+      automaticRetry: chain
+    });
+    const pruned = pruneTerminalStudioJobs({ completed, failed, active, anchor });
+    expect(Object.keys(pruned)).toEqual(['active', 'anchor']);
+    expect(pruned.active).toBe(active);
+    expect(pruned.anchor).toBe(anchor);
+    const reloaded = restoreStudioSessionSelection(JSON.parse(JSON.stringify(pruned)), false, null);
+    expect(nextStudioResultCandidate(reloaded.jobs, {})).toBeNull();
+    expect(reloaded.activeJob?.id).toBe('active');
+    const updated = mergeKnownStudioSnapshot(reloaded.jobs, [
+      completed,
+      failed,
+      job({
+        id: 'active',
+        localPhase: 'complete',
+        remoteStatus: 'finished',
+        updatedAt: '2026-07-18T10:00:02.000Z'
+      })
+    ]);
+    expect(updated.completed).toBeUndefined();
+    expect(updated.failed).toBeUndefined();
+    expect(nextStudioResultCandidate(updated, {})?.id).toBe('active');
+    expect(restoreStudioSessionSelection({ anchor }, false, null).activeJob).toBeNull();
+  });
+  test('preset/from-job restoration keeps tracking without selecting or auto-opening historical results', () => {
+    const active = job({ id: 'old-active' });
+    const historical = job({
+      id: 'old-completed',
+      localPhase: 'complete',
+      remoteStatus: 'finished'
+    });
+    const selected = job({ id: 'explicit-selection' });
+    const restored = restoreStudioSessionSelection({ active, historical }, true, selected);
+    expect(restored.activeJob).toBe(selected);
+    expect(restored.jobs.historical).toBeUndefined();
+    const snapshot = mergeKnownStudioSnapshot(restored.jobs, [
+      job({
+        id: 'old-active',
+        localPhase: 'complete',
+        remoteStatus: 'finished',
+        updatedAt: '2026-07-18T10:00:03.000Z'
+      })
+    ]);
+    expect(nextStudioResultCandidate(snapshot, {}, restored.mutedRoots)).toBeNull();
+    const newRun = job({ id: 'new-run', localPhase: 'complete', remoteStatus: 'finished' });
+    expect(
+      nextStudioResultCandidate({ ...snapshot, [newRun.id]: newRun }, {}, restored.mutedRoots)?.id
+    ).toBe('new-run');
   });
 });

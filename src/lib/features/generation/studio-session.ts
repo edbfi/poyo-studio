@@ -173,8 +173,47 @@ export function latestSuccessfulStudioJob(jobs: StudioSessionJobs): StudioJobDto
 
 export function nextStudioResultCandidate(
   jobs: StudioSessionJobs,
-  states: StudioResultCandidateStates
+  states: StudioResultCandidateStates,
+  mutedRoots: Record<string, boolean> = {}
 ): StudioJobDto | null {
   if (Object.values(states).includes('loading')) return null;
-  return successfulStudioJobsByRecency(jobs).find((job) => states[job.id] === undefined) ?? null;
+  return (
+    successfulStudioJobsByRecency(jobs).find(
+      (job) => !mutedRoots[job.automaticRetry?.rootId ?? job.id] && states[job.id] === undefined
+    ) ?? null
+  );
+}
+
+/** Clear dismissed history while keeping paid work and retry-chain anchors tracked. */
+export function pruneTerminalStudioJobs(jobs: StudioSessionJobs): StudioSessionJobs {
+  return Object.fromEntries(
+    Object.entries(jobs).filter(
+      ([, job]) => !isTerminal(job) || job.automaticRetry?.state === 'running'
+    )
+  );
+}
+
+export function restoreStudioSessionSelection(
+  jobs: StudioSessionJobs,
+  explicitContext: boolean,
+  current: StudioJobDto | null
+): {
+  jobs: StudioSessionJobs;
+  activeJob: StudioJobDto | null;
+  mutedRoots: Record<string, boolean>;
+} {
+  const restored = explicitContext ? pruneTerminalStudioJobs(jobs) : jobs;
+  return {
+    jobs: restored,
+    mutedRoots: explicitContext
+      ? Object.fromEntries(
+          Object.values(restored).map((job) => [job.automaticRetry?.rootId ?? job.id, true])
+        )
+      : {},
+    activeJob: explicitContext
+      ? current
+      : (Object.values(restored)
+          .filter((job) => !isTerminal(job))
+          .toSorted((a, b) => compareStudioJobRecency(b, a))[0] ?? current)
+  };
 }

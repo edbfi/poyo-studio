@@ -6,9 +6,10 @@ import {
   latestSuccessfulStudioJob,
   mergeKnownStudioSnapshot
 } from '../../../src/lib/features/generation/studio-session';
-import { statusTone } from '../../../src/lib/features/library/presentation';
+import { retryAttemptLabel, statusTone } from '../../../src/lib/features/library/presentation';
 import { PRICING_SIGNATURE_VERSION } from '../../../src/lib/features/pricing/contracts';
 import { CleanupRepository } from '../../../src/lib/server/cleanup/repository';
+import { StructuredLogger } from '../../../src/lib/server/diagnostics/jsonl-logger';
 import { JobCoordinator } from '../../../src/lib/server/jobs/coordinator';
 import { OutputDownloader } from '../../../src/lib/server/jobs/downloader';
 import {
@@ -27,7 +28,8 @@ import { parseStatusResponse, parseSubmitResponse } from '../../../src/lib/serve
 import { seedImageRegistry } from '../../../src/lib/server/registry/repository';
 import {
   DEFAULT_OPERATIONS_SETTINGS,
-  normalizeOperationsSettings
+  normalizeOperationsSettings,
+  OperationsSettingsService
 } from '../../../src/lib/server/settings/operations-settings';
 import { SettingsRepository } from '../../../src/lib/server/settings/settings-repository';
 import evidence from '../../fixtures/poyo/rejection-diagnostics.json';
@@ -1285,5 +1287,104 @@ describe('exact documented authoritative polled rejection retries', () => {
       state: 'blocked',
       reason: 'source-or-registry-unavailable'
     });
+  });
+  test('malformed upstream finished sets need attention rather than chain success and never retries', async () => {
+    const f = await setup();
+    const file = { file_url: 'https://media.test/a.png', file_type: 'image' };
+    for (const files of [
+      [],
+      [file, file],
+      [file, { ...file, file_url: 'https://media.test/b.png' }]
+    ]) {
+      const root = create(f);
+      accept(f, root.id);
+      f.repository.applyStatus(
+        root.id,
+        parseStatusResponse(
+          {
+            code: 200,
+            data: {
+              task_id: `task-${root.id}`,
+              status: 'finished',
+              credits_amount: 7,
+              files,
+              created_time: 'now'
+            }
+          },
+          200
+        ),
+        1000
+      );
+      expect(f.repository.get(root.id)).toMatchObject({
+        localPhase: 'requires_attention',
+        attentionCode: 'malformed_output_set',
+        automaticRetry: { state: 'needs_attention', reason: 'malformed-output-set' }
+      });
+      expect(
+        f.repository
+          .eventsAfter(0)
+          .filter((event) => event.jobId === root.id && event.eventType === 'retry.succeeded')
+      ).toHaveLength(0);
+    }
+    f.advance();
+    expect(f.repository.claimAutomaticRetry('retry', 1000)).toBeNull();
+  });
+  test('legacy operations updates preserve enabled retry policy; explicit disable still closes pending chains', async () => {
+    const f = await setup(true, 5);
+    const root = create(f);
+    accept(f, root.id);
+    fail(f, root.id);
+    const service = new OperationsSettingsService(
+      f.settings,
+      f.database,
+      new StructuredLogger({ directory: join(dirname(f.paths.media), 'logs') })
+    );
+    const { generationRetries: _omitted, ...legacy } = DEFAULT_OPERATIONS_SETTINGS;
+    service.update({
+      operations: { ...legacy, polling: { intervalMs: 17000, staleAfterMs: 600000 } }
+    });
+    expect(service.get()).toMatchObject({
+      generationRetries: { enabled: true, maxRetries: 5 },
+      polling: { intervalMs: 17000, staleAfterMs: 600000 }
+    });
+    expect(f.repository.get(root.id)?.automaticRetry?.state).toBe('running');
+    expect(
+      f.database
+        .query<{ state: string }, [string]>(
+          'SELECT state FROM generation_retry_reservations WHERE parent_id=?'
+        )
+        .get(root.id)?.state
+    ).toBe('pending');
+    service.update({
+      operations: { ...legacy, generationRetries: { enabled: false, maxRetries: 5 } }
+    });
+    expect(f.repository.get(root.id)?.automaticRetry).toMatchObject({
+      state: 'stopped',
+      reason: 'globally-disabled'
+    });
+  });
+  test('root and sibling attempt summaries distinguish unsent zero, provider zero and unknown charges', async () => {
+    const f = await setup();
+    const root = create(f);
+    accept(f, root.id);
+    fail(f, root.id);
+    const retry = await child(f);
+    f.repository.stopAutomaticRetries(root.id);
+    const library = new LibraryRepository(f.database);
+    const rootDetail = await library.getJobDetail(root.id);
+    const siblingDetail = await library.getJobDetail(retry.id);
+    expect(rootDetail?.retryAttempts).toEqual(siblingDetail?.retryAttempts);
+    const actual = rootDetail?.retryAttempts?.find((attempt) => attempt.id === root.id);
+    const stopped = rootDetail?.retryAttempts?.find((attempt) => attempt.id === retry.id);
+    expect(actual).toMatchObject({ localOutcome: 'generation', chargedCredits: 0 });
+    expect(stopped).toMatchObject({ localOutcome: 'stopped-before-dispatch', chargedCredits: 0 });
+    if (!actual || !stopped) throw new Error('Missing summaries');
+    expect(retryAttemptLabel(actual)).toContain('0 cr (Poyo task)');
+    expect(retryAttemptLabel(stopped)).toBe('Stopped before dispatch · 0 cr (not submitted)');
+    const unknown = create(f);
+    accept(f, unknown.id);
+    const unknownAttempt = (await library.getJobDetail(unknown.id))?.retryAttempts?.[0];
+    if (!unknownAttempt) throw new Error('Missing unknown summary');
+    expect(retryAttemptLabel(unknownAttempt)).toContain('charge pending or unknown');
   });
 });

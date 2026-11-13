@@ -1350,11 +1350,12 @@ export class LibraryRepository extends DatabaseRepository {
             ordinal: number;
             remoteStatus: string;
             localPhase: string;
+            localOutcome: import('../../features/generation/retries').LocalOutcome | null;
             chargedCredits: number | null;
           },
           [string]
         >(
-          `SELECT id,auto_ordinal ordinal,remote_status remoteStatus,local_phase localPhase,CASE WHEN local_outcome='stopped-before-dispatch' THEN 0 WHEN remote_status IN ('failed','finished') THEN actual_credits ELSE NULL END chargedCredits FROM jobs WHERE auto_root_id=(SELECT auto_root_id FROM jobs WHERE id=?) ORDER BY auto_ordinal`
+          `SELECT id,auto_ordinal ordinal,remote_status remoteStatus,local_phase localPhase,local_outcome localOutcome,CASE WHEN local_outcome='stopped-before-dispatch' THEN 0 WHEN remote_status IN ('failed','finished') THEN actual_credits ELSE NULL END chargedCredits FROM jobs WHERE auto_root_id=(SELECT auto_root_id FROM jobs WHERE id=?) ORDER BY auto_ordinal`
         )
         .all(id),
       prompt: row.prompt_text,

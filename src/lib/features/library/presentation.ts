@@ -1,4 +1,10 @@
-import type { JobFilterStatus, JobFiltersDto, LibraryFiltersDto, LibraryStatus } from './contracts';
+import type {
+  JobFilterStatus,
+  JobFiltersDto,
+  LibraryFiltersDto,
+  LibraryStatus,
+  RetryAttemptSummaryDto
+} from './contracts';
 
 const jobStatuses = new Set<JobFilterStatus>([
   'all',
@@ -199,4 +205,10 @@ export function statusTone(
   if (localPhase === 'complete' && remoteStatus === 'finished') return 'success';
   if (remoteStatus === 'running' || remoteStatus === 'not_started') return 'info';
   return 'neutral';
+}
+
+export function retryAttemptLabel(attempt: RetryAttemptSummaryDto): string {
+  if (attempt.localOutcome === 'stopped-before-dispatch')
+    return 'Stopped before dispatch · 0 cr (not submitted)';
+  return `${attempt.localPhase} · ${attempt.remoteStatus} · ${attempt.chargedCredits === null ? 'charge pending or unknown' : `${attempt.chargedCredits} cr (Poyo task)`}`;
 }

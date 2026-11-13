@@ -3,6 +3,7 @@ import { untrack } from 'svelte';
 import AppIcon from '#lib/components/ui/AppIcon.svelte';
 import Badge from '#lib/components/ui/Badge.svelte';
 import LinkButton from '#lib/components/ui/LinkButton.svelte';
+import { requestStopRetries } from '#lib/features/generation/stop-retries.js';
 import { downloadCopy } from '#lib/features/library/attachment-request.js';
 import type {
   ImageJobNavigationDto,
@@ -14,7 +15,8 @@ import {
   byteSizeLabel,
   dateTimeLabel,
   elapsedLabel,
-  mediaFrameAspectRatio
+  mediaFrameAspectRatio,
+  retryAttemptLabel
 } from '#lib/features/library/presentation.js';
 import { goto, invalidate, invalidateAll } from '$app/navigation';
 import MediaPreview from './MediaPreview.svelte';
@@ -187,9 +189,13 @@ async function copyPrompt(): Promise<void> {
   }
 }
 
-async function stopRetries(): Promise<void> {
-  await fetch(`/api/jobs/${job.id}/stop-retries`,{method:'POST',headers:{'content-type':'application/json'},body:'{}'});
-  await invalidateAll();
+function stopRetries(): void {
+  if(pending) return;
+  void action('stop-retries',async()=>{
+    await requestStopRetries(job.id,(path)=>post(path));
+    feedback='Future retries stopped. Already dispatched work may continue and be charged.';
+    await invalidateAll();
+  });
 }
 
 function removeOutput(outputId: string): void {
@@ -293,9 +299,9 @@ function removeOutput(outputId: string): void {
       <p>Chain charges reported: {job.automaticRetry.chargedCredits} cr{job.automaticRetry.unknownCharges ? ` · ${job.automaticRetry.unknownCharges} charge(s) pending or unknown` : ''}</p>
       {#if job.automaticRetry.nextRetryAt}<p>Retry {job.automaticRetry.retriesUsed+1} of {job.automaticRetry.maxRetries} scheduled for {dateTimeLabel(job.automaticRetry.nextRetryAt)}</p>{/if}
       {#if job.automaticRetry.reason}<p>{job.automaticRetry.reason.replaceAll('-',' ')}</p>{/if}
-      <ol class="mt-2 space-y-1">{#each job.retryAttempts ?? [] as attempt (attempt.id)}<li><a class="underline" href={`/jobs/${attempt.id}`}>Attempt {attempt.ordinal+1}</a> · {attempt.localPhase} · {attempt.remoteStatus} · {attempt.chargedCredits===null ? 'charge pending or unknown' : `${attempt.chargedCredits} cr`}</li>{/each}</ol>
+      <ol class="mt-2 space-y-1">{#each job.retryAttempts ?? [] as attempt (attempt.id)}<li><a class="underline" href={`/jobs/${attempt.id}`}>Attempt {attempt.ordinal+1}</a> · {retryAttemptLabel(attempt)}</li>{/each}</ol>
       <a class="underline" href={`/jobs/${job.automaticRetry.rootId}`}>Root generation</a>
-      {#if job.automaticRetry.state==='running'}<button type="button" onclick={stopRetries} class="focus-ring ml-3 underline">Stop future retries</button><p class="mt-2 text-muted-foreground">Already dispatched work may continue and be charged.</p>{/if}
+      {#if job.automaticRetry.state==='running'}<button type="button" onclick={stopRetries} disabled={pending !== null} class="focus-ring ml-3 underline">{pending==='stop-retries' ? 'Stopping…' : 'Stop future retries'}</button><p class="mt-2 text-muted-foreground">Already dispatched work may continue and be charged.</p>{/if}
     </section>
   {/if}
   {#if job.attentionCode === 'submission_unknown'}<div class="mt-4 rounded border border-warning/40 bg-warning/10 p-4 text-sm"><strong>Submission outcome is unknown.</strong> Status checks are safe. A new paid retry is available only after you explicitly accept the risk that Poyo may charge for both requests.</div>{/if}
