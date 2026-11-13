@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "registryVersion": "video-2026-10-11.1",
-  "reviewedAt": "2026-10-11T11:26:07Z",
+  "registryVersion": "video-2026-11-13.1",
+  "reviewedAt": "2026-11-13T17:09:37Z",
   "workflows": [
     {
       "entryKey": "omni-flash:text-to-video",
@@ -9762,6 +9762,706 @@
       "manualDecisions": [
         "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
         "audio is an optional string; boolean values are invalid."
+      ]
+    },
+    {
+      "entryKey": "omnihuman-2.0:avatar-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "omnihuman-2-0",
+        "markdownId": "model:video:omnihuman-2-0:markdown",
+        "jsonId": "model:video:omnihuman-2-0:json"
+      },
+      "schema": {
+        "publicModelId": "omnihuman-2.0",
+        "workflow": "avatar-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": false,
+            "min": 1,
+            "max": 5000
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "image",
+            "requestKey": "imageUrls",
+            "apiKey": "image_urls",
+            "mediaKind": "image",
+            "required": true,
+            "min": 1,
+            "max": 1,
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          },
+          {
+            "role": "audio",
+            "requestKey": "audioUrl",
+            "apiKey": "audio_url",
+            "mediaKind": "audio",
+            "required": true,
+            "min": 1,
+            "max": 1,
+            "formats": ["audio/mpeg", "audio/wav", "audio/mp4"]
+          }
+        ],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": null,
+          "resolutions": null,
+          "aspectRatios": null,
+          "seed": false,
+          "safetyChecker": false,
+          "audio": "none"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": ["Driving audio must be 4–300 seconds and at most 15 MB."]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "imageUrls": ["https://assets.example/image-0.png"],
+            "audioUrl": "https://assets.example/audio-0.mp3"
+          },
+          "request": {
+            "model": "omnihuman-2.0",
+            "input": {
+              "prompt": "studio video",
+              "image_urls": ["https://assets.example/image-0.png"],
+              "audio_url": "https://assets.example/audio-0.mp3",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "imageUrls": ["https://assets.example/image-0.png"],
+            "audioUrl": "https://assets.example/audio-0.mp3"
+          },
+          "request": {
+            "model": "omnihuman-2.0",
+            "input": {
+              "prompt": "studio video",
+              "image_urls": ["https://assets.example/image-0.png"],
+              "audio_url": "https://assets.example/audio-0.mp3",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": []
+        },
+        "invalid": {
+          "label": "required image input",
+          "values": {
+            "prompt": "studio video",
+            "audioUrl": "https://assets.example/audio-0.mp3"
+          },
+          "issueIncludes": "image"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Driving audio must be 4–300 seconds and at most 15 MB."
+      ]
+    },
+    {
+      "entryKey": "pixverse-v6-max:text-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "pixverse-v6-max",
+        "markdownId": "model:video:pixverse-v6-max:markdown",
+        "jsonId": "model:video:pixverse-v6-max:json"
+      },
+      "schema": {
+        "publicModelId": "pixverse-v6-max",
+        "workflow": "text-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 5000
+          },
+          {
+            "key": "duration",
+            "apiKey": "duration",
+            "kind": "integer",
+            "level": "common",
+            "required": true,
+            "default": 5,
+            "min": 1,
+            "max": 15
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "aspect_ratio",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "16:9",
+            "enum": ["16:9", "9:16", "4:3", "3:4", "1:1", "2:3", "3:2", "21:9"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "540p",
+            "enum": ["360p", "540p", "720p", "1080p"]
+          },
+          {
+            "key": "generateAudio",
+            "apiKey": "audio",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          }
+        ],
+        "inputRoles": [],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": {
+            "min": 1,
+            "max": 15
+          },
+          "resolutions": ["360p", "540p", "720p", "1080p"],
+          "aspectRatios": ["16:9", "9:16", "4:3", "3:4", "1:1", "2:3", "3:2", "21:9"],
+          "seed": false,
+          "safetyChecker": false,
+          "audio": "boolean-generate"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 5,
+            "aspectRatio": "16:9",
+            "resolution": "540p",
+            "generateAudio": false
+          },
+          "request": {
+            "model": "pixverse-v6-max",
+            "input": {
+              "prompt": "studio video",
+              "duration": 5,
+              "aspect_ratio": "16:9",
+              "resolution": "540p",
+              "audio": false,
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 15,
+            "aspectRatio": "21:9",
+            "resolution": "1080p",
+            "generateAudio": true
+          },
+          "request": {
+            "model": "pixverse-v6-max",
+            "input": {
+              "prompt": "studio video",
+              "duration": 15,
+              "aspect_ratio": "21:9",
+              "resolution": "1080p",
+              "audio": true,
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["duration", "aspectRatio", "resolution", "generateAudio"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "duration": 5,
+            "aspectRatio": "16:9",
+            "resolution": "540p",
+            "generateAudio": false
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "pixverse-v6-max:image-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "pixverse-v6-max",
+        "markdownId": "model:video:pixverse-v6-max:markdown",
+        "jsonId": "model:video:pixverse-v6-max:json"
+      },
+      "schema": {
+        "publicModelId": "pixverse-v6-max",
+        "workflow": "image-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 2048
+          },
+          {
+            "key": "duration",
+            "apiKey": "duration",
+            "kind": "integer",
+            "level": "common",
+            "required": true,
+            "default": 5,
+            "min": 1,
+            "max": 15
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "540p",
+            "enum": ["360p", "540p", "720p", "1080p"]
+          },
+          {
+            "key": "generateAudio",
+            "apiKey": "audio",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "image",
+            "requestKey": "imageUrls",
+            "apiKey": "image_urls",
+            "mediaKind": "image",
+            "required": true,
+            "min": 1,
+            "max": 1,
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": {
+            "min": 1,
+            "max": 15
+          },
+          "resolutions": ["360p", "540p", "720p", "1080p"],
+          "aspectRatios": ["16:9", "9:16", "4:3", "3:4", "1:1", "2:3", "3:2", "21:9"],
+          "seed": false,
+          "safetyChecker": false,
+          "audio": "boolean-generate"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 5,
+            "resolution": "540p",
+            "generateAudio": false,
+            "imageUrls": ["https://assets.example/image-0.png"]
+          },
+          "request": {
+            "model": "pixverse-v6-max",
+            "input": {
+              "prompt": "studio video",
+              "duration": 5,
+              "resolution": "540p",
+              "audio": false,
+              "image_urls": ["https://assets.example/image-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 15,
+            "resolution": "1080p",
+            "generateAudio": true,
+            "imageUrls": ["https://assets.example/image-0.png"]
+          },
+          "request": {
+            "model": "pixverse-v6-max",
+            "input": {
+              "prompt": "studio video",
+              "duration": 15,
+              "resolution": "1080p",
+              "audio": true,
+              "image_urls": ["https://assets.example/image-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["duration", "resolution", "generateAudio"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "duration": 5,
+            "resolution": "540p",
+            "generateAudio": false,
+            "imageUrls": ["https://assets.example/image-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "vidu-q4:image-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "vidu-q4",
+        "markdownId": "model:video:vidu-q4:markdown",
+        "jsonId": "model:video:vidu-q4:json"
+      },
+      "schema": {
+        "publicModelId": "vidu-q4",
+        "workflow": "image-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": false,
+            "min": 1,
+            "max": 5000
+          },
+          {
+            "key": "duration",
+            "apiKey": "duration",
+            "kind": "integer",
+            "level": "common",
+            "required": true,
+            "default": 5,
+            "min": 3,
+            "max": 16
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "720p",
+            "enum": ["540p", "720p", "1080p", "2k", "4k"]
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "image",
+            "requestKey": "imageUrls",
+            "apiKey": "image_urls",
+            "mediaKind": "image",
+            "required": true,
+            "min": 1,
+            "max": 1,
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": {
+            "min": 3,
+            "max": 16
+          },
+          "resolutions": ["540p", "720p", "1080p", "2k", "4k"],
+          "aspectRatios": ["16:9", "9:16", "4:3", "3:4", "1:1"],
+          "seed": false,
+          "safetyChecker": true,
+          "audio": "boolean-generate"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": ["Reference audio accepts up to three MP3 clips, each 3–12 seconds."]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 5,
+            "resolution": "720p",
+            "enableSafetyChecker": false,
+            "imageUrls": ["https://assets.example/image-0.png"]
+          },
+          "request": {
+            "model": "vidu-q4",
+            "input": {
+              "prompt": "studio video",
+              "duration": 5,
+              "resolution": "720p",
+              "enable_safety_checker": false,
+              "image_urls": ["https://assets.example/image-0.png"]
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 16,
+            "resolution": "4k",
+            "enableSafetyChecker": true,
+            "imageUrls": ["https://assets.example/image-0.png"]
+          },
+          "request": {
+            "model": "vidu-q4",
+            "input": {
+              "prompt": "studio video",
+              "duration": 16,
+              "resolution": "4k",
+              "enable_safety_checker": true,
+              "image_urls": ["https://assets.example/image-0.png"]
+            }
+          },
+          "coveredFields": ["duration", "resolution", "enableSafetyChecker"]
+        },
+        "invalid": {
+          "label": "required image input",
+          "values": {
+            "prompt": "studio video",
+            "duration": 5,
+            "resolution": "720p",
+            "enableSafetyChecker": false
+          },
+          "issueIncludes": "image"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in.",
+        "Reference audio accepts up to three MP3 clips, each 3–12 seconds."
+      ]
+    },
+    {
+      "entryKey": "vidu-q4:reference-to-video",
+      "status": "current",
+      "source": {
+        "pageSlug": "vidu-q4",
+        "markdownId": "model:video:vidu-q4:markdown",
+        "jsonId": "model:video:vidu-q4:json"
+      },
+      "schema": {
+        "publicModelId": "vidu-q4",
+        "workflow": "reference-to-video",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 5000
+          },
+          {
+            "key": "duration",
+            "apiKey": "duration",
+            "kind": "integer",
+            "level": "common",
+            "required": true,
+            "default": 5,
+            "min": 3,
+            "max": 16
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "aspect_ratio",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "16:9",
+            "enum": ["16:9", "9:16", "4:3", "3:4", "1:1"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "required": false,
+            "default": "720p",
+            "enum": ["540p", "720p", "1080p", "2k", "4k"]
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          },
+          {
+            "key": "generateAudio",
+            "apiKey": "generate_audio",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference-image",
+            "requestKey": "referenceImageUrls",
+            "apiKey": "reference_image_urls",
+            "mediaKind": "image",
+            "required": true,
+            "min": 1,
+            "max": 12,
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          },
+          {
+            "role": "reference-audio",
+            "requestKey": "referenceAudioUrls",
+            "apiKey": "reference_audio_urls",
+            "mediaKind": "audio",
+            "required": false,
+            "min": 0,
+            "max": 3,
+            "formats": ["audio/mpeg"]
+          }
+        ],
+        "output": {
+          "mediaKind": "video",
+          "formats": ["video/mp4", "video/webm", "video/quicktime"],
+          "durations": {
+            "min": 3,
+            "max": 16
+          },
+          "resolutions": ["540p", "720p", "1080p", "2k", "4k"],
+          "aspectRatios": ["16:9", "9:16", "4:3", "3:4", "1:1"],
+          "seed": false,
+          "safetyChecker": true,
+          "audio": "boolean-generate"
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "video-input-v1"
+        },
+        "limitations": ["Reference audio accepts up to three MP3 clips, each 3–12 seconds."]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 5,
+            "aspectRatio": "16:9",
+            "resolution": "720p",
+            "enableSafetyChecker": false,
+            "generateAudio": false,
+            "referenceImageUrls": ["https://assets.example/reference-image-0.png"]
+          },
+          "request": {
+            "model": "vidu-q4",
+            "input": {
+              "prompt": "studio video",
+              "duration": 5,
+              "aspect_ratio": "16:9",
+              "resolution": "720p",
+              "enable_safety_checker": false,
+              "generate_audio": false,
+              "reference_image_urls": ["https://assets.example/reference-image-0.png"]
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio video",
+            "duration": 16,
+            "aspectRatio": "1:1",
+            "resolution": "4k",
+            "enableSafetyChecker": true,
+            "generateAudio": true,
+            "referenceImageUrls": ["https://assets.example/reference-image-0.png"]
+          },
+          "request": {
+            "model": "vidu-q4",
+            "input": {
+              "prompt": "studio video",
+              "duration": 16,
+              "aspect_ratio": "1:1",
+              "resolution": "4k",
+              "enable_safety_checker": true,
+              "generate_audio": true,
+              "reference_image_urls": ["https://assets.example/reference-image-0.png"]
+            }
+          },
+          "coveredFields": [
+            "duration",
+            "aspectRatio",
+            "resolution",
+            "enableSafetyChecker",
+            "generateAudio"
+          ]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "duration": 5,
+            "aspectRatio": "16:9",
+            "resolution": "720p",
+            "enableSafetyChecker": false,
+            "generateAudio": false,
+            "referenceImageUrls": ["https://assets.example/reference-image-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in.",
+        "Reference audio accepts up to three MP3 clips, each 3–12 seconds."
       ]
     }
   ]

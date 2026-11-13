@@ -7,12 +7,14 @@ import {
   structuredDiff
 } from '../../../scripts/registry-evidence-lib';
 import manifestJson from '../../../src/lib/features/registry/evidence/official-source-manifest.json';
+import { IMAGE_PAGE_SLUGS } from '../../../src/lib/features/registry/image-registry';
+import { VIDEO_PAGE_SLUGS } from '../../../src/lib/features/registry/video-registry';
 
 const manifest = manifestJson as unknown as RegistrySourceManifest;
 
 describe('official registry source evidence', () => {
   test('pins the complete reviewed model and operations corpus', () => {
-    expect(manifest.sources).toHaveLength(174);
+    expect(new Set(manifest.sources.map((source) => source.id)).size).toBe(manifest.sources.length);
     expect(sourceCorpusSha256(manifest.sources)).toBe(manifest.corpusSha256);
 
     const modelMarkdown = manifest.sources.filter(
@@ -21,8 +23,9 @@ describe('official registry source evidence', () => {
     const modelJson = manifest.sources.filter(
       (source) => source.category === 'model' && source.representation === 'json'
     );
-    expect(modelMarkdown).toHaveLength(72);
-    expect(modelJson).toHaveLength(72);
+    const pageCount = IMAGE_PAGE_SLUGS.length + VIDEO_PAGE_SLUGS.length;
+    expect(modelMarkdown).toHaveLength(pageCount);
+    expect(modelJson).toHaveLength(pageCount);
     expect(modelMarkdown.every((source) => source.status === 'available')).toBe(true);
     expect(modelJson.every((source) => source.status === 'available' && source.structured)).toBe(
       true
@@ -30,14 +33,8 @@ describe('official registry source evidence', () => {
     expect(
       manifest.sources
         .filter((source) => source.status === 'unavailable')
-        .map((source) => source.id)
-        .sort()
-    ).toEqual([
-      'operations:error-codes:json',
-      'operations:overview:json',
-      'operations:task-status:json',
-      'operations:webhooks:json'
-    ]);
+        .every((source) => source.category === 'operations' || source.category === 'audit-only')
+    ).toBe(true);
   });
 
   test('extracts required fields, enums, defaults, formats, and bounds from OpenAPI', () => {

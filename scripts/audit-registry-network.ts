@@ -72,9 +72,9 @@ const indexBody = await fetch(
 });
 function indexedPages(modality: 'image' | 'video'): Set<string> {
   return new Set(
-    [...indexBody.matchAll(new RegExp(`${modality}-series/([^\\s)]+)\\.md`, 'g'))]
-      .map((match) => match[1])
-      .filter((value): value is string => Boolean(value))
+    indexedModelPages(indexBody)
+      .filter((page) => page.modality === modality)
+      .map((page) => page.pageSlug)
   );
 }
 function baselinePages(modality: 'image' | 'video'): Set<string> {
@@ -136,3 +136,5 @@ const report = {
 };
 console.log(JSON.stringify(report, null, 2));
 if (hasDrift) process.exit(1);
+
+import { indexedModelPages } from './registry-discovery';

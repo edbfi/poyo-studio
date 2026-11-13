@@ -53,6 +53,14 @@ function validate(entry: ImageRegistryEntry, values: GuidedImageRequest): string
   }
   if (entry.inputRoles.some((role) => role.role === 'reference')) acceptedFields.add('imageUrls');
   if (entry.inputRoles.some((role) => role.role === 'mask')) acceptedFields.add('maskUrl');
+  if (entry.inputRoles.some((role) => role.role === 'reference-image'))
+    acceptedFields.add('referenceImageUrls');
+  if (
+    values.referenceImageUrls !== undefined &&
+    (!Array.isArray(values.referenceImageUrls) ||
+      !values.referenceImageUrls.every((value) => typeof value === 'string'))
+  )
+    issues.push('referenceImageUrls must be a list of strings.');
   for (const key of Object.keys(runtimeValues))
     if (!acceptedFields.has(key)) issues.push(`${key} is not supported for this workflow.`);
   for (const field of entry.fields) {
@@ -68,8 +76,10 @@ function validate(entry: ImageRegistryEntry, values: GuidedImageRequest): string
   if (values.maskUrl !== undefined && typeof values.maskUrl !== 'string')
     issues.push('maskUrl must be a string.');
   const refs = Array.isArray(values.imageUrls) ? values.imageUrls.length : 0;
+  const isGpt26 =
+    entry.publicModelId.startsWith('gpt-image-2.6-') && !entry.publicModelId.endsWith('fixed');
   const isGpt25 = entry.publicModelId.startsWith('gpt-image-2.5-');
-  if (isGpt25 || entry.publicModelId === 'qwen-image-2.1') {
+  if (isGpt25 || isGpt26 || ['qwen-image-2.1', 'seedream-5.5'].includes(entry.publicModelId)) {
     if (values.background === 'transparent' && values.outputFormat === 'jpeg')
       issues.push('Transparent backgrounds require PNG or WebP output.');
     if (values.maskUrl && !refs) issues.push('Mask editing requires reference images.');
@@ -80,8 +90,7 @@ function validate(entry: ImageRegistryEntry, values: GuidedImageRequest): string
     )
       issues.push('Qwen Image 2.1 masks require exactly one reference and an opaque background.');
   }
-  if (isGpt25 && values.aspectRatio === 'auto' && (values.resolution ?? '1K') !== '1K')
-    issues.push('GPT Image 2.5 auto size requires 1K resolution.');
+
   if (
     ['nano-banana-2.1', 'qwen-image-2.1'].includes(entry.publicModelId) &&
     values.aspectRatio === 'auto' &&
@@ -89,7 +98,14 @@ function validate(entry: ImageRegistryEntry, values: GuidedImageRequest): string
   )
     issues.push('Auto aspect ratio requires reference images.');
   for (const role of entry.inputRoles) {
-    const count = role.role === 'mask' ? (typeof values.maskUrl === 'string' ? 1 : 0) : refs;
+    const count =
+      role.role === 'mask'
+        ? typeof values.maskUrl === 'string'
+          ? 1
+          : 0
+        : role.role === 'reference-image'
+          ? (values.referenceImageUrls?.length ?? 0)
+          : refs;
     if (role.required && count < role.min)
       issues.push(
         role.role === 'reference'
@@ -103,6 +119,34 @@ function validate(entry: ImageRegistryEntry, values: GuidedImageRequest): string
           : `At most ${role.max} ${role.role} inputs are supported.`
       );
   }
+  if (
+    values.outputCompression !== undefined &&
+    !['jpeg', 'webp'].includes(values.outputFormat ?? 'png')
+  )
+    issues.push('Output compression requires JPEG or WebP.');
+  if (
+    entry.publicModelId === 'seedream-5.5' &&
+    values.background === 'transparent' &&
+    (values.outputFormat ?? 'png') !== 'png'
+  )
+    issues.push('Seedream transparent output requires PNG.');
+  if (
+    ['minimax-h3-image', 'seedream-5.5'].includes(entry.publicModelId) &&
+    values.aspectRatio === 'auto' &&
+    !refs
+  )
+    issues.push('Auto size requires reference images.');
+  if (entry.publicModelId === 'ideogram-v4.5-edit') {
+    if (values.maskUrl && (values.referenceImageUrls?.length ?? 0) > 3)
+      issues.push('Masked Ideogram edits allow at most three references.');
+    if (
+      (values.maskUrl || values.editPrecision === 'high') &&
+      ((values.aspectRatio && values.aspectRatio !== 'auto') ||
+        values.width !== undefined ||
+        values.height !== undefined)
+    )
+      issues.push('Masked and high-precision edits require auto size.');
+  }
   const hasDimensions = values.width !== undefined || values.height !== undefined;
   if (hasDimensions) {
     if (!entry.output.customSize) issues.push('Custom dimensions are not supported.');
@@ -115,6 +159,18 @@ function validate(entry: ImageRegistryEntry, values: GuidedImageRequest): string
       issues.push('Custom dimensions must be positive integer values.');
     const width = values.width ?? 0;
     const height = values.height ?? 0;
+    if (entry.publicModelId.startsWith('flux-3-klein')) {
+      const expected =
+        Math.max(width, height) <= 1024 ? '1K' : Math.max(width, height) <= 2048 ? '2K' : '4K';
+      if (Math.min(width, height) < 256)
+        issues.push('Flux Klein custom dimensions must be at least 256.');
+      if (values.resolution !== expected)
+        issues.push('Flux Klein custom dimensions require an explicit matching resolution.');
+    }
+    if (entry.publicModelId.startsWith('mai-image-2.6') && Math.min(width, height) < 768)
+      issues.push('MAI custom dimensions must be at least 768.');
+    if (entry.publicModelId === 'ideogram-v4.5-edit' && Math.min(width, height) < 256)
+      issues.push('Ideogram custom dimensions must be at least 256.');
     const constraints = entry.validation.customDimensions;
     if (constraints?.divisor && (width % constraints.divisor || height % constraints.divisor))
       issues.push(`Custom dimensions must be divisible by ${constraints.divisor}.`);
@@ -136,12 +192,6 @@ function validate(entry: ImageRegistryEntry, values: GuidedImageRequest): string
       issues.push(`${entry.family} accepts custom dimensions or resolution, not both.`);
     if (entry.family === 'GPT Image 2' && values.resolution !== '2K' && values.resolution !== '4K')
       issues.push('GPT Image 2 custom dimensions require 2K or 4K resolution.');
-    if (isGpt25) {
-      if (!['2K', '4K'].includes(values.resolution ?? '1K'))
-        issues.push('GPT Image 2.5 custom dimensions require 2K or 4K resolution.');
-      if (Math.max(width, height) === 3840 && values.resolution !== '4K')
-        issues.push('GPT Image 2.5 a 3840-pixel edge requires 4K resolution.');
-    }
   }
   if (
     ['Seedream 4.5', 'Seedream 5.0 Lite'].includes(entry.family) &&
@@ -195,6 +245,7 @@ export function normalizeImageRequest(
         : { width: values.width, height: values.height };
   const refs = imageUrls(values.imageUrls);
   if (refs) input.image_urls = refs;
+  if (values.referenceImageUrls) input.reference_image_urls = imageUrls(values.referenceImageUrls);
   if (values.maskUrl) input.mask_url = imageUrls([values.maskUrl])?.[0];
   // Poyo drops enable_safety_checker on models whose page does not document it, verified live
   // across every provider family, so the studio always opts out of provider-side filtering.
@@ -222,7 +273,11 @@ export function normalizeImageRequest(
     if (!isStrictJsonValue(override.value))
       throw new RegistryValidationError([`Expert override ${override.key} must be strict JSON.`]);
     input[override.key] = override.value;
-    expertDiff.push({ key: override.key, status: 'unverified', value: override.value });
+    expertDiff.push({
+      key: override.key,
+      status: 'unverified',
+      value: override.value
+    });
   }
   return {
     request: { model: entry.publicModelId, input },
@@ -232,7 +287,16 @@ export function normalizeImageRequest(
   };
 }
 export function minimumValidRequest(entry: ImageRegistryEntry): GuidedImageRequest {
-  const values: GuidedImageRequest = { prompt: 'studio image' };
+  const values: GuidedImageRequest = {};
+  for (const field of entry.fields) {
+    if (field.required && field.kind === 'text' && field.default === undefined)
+      (values as Record<string, unknown>)[field.key] =
+        field.key === 'prompt'
+          ? 'studio image'
+          : field.key === 'targetLanguage'
+            ? 'English'
+            : 'auto';
+  }
   const role = entry.inputRoles.find((item) => item.role === 'reference');
   if (role?.required)
     values.imageUrls = Array.from(

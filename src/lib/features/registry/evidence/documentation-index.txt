@@ -1,0 +1,536 @@
+# PoYo AI
+
+## Platform
+
+### Overview
+
+- [Getting Started](https://docs.poyo.ai/index.md): Make your first PoYo model request and learn the production request lifecycle.
+- [API Overview](https://docs.poyo.ai/api-manual/overview.md): Complete API reference and architecture
+- [Error Codes](https://docs.poyo.ai/api-manual/error-codes.md): API error codes and response formats
+
+### Task Management
+
+#### All Tasks
+
+- [Get Task Status](https://docs.poyo.ai/api-manual/task-management/status.md): Query task execution status and retrieve generation results
+- [Webhook Callbacks](https://docs.poyo.ai/api-manual/task-management/webhooks.md): Receive automatic notifications when tasks complete
+
+#### Image
+
+- [Get Task Status](https://docs.poyo.ai/api-manual/task-management/image-status.md): Query image task execution status and retrieve generated image files
+- [Webhook Callbacks](https://docs.poyo.ai/api-manual/task-management/image-webhooks.md): Receive automatic notifications when image tasks complete
+
+#### Video
+
+- [Get Task Status](https://docs.poyo.ai/api-manual/task-management/video-status.md): Query video task execution status and retrieve generated video files
+- [Webhook Callbacks](https://docs.poyo.ai/api-manual/task-management/video-webhooks.md): Receive automatic notifications when video tasks complete
+
+#### 3D
+
+- [Get Task Status](https://docs.poyo.ai/api-manual/task-management/3d-status.md): Query 3D task execution status and retrieve generated model files
+- [Webhook Callbacks](https://docs.poyo.ai/api-manual/task-management/3d-webhooks.md): Receive automatic notifications when 3D tasks complete
+
+#### Music
+
+- [Query Music Detail](https://docs.poyo.ai/api-manual/music-series/query-music-detail.md): Query detailed results of music generation tasks
+- [Music Webhook](https://docs.poyo.ai/api-manual/music-series/music-webhook.md)
+
+### File Management
+
+- [Upload File from URL](https://docs.poyo.ai/api-manual/file-series/upload-url.md): Upload files to PoYo AI by providing a remote URL
+- [Upload File from Base64](https://docs.poyo.ai/api-manual/file-series/upload-base64.md): Upload files to PoYo AI using Base64-encoded data or Data URL format
+- [Upload File Stream](https://docs.poyo.ai/api-manual/file-series/upload-stream.md): Upload files to PoYo AI using multipart/form-data format for direct file uploads
+
+### Account Management
+
+- [Query User Balance](https://docs.poyo.ai/api-manual/account-management/user-balance.md): Query the credit balance of your user account
+
+### Security & Best Practices
+
+- [End-user identification (X-End-User-ID)](https://docs.poyo.ai/platform-security/end-user-identification.md): Send X-End-User-ID on unified generation and native Chat so you can block one caller on an API key.
+
+## Image Models
+
+### Image Models
+
+- [Image Models](https://docs.poyo.ai/api-manual/image-series/overview.md): All image generation and editing models available on PoYo, with their model IDs.
+
+#### OpenAI
+
+- [GPT-4o Image](https://docs.poyo.ai/api-manual/image-series/gpt-4o-image.md): The GPT-4o Image API generates images from text or transforms reference images. A separate edit model accepts mask-based edits.
+- [GPT Image 1.5](https://docs.poyo.ai/api-manual/image-series/gpt-image-1.5.md): The GPT Image 1.5 API generates or edits images. Output size is 1024x1024, 1024x1536, or 1536x1024, and the edit model supports masks.
+- [GPT Image 2](https://docs.poyo.ai/api-manual/image-series/gpt-image-2.md): The GPT Image 2 API generates one image from text or edits one or more reference images. Resolution runs from 1K to 4K, with custom sizes up to a 3840-pixel edge.
+- [GPT Image 2.5 Flare](https://docs.poyo.ai/api-manual/image-series/gpt-image-2-5-flare.md): The GPT Image 2.5 Flare API generates one image from a prompt or edits up to 16 reference images. It is the faster GPT Image 2.5 option and supports masks, transparent backgrounds, and 1K to 4K output.
+- [GPT Image 2.5 Sunburst](https://docs.poyo.ai/api-manual/image-series/gpt-image-2-5-sunburst.md): The GPT Image 2.5 Sunburst API generates one image from a prompt or edits up to 16 reference images. Use it when editing precision matters, with masks, transparent backgrounds, and 1K to 4K output.
+- [GPT Image 2.5 Fixed](https://docs.poyo.ai/api-manual/image-series/gpt-image-2-5-fixed.md): Generate or edit images with GPT Image 2.5 Flare or Sunburst at a fixed per-image price by resolution.
+- [GPT Image 2.6 Flare](https://docs.poyo.ai/api-manual/image-series/gpt-image-2-6-flare.md): The GPT Image 2.6 Flare API generates one image from a prompt or edits up to 16 reference images. It is the faster GPT Image 2.6 option for quick iteration and supports masks, transparent backgrounds, and 1K to 4K output.
+- [GPT Image 2.6 Sunburst](https://docs.poyo.ai/api-manual/image-series/gpt-image-2-6-sunburst.md): The GPT Image 2.6 Sunburst API generates one image from a prompt or edits up to 16 reference images. Use it for detailed visual work and precision-focused editing, with masks, transparent backgrounds, and 1K to 4K output.
+- [GPT Image 2.6 Fixed](https://docs.poyo.ai/api-manual/image-series/gpt-image-2-6-fixed.md): Generate or edit images with GPT Image 2.6 Flare or Sunburst at a fixed per-image price by resolution.
+
+#### Microsoft
+
+- [MAI Image 2.6](https://docs.poyo.ai/api-manual/image-series/mai-image-2-6.md): The MAI Image 2.6 API from Microsoft generates one image from a prompt, edits a reference image, or combines up to 5 reference images. It supports 1K and 2K output, custom sizes, and optional web search grounding.
+- [MAI Image 2.6 Flash](https://docs.poyo.ai/api-manual/image-series/mai-image-2-6-flash.md): The MAI Image 2.6 Flash API from Microsoft is the faster, lower-cost MAI Image 2.6 option. It generates one image from a prompt, edits a reference image, or combines up to 5 reference images, with 1K and 2K output, custom sizes, and optional web search grounding.
+
+#### MiniMax
+
+- [MiniMax H3 Image](https://docs.poyo.ai/api-manual/image-series/minimax-h3-image.md): The MiniMax H3 Image API generates an image from a prompt or edits up to 16 reference images. It supports 1K, 2K, and 4K output, ten aspect ratios, and custom sizes up to 20 megapixels.
+
+#### Google
+
+- [Nano Banana](https://docs.poyo.ai/api-manual/image-series/nano-banana.md): The Nano Banana API generates or edits images with Google's Gemini 2.5 Flash Image model. It is the earlier fast option in the Nano Banana series.
+- [Nano Banana Pro](https://docs.poyo.ai/api-manual/image-series/nano-banana-2.md): The Nano Banana Pro API generates and edits images at 1K, 2K, or 4K. Pro editing accepts up to 14 reference images and can use web search; this page also keeps the earlier Nano Banana 2 model IDs.
+- [Nano Banana 2](https://docs.poyo.ai/api-manual/image-series/nano-banana-2-new.md): The Nano Banana 2 API generates or edits images with Gemini 3.1 Flash Image. It supports up to 14 reference images and output from 0.5K through 4K, including native 2K and 4K.
+- [Nano Banana 2 Lite](https://docs.poyo.ai/api-manual/image-series/nano-banana-2-lite.md): The Nano Banana 2 Lite API generates images from text or edits reference images. It is the fast Gemini 3.1 Flash Lite Image model, and output aspect ratio can be set explicitly.
+- [Nano Banana 2.1](https://docs.poyo.ai/api-manual/image-series/nano-banana-2-1.md): The Nano Banana 2.1 API generates an image from a prompt or edits up to 10 reference images. The default resolution is 1K, and editing can leave the aspect ratio on auto.
+
+#### Flux
+
+- [Flux.2](https://docs.poyo.ai/api-manual/image-series/flux-2.md): The FLUX.2 API generates or edits images. Pro models target high-fidelity production output, and Flex models trade speed against quality. Editing accepts up to 8 reference images, with output up to 2K.
+- [Flux Dev](https://docs.poyo.ai/api-manual/image-series/flux-dev.md): The FLUX.1 Dev API generates images from a prompt or edits exactly one reference image. Text-to-image accepts preset ratios, a high-definition square, or a custom WIDTHxHEIGHT size.
+- [Flux Schnell](https://docs.poyo.ai/api-manual/image-series/flux-schnell.md): The FLUX.1 Schnell API generates images quickly from a text prompt. Output size can be a preset ratio, a high-definition square, or a custom WIDTHxHEIGHT value.
+- [Flux Kontext](https://docs.poyo.ai/api-manual/image-series/flux-kontext.md): The FLUX.1 Kontext API generates images from text or edits one reference image with Pro or Max. Aspect ratios run from 21:9 to 9:21, and edit requests use only the first image URL.
+- [Flux 3 Klein](https://docs.poyo.ai/api-manual/image-series/flux-3-klein.md): Generate or edit images with reference images and output up to 4K.
+
+#### Seedream
+
+- [Seedream-4](https://docs.poyo.ai/api-manual/image-series/seedream-4.md): The Seedream 4.0 API generates images from text or edits reference images. Resolution is 1K, 2K, or 4K, and the number of reference images plus outputs cannot exceed 15.
+- [Seedream-4.5](https://docs.poyo.ai/api-manual/image-series/seedream-4-5.md): The Seedream 4.5 API generates images from text or edits up to 10 reference images. Output can be 2K, 4K, a preset aspect ratio, or a custom width and height.
+- [Seedream-5.0-Lite](https://docs.poyo.ai/api-manual/image-series/seedream-5-0-lite.md): The Seedream 5.0 Lite API generates images from text or edits up to 10 reference images. Output can be 2K, 3K, a preset ratio, or a custom width and height.
+- [Seedream-5.0-Pro](https://docs.poyo.ai/api-manual/image-series/seedream-5-0-pro.md): The Seedream 5.0 Pro API generates images from text or edits up to 10 reference images. Output resolution is 1K or 2K across preset aspect ratios.
+- [Seedream-5.0-Flash](https://docs.poyo.ai/api-manual/image-series/seedream-5-0-flash.md): The Seedream 5.0 Flash API generates one image from text or edits 1 to 10 reference images. Resolution is 1K, 1.5K, or 2K.
+- [Seedream 5.5](https://docs.poyo.ai/api-manual/image-series/seedream-5-5.md): The Seedream 5.5 API generates an image from a prompt or edits up to 10 reference images. It supports 1K, 1.5K, and 2K output, eight aspect ratios, and transparent PNG backgrounds.
+- [Seedream 5.5 Layer Decomposition](https://docs.poyo.ai/api-manual/image-series/seedream-5-5-layerize.md): The Seedream 5.5 Layer Decomposition API splits one image into a base image and up to 99 transparent PNG layers, with layer positions, names, descriptions, and optional text OCR.
+
+#### Grok (xAI)
+
+- [Grok Imagine Image](https://docs.poyo.ai/api-manual/image-series/grok-imagine-image.md): The Grok Imagine Image API generates images from text or edits a single reference image. Supported aspect ratios are 2:3, 3:2, 1:1, 16:9, and 9:16.
+- [Grok Imagine Image Quality](https://docs.poyo.ai/api-manual/image-series/grok-imagine-image-quality.md): The Grok Imagine Image Quality API generates images from a prompt or edits one or more reference images. Set the number of output images with n.
+- [Grok Imagine Image 2.0](https://docs.poyo.ai/api-manual/image-series/grok-imagine-image-2-0.md): The Grok Imagine Image 2.0 API generates images from text or edits one to three reference images. Quality and resolution are selectable, and one request can return up to four images.
+
+#### Kling
+
+- [Kling-o1](https://docs.poyo.ai/api-manual/image-series/kling-o1.md): The Kling O1 API edits images using 1 to 10 reference images and optional character or object elements. Output is 1K or 2K, in preset aspect ratios or auto.
+- [Kling-o3](https://docs.poyo.ai/api-manual/image-series/kling-o3.md): The Kling O3 API generates images from a prompt or edits 1 to 10 reference images. Resolution is 1K, 2K, or 4K, and optional elements can lock a character or object.
+
+#### Alibaba
+
+- [Qwen Image 3](https://docs.poyo.ai/api-manual/image-series/qwen-image-3.md): The Qwen Image 3 API generates images from text or from one to three reference images, including Qwen Image 3 Pro. Both support 1K and 2K output, negative prompts, and natural-language edits.
+- [Qwen Image 2.1](https://docs.poyo.ai/api-manual/image-series/qwen-image-2-1.md): The Qwen Image 2.1 API generates one image from text, combines up to 10 reference images, or applies a mask edit. Output is 1K or 2K, and backgrounds can be opaque or transparent.
+- [Wan-2.7-Image-Pro](https://docs.poyo.ai/api-manual/image-series/wan-2-7-image-pro.md): The Wan 2.7 Image Pro API generates or edits images, using up to four reference images and up to four outputs. Size can be a listed preset or a custom width and height.
+- [Wan-2.7-Image](https://docs.poyo.ai/api-manual/image-series/wan-2-7-image.md): The Wan 2.7 Image API generates images from text or edits one to four reference images. Return one to four images at a preset size or a custom width and height.
+- [Z-Image](https://docs.poyo.ai/api-manual/image-series/z-image.md): The Z-Image API generates an image from a prompt or edits exactly one reference image. Text-to-image requires an aspect ratio of 1:1, 4:3, 3:4, 16:9, or 9:16.
+
+#### Ideogram
+
+- [Ideogram V4.5](https://docs.poyo.ai/api-manual/image-series/ideogram-v4-5.md): The Ideogram 4.5 API generates images from a prompt or edits one primary image. Edits can add up to four reference images, or three when a mask is set, and high precision keeps unedited pixels.
+- [Ideogram Vector 1.0](https://docs.poyo.ai/api-manual/image-series/ideogram-vector-1-0.md): Generate SVG vector graphics from a prompt, with up to five reference images, or convert one image into an SVG.
+
+## Video Models
+
+### Video Models
+
+- [Video Models](https://docs.poyo.ai/api-manual/video-series/overview.md): All video generation models available on PoYo, with their model IDs.
+
+#### Google
+
+- [VEO 3.1](https://docs.poyo.ai/api-manual/video-series/veo-3-1.md): The VEO 3.1 API generates 8-second videos from text. Fast and quality models can also start from an image, and quality output can reach 4K.
+- [VEO 3.1 Official](https://docs.poyo.ai/api-manual/video-series/veo-3-1-official.md): The VEO 3.1 Official API generates 4, 6, or 8 second videos from text or images, with optional silent output. Quality models can output 4K; three reference images are fixed at 8 seconds.
+- [Omni Flash](https://docs.poyo.ai/api-manual/video-series/omni-flash.md): The Omni Flash API generates 4–10 second 16:9 or 9:16 video from text, one image, exactly three reference images, or one input video at 720p, 1080p, or 4K.
+- [Gemini Omni 1.1 Flash](https://docs.poyo.ai/api-manual/video-series/gemini-omni-1.1-flash.md): The Gemini Omni 1.1 Flash API generates 4–10 second videos from text, one or two keyframes, up to seven reference images, or one 3–10 second reference video at 360p to 4K.
+- [Gemini Omni 1.2 Flash](https://docs.poyo.ai/api-manual/video-series/gemini-omni-1.2-flash.md): The Gemini Omni 1.2 Flash API generates 3–15 second videos at 360p to 4K from text, first and last frames, or reference images and videos, and edits existing videos up to 15 seconds long.
+
+#### Flux
+
+- [Flux 3](https://docs.poyo.ai/api-manual/video-series/flux-3.md): The Flux 3 API generates a video from text, one starting image, first and last frames, or up to ten keyframes, or continues an existing MP4.
+- [Flux 3 Max](https://docs.poyo.ai/api-manual/video-series/flux-3-max.md): Create videos from text, starting and ending images, or positioned keyframes, with optional audio.
+
+#### Wan
+
+- [Wan Animate](https://docs.poyo.ai/api-manual/video-series/wan-animate.md): The Wan Animate API animates a character image from a reference video, or replaces a person in a video while keeping their motion and expressions, at up to 720p.
+- [Wan 2.2 Text-to-Video Fast](https://docs.poyo.ai/api-manual/video-series/wan2.2-text-to-video-fast.md): Fast text-to-video generation with Alibaba Wan 2.2 Fast
+- [Wan 2.2 Image-to-Video Fast](https://docs.poyo.ai/api-manual/video-series/wan2.2-image-to-video-fast.md): Fast image-to-video generation with Alibaba Wan 2.2 Fast
+- [Wan 2.5 Image-to-Video](https://docs.poyo.ai/api-manual/video-series/wan2.5-image-to-video.md): The Wan 2.5 Image-to-Video API animates one image into a 5 or 10 second video at 480p, 720p, or 1080p, with an optional audio URL.
+- [Wan 2.5 Text-to-Video](https://docs.poyo.ai/api-manual/video-series/wan2.5-text-to-video.md): The Wan 2.5 Text-to-Video API generates a 5 or 10 second video from text at 480p, 720p, or 1080p, with an optional audio URL.
+- [Wan 2.6](https://docs.poyo.ai/api-manual/video-series/wan-2-6.md): The Wan 2.6 API generates or restyles video at 720p or 1080p for 5, 10, or 15 seconds, with multi-shot composition. Video-to-video is limited to 10 seconds.
+- [Wan 2.7](https://docs.poyo.ai/api-manual/video-series/wan-2-7-video.md): The Wan 2.7 API generates or edits 720p or 1080p video from text, one or two frames, reference media, or a source video. Text and image requests can include an audio URL.
+- [Wan 3.0](https://docs.poyo.ai/api-manual/video-series/wan-3-0-video.md): The Wan 3.0 API generates a 2–30 second video at 480p, 720p, or 1080p from text, start and end frames, or image, video, audio, document, and webpage references, with a controllable audio track.
+- [Wan 3.0 Prime](https://docs.poyo.ai/api-manual/video-series/wan-3-0-video-prime.md): The Wan 3.0 Prime API generates a 2–30 second 480p, 720p, or 1080p video from text, frames, or multimodal references, with controllable generated audio.
+
+#### Kling
+
+- [Kling 1.6](https://docs.poyo.ai/api-manual/video-series/kling-1-6.md): The Kling 1.6 API generates 5 or 10 second video from text or a first frame. Pro can also set a last frame.
+- [Kling 2.1](https://docs.poyo.ai/api-manual/video-series/kling-2-1.md): The Kling 2.1 API animates a required first-frame image for 5 or 10 seconds. Pro can also take an optional last frame.
+- [Kling 2.5 Turbo Pro](https://docs.poyo.ai/api-manual/video-series/kling-2-5-turbo-pro.md): The Kling 2.5 Turbo Pro API generates a 5 or 10 second video from a prompt, with an optional first frame, last frame, or both.
+- [Kling 2.6](https://docs.poyo.ai/api-manual/video-series/kling-2-6.md): The Kling 2.6 API generates a 5 or 10 second text or image video with native audio in 1:1, 16:9, or 9:16.
+- [Kling 3.0](https://docs.poyo.ai/api-manual/video-series/kling-3-0.md): The Kling 3.0 API generates 3–15 second text or image videos with optional native audio, start and end frames, and multi-shot prompts at about 720p or 1080p.
+- [Kling 3.0 Turbo](https://docs.poyo.ai/api-manual/video-series/kling-3-0-turbo.md): The Kling 3.0 Turbo API generates 3–15 second 720p or 1080p video from text or a first frame, with optional multi-shot prompts.
+- [Kling 3.0 4K](https://docs.poyo.ai/api-manual/video-series/kling-3-0-4k.md): The Kling 3.0 4K API generates native 4K video of 3–15 seconds from text or start and end frames, with optional native audio and multi-shot prompts.
+- [Kling Avatar 2.0](https://docs.poyo.ai/api-manual/video-series/kling-avatar-2-0.md): The Kling Avatar 2.0 API generates an avatar video from one character image and a driving audio track of 2–60 seconds, with an optional prompt.
+- [Kling O3](https://docs.poyo.ai/api-manual/video-series/kling-o3.md): Next-generation video generation with Kling O3 standard and pro
+- [Kling O3 4K](https://docs.poyo.ai/api-manual/video-series/kling-o3-4k.md): Native 4K video generation with Kling O3/4K
+- [Kling 2.6 Motion Control](https://docs.poyo.ai/api-manual/video-series/kling-2.6-motion-control.md): The Kling 2.6 Motion Control API transfers motion from a 3–30 second reference video onto one character image at 720p or 1080p. Image orientation caps the result at 10 seconds; video orientation allows up to 30 seconds.
+- [Kling 3.0 Motion Control](https://docs.poyo.ai/api-manual/video-series/kling-3-0-motion-control.md): The Kling 3.0 Motion Control API transfers motion from one reference video onto one image at 720p or 1080p. Video orientation allows up to 30 seconds and an optional facial element; image orientation allows up to 10 seconds.
+- [Kling 4.0](https://docs.poyo.ai/api-manual/video-series/kling-4-0.md): Generate videos from text, first and last frames, or visual references, and edit an existing video at 720p or 1080p.
+- [Kling 4.0 Flash](https://docs.poyo.ai/api-manual/video-series/kling-4-0-flash.md): Generate fast 720p videos of 3–20 seconds from text, a start frame, or visual references, and edit an existing video.
+
+#### Grok (xAI)
+
+- [Grok Imagine](https://docs.poyo.ai/api-manual/video-series/grok-imagine.md): The Grok Imagine API generates a 6 or 10 second video from text or an image in 1:1, 2:3, 3:2, 16:9, or 9:16.
+- [Grok Imagine Video 1.5](https://docs.poyo.ai/api-manual/video-series/grok-imagine-video-1-5.md): The Grok Imagine Video 1.5 API generates 1–15 second videos from text or one first-frame image at up to 1080p, or from up to seven reference images at up to 720p.
+
+#### Hailuo
+
+- [Hailuo 02](https://docs.poyo.ai/api-manual/video-series/hailuo-02.md): The Hailuo 02 API generates text or image videos at 512P or 768P for 6 or 10 seconds, or at 1080P for 6 seconds. A last frame is optional and requires 768P.
+- [Hailuo 2.3](https://docs.poyo.ai/api-manual/video-series/hailuo-2-3.md): The Hailuo 2.3 API generates a video from text, optionally guided by one first frame, at 768p for 6 or 10 seconds or at 1080p for 6 seconds.
+- [Hailuo 03](https://docs.poyo.ai/api-manual/video-series/hailuo-03.md): Generate 2K videos from text, keyframes, or multimodal references
+- [H3 Max](https://docs.poyo.ai/api-manual/video-series/h3-max.md): Create videos from text, keyframes, or multimodal references
+- [H3 Max Turbo](https://docs.poyo.ai/api-manual/video-series/h3-max-turbo.md): Generate videos from text, a first frame, or first and last frames
+
+#### Vidu
+
+- [Vidu Q4](https://docs.poyo.ai/api-manual/video-series/vidu-q4.md): Generate a 3–16 second video from one starting frame or reference images, with optional reference audio, at resolutions from 540p to 4k.
+
+#### PixVerse
+
+- [PixVerse V6 Max](https://docs.poyo.ai/api-manual/video-series/pixverse-v6-max.md): Generate a 1–15 second video from text or one image, with optional native audio, at 360p to 1080p.
+
+#### ByteDance
+
+- [OmniHuman 2.0](https://docs.poyo.ai/api-manual/video-series/omnihuman-2-0.md): Animate one character image with a 4–300 second driving audio track and optional performance instructions.
+
+#### Runway
+
+- [Runway Gen-4.5](https://docs.poyo.ai/api-manual/video-series/runway-gen-4-5.md): The Runway Gen-4.5 API generates a 5 or 10 second video from text, with an optional single reference image, in 16:9, 9:16, 4:3, 3:4, 1:1, or 21:9.
+
+#### Seedance
+
+- [Seedance 1.0 Pro](https://docs.poyo.ai/api-manual/video-series/seedance-1.0-pro.md): High-quality video generation with Seedance 1.0 Pro
+- [Seedance 1.5 Pro](https://docs.poyo.ai/api-manual/video-series/seedance-1-5-pro.md): The Seedance 1.5 Pro API generates video from text or an image, with an optional generated audio track.
+- [Seedance 2](https://docs.poyo.ai/api-manual/video-series/seedance-2.md): The Seedance 2 API generates a 4–15 second video from text, up to two frames, or image, video, and audio references. A faster variant is limited to 480p and 720p.
+- [Seedance 2 Mini](https://docs.poyo.ai/api-manual/video-series/seedance-2-mini.md): Fast video generation with Seedance 2 Mini
+- [Seedance 2.5](https://docs.poyo.ai/api-manual/video-series/seedance-2.5.md): The Seedance 2.5 API generates a 4–30 second video from text, first and last frames, or image, video, and audio references at 480p, 720p, or 1080p.
+
+#### Alibaba
+
+- [Happy Horse](https://docs.poyo.ai/api-manual/video-series/happy-horse.md): The Happy Horse API generates 3–15 second 720p or 1080p video from text, one first frame, or up to nine reference images, or edits a source video while keeping or replacing its audio.
+- [Happy Horse 1.1](https://docs.poyo.ai/api-manual/video-series/happy-horse-1-1.md): The Happy Horse 1.1 API generates a 3–15 second 720p or 1080p video from text, one first-frame image, or one to nine reference images.
+
+## LLM Models
+
+### LLM Models
+
+- [LLM Models](https://docs.poyo.ai/api-manual/chat-series/overview.md): All large language models available on PoYo, with the API formats each model supports.
+
+#### API Formats
+
+- [Chat Completions](https://docs.poyo.ai/api-manual/chat-series/chat-completions.md): The General Chat API is a model-agnostic endpoint compatible with the OpenAI Chat Completions request shape. Send a model id and messages, and optionally request a server-sent event stream.
+- [Responses](https://docs.poyo.ai/api-manual/chat-series/responses.md): The Responses API is an OpenAI-compatible endpoint for plain text or structured image input. Tool calls and server-sent event streaming are available when the selected model supports them.
+- [Anthropic Messages](https://docs.poyo.ai/api-manual/chat-series/claude-messages.md): The Claude Messages API is a model-agnostic endpoint compatible with the Anthropic Messages format. It accepts single-turn or multi-turn text and image input, with streaming and tool use shown in the page examples.
+- [Gemini Native](https://docs.poyo.ai/api-manual/chat-series/gemini-native-format.md): The Gemini Native Format API calls generateContent and streamGenerateContent. Requests use contents and parts, including text and inline image data.
+
+#### Models
+
+- [OpenAI](https://docs.poyo.ai/api-manual/chat-series/openai.md): Call OpenAI GPT-6, GPT-5.6, and GPT-5 series models through the Responses or Chat Completions endpoint.
+- [Anthropic](https://docs.poyo.ai/api-manual/chat-series/anthropic.md): Call Anthropic Claude 5.5, 5, and 4 series models through the Anthropic Messages or Chat Completions endpoint.
+- [Google](https://docs.poyo.ai/api-manual/chat-series/google.md): Call Google Gemini 4 and Gemini 3 series models through the Gemini Native or Chat Completions endpoint.
+- [DeepSeek](https://docs.poyo.ai/api-manual/chat-series/deepseek.md): Call DeepSeek V4 and V4.1 models through the OpenAI-compatible Chat Completions endpoint.
+- [xAI](https://docs.poyo.ai/api-manual/chat-series/xai.md): Call xAI Grok 4.7 and Grok 4.6 through the OpenAI-compatible Chat Completions endpoint.
+- [Moonshot AI](https://docs.poyo.ai/api-manual/chat-series/moonshot.md): Call Moonshot AI Kimi K3 through the OpenAI-compatible Chat Completions endpoint.
+
+## 3D Models
+
+### 3D Models
+
+- [3D Models](https://docs.poyo.ai/api-manual/3d-series/overview.md): All 3D generation models available on PoYo, with their model IDs.
+
+#### Meshy
+
+- [Meshy 6 3D](https://docs.poyo.ai/api-manual/3d-series/meshy-6-3d.md): The Meshy 6 3D API generates a 3D mesh from text, one image, or 1–4 images of the same object. Textures, PBR maps, humanoid rigging, and a preset animation can be requested, with GLB, FBX, OBJ, USDZ, and STL among the documented outputs.
+- [Meshy 7.1 3D](https://docs.poyo.ai/api-manual/3d-series/meshy-7-1-3d.md): The Meshy 7.1 3D API generates a 3D mesh from text, one image, or 1–4 images, with optional textures, PBR maps, humanoid rigging, and a preset animation. Text and single-image tasks can use standard, 2K, or 4K geometry; multi-image tasks accept standard or 2K.
+
+#### Hunyuan3D
+
+- [Hunyuan 3D v3.1](https://docs.poyo.ai/api-manual/3d-series/hunyuan-3d-3-1.md): The Hunyuan 3D v3.1 API generates a 3D model from text or one image with Pro or Rapid. Pro can take extra views, a face-count target, PBR materials, or a geometry-only GLB; Rapid can return a textured model or an untextured white model.
+
+#### Tripo3D
+
+- [Tripo3D H3.1](https://docs.poyo.ai/api-manual/3d-series/tripo-h31-3d.md): The Tripo3D H3.1 API generates a high-detail 3D mesh from text, one image, or multiple views of the same object. Textures, PBR maps, quad topology, and standard or detailed geometry and texture quality can be requested.
+- [Tripo3D P1](https://docs.poyo.ai/api-manual/3d-series/tripo-p1-3d.md): The Tripo3D P1 API generates a low-poly 3D mesh from a text prompt or one object image, with optional textures. The documented face budget stays within the low tens of thousands, and a successful task can return a GLB.
+
+## Music Models
+
+### Music Models
+
+- [Music & Audio Models](https://docs.poyo.ai/api-manual/music-series/overview.md): All music, voice, and text-to-speech models available on PoYo, with their model IDs.
+
+#### Suno AI
+
+- [Generate Music](https://docs.poyo.ai/api-manual/music-series/generate-music.md): The Generate Music API generates songs from a prompt, lyrics, or reference media, using model versions V4 through V6. A custom length from 10 to 360 seconds is available for V5.5, V6, V6 Mini, and V6 Wild in custom mode.
+- [Generate MIDI](https://docs.poyo.ai/api-manual/music-series/generate-midi.md): Extract structured MIDI note data from a completed Suno vocal separation task.
+- [Generate Mashup](https://docs.poyo.ai/api-manual/music-series/generate-mashup.md): Blend exactly two audio tracks with Suno
+- [Generate Sounds](https://docs.poyo.ai/api-manual/music-series/generate-sounds.md): The Generate Sounds API generates sound effects, ambience, or musical samples from a text prompt with Suno V5 or V5.5. Tempo, musical key, and a loopable result are optional.
+- [Extend Music](https://docs.poyo.ai/api-manual/music-series/extend-music.md): Extend or modify existing music by creating a continuation based on a source audio track
+- [Upload and Cover Audio](https://docs.poyo.ai/api-manual/music-series/upload-and-cover-audio.md): Transform audio tracks into new styles while preserving the original melody
+- [Upload and Extend Audio](https://docs.poyo.ai/api-manual/music-series/upload-and-extend-audio.md): Extend audio tracks while preserving the original style
+- [Add Instrumental](https://docs.poyo.ai/api-manual/music-series/add-instrumental.md): Generate musical accompaniment for uploaded audio files
+- [Add Vocals](https://docs.poyo.ai/api-manual/music-series/add-vocals.md): Layer AI-generated vocals on top of an existing instrumental
+- [Get Timestamped Lyrics](https://docs.poyo.ai/api-manual/music-series/get-timestamped-lyrics.md): Retrieve synchronized lyrics with precise timestamps
+- [Boost Music Style](https://docs.poyo.ai/api-manual/music-series/boost-music-style.md): Generate enhanced music style descriptions using AI
+- [Generate Music Cover](https://docs.poyo.ai/api-manual/music-series/generate-music-cover.md): Create cover images for generated music.
+- [Replace Section](https://docs.poyo.ai/api-manual/music-series/replace-section.md): Replace specific sections of generated music tracks
+- [Generate Persona](https://docs.poyo.ai/api-manual/music-series/generate-persona.md): Create reusable musical personas from existing audio tracks
+- [Generate Lyrics](https://docs.poyo.ai/api-manual/music-series/generate-lyrics.md): AI-powered lyrics generation based on themes and descriptions
+- [Convert to WAV](https://docs.poyo.ai/api-manual/music-series/convert-to-wav.md): Convert generated music tracks to high-quality WAV format
+- [Create Music Video](https://docs.poyo.ai/api-manual/music-series/create-music-video.md): Generate visualized music videos from audio tracks
+
+##### Vocal Remover
+
+- [Separate Vocals](https://docs.poyo.ai/api-manual/music-series/vocal-remover/separate-vocals.md): Separate vocals and instruments from music tracks
+- [Stem Split](https://docs.poyo.ai/api-manual/music-series/vocal-remover/stem-split.md): Split music tracks into multiple instrument stems
+- [Upload and Separate Vocals](https://docs.poyo.ai/api-manual/music-series/vocal-remover/upload-and-separate-vocals.md): Upload audio and separate it into multiple stems
+
+##### Suno Voice
+
+- [Suno Voice Workflow](https://docs.poyo.ai/api-manual/music-series/voice/overview.md): Validate a voice recording and create a reusable Suno Voice ID
+- [Validate Suno Voice](https://docs.poyo.ai/api-manual/music-series/voice/validate.md): Extract a verification phrase from a voice sample
+- [Generate Suno Voice](https://docs.poyo.ai/api-manual/music-series/voice/generate.md): Create a reusable Voice ID from a verification recording
+- [Regenerate Voice Phrase](https://docs.poyo.ai/api-manual/music-series/voice/regenerate.md): Request a new verification phrase for a Voice validation task
+- [Check Suno Voice](https://docs.poyo.ai/api-manual/music-series/voice/check.md): Check whether a generated Voice ID is still available
+
+#### MiniMax
+
+- [MiniMax Music 2.6](https://docs.poyo.ai/api-manual/music-series/minimax-music-2.6.md): The MiniMax Music 2.6 API generates a complete track from a style prompt, using supplied lyrics, lyrics generated from the prompt, or instrumental-only mode. Audio can be returned as MP3, WAV, or PCM at the documented sample rates and bitrates.
+
+#### ElevenLabs
+
+- [ElevenLabs Music](https://docs.poyo.ai/api-manual/music-series/elevenlabs-music.md): The ElevenLabs Music API generates music from either a text brief or a structured composition plan. Text requests can set a length from 3 to 600 seconds or request instrumental output; each composition-plan section is 3 to 120 seconds.
+- [ElevenLabs V3 TTS](https://docs.poyo.ai/api-manual/music-series/elevenlabs-v3-tts.md): The ElevenLabs V3 TTS API converts up to 5,000 characters of text into speech using one of the listed preset voices. An optional ISO 639-1 language code can enforce the language, and timestamps can be returned as a separate file.
+- [ElevenLabs TTS Turbo v2.5](https://docs.poyo.ai/api-manual/music-series/elevenlabs-tts-turbo-2-5.md): The ElevenLabs TTS Turbo v2.5 API converts up to 40,000 characters of text into speech with a selectable voice, speed from 0.7 to 1.2, and an optional ISO 639-1 language code. Previous and next text can be supplied to keep narration continuous across requests.
+- [ElevenLabs V4 TTS](https://docs.poyo.ai/api-manual/music-series/elevenlabs-v4-tts.md): The ElevenLabs V4 TTS API converts up to 5,000 characters of text into speech with voice, stability, and similarity controls, plus an optional language code. Choose one of 19 audio formats, and optionally receive timestamps as a separate file.
+- [ElevenLabs V4 Turbo TTS](https://docs.poyo.ai/api-manual/music-series/elevenlabs-v4-turbo-tts.md): The ElevenLabs V4 Turbo TTS API converts up to 5,000 characters of text into lower-latency speech with voice, stability, and similarity controls. Choose one of 19 audio formats, and optionally receive timestamps as a separate file.
+
+#### Google
+
+- [Gemini 3.1 Flash TTS](https://docs.poyo.ai/api-manual/music-series/gemini-3-1-flash-tts.md): The Gemini 3.1 Flash TTS API converts text into single-speaker or two-speaker speech using a preset voice, inline delivery tags, and optional style instructions. Set an optional language, and return MP3, WAV, or Opus audio.
+- [Gemini 3.8 Flash Lite TTS](https://docs.poyo.ai/api-manual/music-series/gemini-3-8-flash-lite-tts.md): The Gemini 3.8 Flash Lite TTS API converts a transcript or a two-speaker dialogue into WAV speech using preset voices and optional style instructions. The complete input is limited to 8,192 tokens.
+- [Gemini 3.8 Flash TTS](https://docs.poyo.ai/api-manual/music-series/gemini-3-8-flash-tts.md): The Gemini 3.8 Flash TTS API converts a transcript or a two-speaker dialogue into WAV speech using preset voices and separate style instructions. The complete input is limited to 8,192 tokens.
+
+#### xAI
+
+- [xAI TTS 1](https://docs.poyo.ai/api-manual/music-series/xai-tts-1.md): The xAI TTS 1 API converts up to 15,000 characters of text into speech with one of five voices, a BCP-47 language code or automatic detection, and inline delivery tags. Choose the codec, sample rate, and MP3 bitrate.
+
+## AI Tools
+
+### AI Tools
+
+- [AI Tools](https://docs.poyo.ai/api-manual/tools-series/overview.md): AI tools available on PoYo: translation, background removal, upscaling, and content moderation.
+- [Image Translator](https://docs.poyo.ai/api-manual/tools-series/image-translator.md): Translate the text inside an image into another language and return a new image.
+- [Video Translator](https://docs.poyo.ai/api-manual/tools-series/video-translator.md): Translate the speech in a video or audio file and return a dubbed video with target-language subtitles.
+- [Video Background Removal](https://docs.poyo.ai/api-manual/tools-series/video-background-removal.md): Remove the background from a video and return a transparent or solid-color result.
+- [Video Upscaler](https://docs.poyo.ai/api-manual/tools-series/video-upscaler.md): Increase the resolution of an existing video by a scale factor from 1 to 8.
+- [Omni Moderation](https://docs.poyo.ai/api-manual/moderation-series/omni-moderation.md): Review text and HTTPS images asynchronously with OpenAI.
+
+## AI Agents
+
+### Get started
+
+- [AI agents and developer tools](https://docs.poyo.ai/integrations/overview.md): Choose an Agent Skill, CLI, MCP, or REST for your PoYo workflow.
+- [Quickstart](https://docs.poyo.ai/integrations/quickstart.md): Generate your first image from Claude Code, Codex, or Cursor in three steps.
+- [Authentication](https://docs.poyo.ai/integrations/authentication.md): Authenticate PoYo MCP and CLI requests with a PoYo API key.
+- [PoYo Agent Skill](https://docs.poyo.ai/integrations/skill.md): Install and use the poyo-ai-models workflow with coding agents
+- [PoYo CLI](https://docs.poyo.ai/integrations/cli.md): Discover models, stream chat, run generation, and manage tasks
+
+### MCP
+
+- [Connect with MCP](https://docs.poyo.ai/integrations/mcp.md): Connect an AI assistant to PoYo's hosted MCP server
+- [Choose MCP Tools](https://docs.poyo.ai/integrations/mcp-filtering.md): Expose model-specific tools with PoYo MCP filters
+
+### Clients
+
+- [Claude](https://docs.poyo.ai/integrations/claude-desktop.md): Connect Claude Code or Claude Desktop to PoYo MCP
+- [Cursor](https://docs.poyo.ai/integrations/cursor.md): Connect Cursor to PoYo MCP
+- [Codex](https://docs.poyo.ai/integrations/codex.md): Connect Codex to PoYo MCP and add the PoYo Agent Skill
+- [VS Code](https://docs.poyo.ai/integrations/vscode.md): Connect VS Code to PoYo MCP with a secure input
+
+### Workflow tools
+
+- [n8n](https://docs.poyo.ai/integrations/n8n.md): Install the PoYo community node and run PoYo models inside n8n workflows.
+- [ComfyUI](https://docs.poyo.ai/integrations/comfyui.md): Install the PoYo custom nodes and use PoYo models on the ComfyUI canvas.
+
+## OpenAPI Specs
+
+- [openapi](/openapi.json)
+- [openapi](/zh/openapi.json)
+- [image-status](/api-manual/task-management/image-status.json)
+- [video-status](/api-manual/task-management/video-status.json)
+- [3d-status](/api-manual/task-management/3d-status.json)
+- [query-music-detail](/api-manual/music-series/query-music-detail.json)
+- [upload-url](/api-manual/file-series/upload-url.json)
+- [upload-base64](/api-manual/file-series/upload-base64.json)
+- [upload-stream](/api-manual/file-series/upload-stream.json)
+- [user-balance](/api-manual/account-management/user-balance.json)
+- [gpt-4o-image](/api-manual/image-series/gpt-4o-image.json)
+- [gpt-image-1.5](/api-manual/image-series/gpt-image-1.5.json)
+- [gpt-image-2](/api-manual/image-series/gpt-image-2.json)
+- [gpt-image-2-5-flare](/api-manual/image-series/gpt-image-2-5-flare.json)
+- [gpt-image-2-5-sunburst](/api-manual/image-series/gpt-image-2-5-sunburst.json)
+- [gpt-image-2-5-fixed](/api-manual/image-series/gpt-image-2-5-fixed.json)
+- [gpt-image-2-6-flare](/api-manual/image-series/gpt-image-2-6-flare.json)
+- [gpt-image-2-6-sunburst](/api-manual/image-series/gpt-image-2-6-sunburst.json)
+- [gpt-image-2-6-fixed](/api-manual/image-series/gpt-image-2-6-fixed.json)
+- [mai-image-2-6](/api-manual/image-series/mai-image-2-6.json)
+- [mai-image-2-6-flash](/api-manual/image-series/mai-image-2-6-flash.json)
+- [minimax-h3-image](/api-manual/image-series/minimax-h3-image.json)
+- [nano-banana](/api-manual/image-series/nano-banana.json)
+- [nano-banana-2](/api-manual/image-series/nano-banana-2.json)
+- [nano-banana-2-new](/api-manual/image-series/nano-banana-2-new.json)
+- [nano-banana-2-lite](/api-manual/image-series/nano-banana-2-lite.json)
+- [nano-banana-2-1](/api-manual/image-series/nano-banana-2-1.json)
+- [flux-2](/api-manual/image-series/flux-2.json)
+- [flux-dev](/api-manual/image-series/flux-dev.json)
+- [flux-schnell](/api-manual/image-series/flux-schnell.json)
+- [flux-kontext](/api-manual/image-series/flux-kontext.json)
+- [flux-3-klein](/api-manual/image-series/flux-3-klein.json)
+- [seedream-4](/api-manual/image-series/seedream-4.json)
+- [seedream-4-5](/api-manual/image-series/seedream-4-5.json)
+- [seedream-5-0-lite](/api-manual/image-series/seedream-5-0-lite.json)
+- [seedream-5-0-pro](/api-manual/image-series/seedream-5-0-pro.json)
+- [seedream-5-0-flash](/api-manual/image-series/seedream-5-0-flash.json)
+- [seedream-5-5](/api-manual/image-series/seedream-5-5.json)
+- [seedream-5-5-layerize](/api-manual/image-series/seedream-5-5-layerize.json)
+- [grok-imagine-image](/api-manual/image-series/grok-imagine-image.json)
+- [grok-imagine-image-quality](/api-manual/image-series/grok-imagine-image-quality.json)
+- [grok-imagine-image-2-0](/api-manual/image-series/grok-imagine-image-2-0.json)
+- [kling-o1](/api-manual/image-series/kling-o1.json)
+- [kling-o3](/api-manual/image-series/kling-o3.json)
+- [qwen-image-3](/api-manual/image-series/qwen-image-3.json)
+- [qwen-image-2-1](/api-manual/image-series/qwen-image-2-1.json)
+- [wan-2-7-image-pro](/api-manual/image-series/wan-2-7-image-pro.json)
+- [wan-2-7-image](/api-manual/image-series/wan-2-7-image.json)
+- [z-image](/api-manual/image-series/z-image.json)
+- [ideogram-v4-5](/api-manual/image-series/ideogram-v4-5.json)
+- [ideogram-vector-1-0](/api-manual/image-series/ideogram-vector-1-0.json)
+- [veo-3-1](/api-manual/video-series/veo-3-1.json)
+- [veo-3-1-official](/api-manual/video-series/veo-3-1-official.json)
+- [omni-flash](/api-manual/video-series/omni-flash.json)
+- [gemini-omni-1.1-flash](/api-manual/video-series/gemini-omni-1.1-flash.json)
+- [gemini-omni-1.2-flash](/api-manual/video-series/gemini-omni-1.2-flash.json)
+- [flux-3](/api-manual/video-series/flux-3.json)
+- [flux-3-max](/api-manual/video-series/flux-3-max.json)
+- [wan-animate](/api-manual/video-series/wan-animate.json)
+- [wan2.2-text-to-video-fast](/api-manual/video-series/wan2.2-text-to-video-fast.json)
+- [wan2.2-image-to-video-fast](/api-manual/video-series/wan2.2-image-to-video-fast.json)
+- [wan2.5-image-to-video](/api-manual/video-series/wan2.5-image-to-video.json)
+- [wan2.5-text-to-video](/api-manual/video-series/wan2.5-text-to-video.json)
+- [wan-2-6](/api-manual/video-series/wan-2-6.json)
+- [wan-2-7-video](/api-manual/video-series/wan-2-7-video.json)
+- [wan-3-0-video](/api-manual/video-series/wan-3-0-video.json)
+- [wan-3-0-video-prime](/api-manual/video-series/wan-3-0-video-prime.json)
+- [kling-1-6](/api-manual/video-series/kling-1-6.json)
+- [kling-2-1](/api-manual/video-series/kling-2-1.json)
+- [kling-2-5-turbo-pro](/api-manual/video-series/kling-2-5-turbo-pro.json)
+- [kling-2-6](/api-manual/video-series/kling-2-6.json)
+- [kling-3-0](/api-manual/video-series/kling-3-0.json)
+- [kling-3-0-turbo](/api-manual/video-series/kling-3-0-turbo.json)
+- [kling-3-0-4k](/api-manual/video-series/kling-3-0-4k.json)
+- [kling-avatar-2-0](/api-manual/video-series/kling-avatar-2-0.json)
+- [kling-o3](/api-manual/video-series/kling-o3.json)
+- [kling-o3-4k](/api-manual/video-series/kling-o3-4k.json)
+- [kling-2.6-motion-control](/api-manual/video-series/kling-2.6-motion-control.json)
+- [kling-3-0-motion-control](/api-manual/video-series/kling-3-0-motion-control.json)
+- [kling-4-0](/api-manual/video-series/kling-4-0.json)
+- [kling-4-0-flash](/api-manual/video-series/kling-4-0-flash.json)
+- [grok-imagine](/api-manual/video-series/grok-imagine.json)
+- [grok-imagine-video-1-5](/api-manual/video-series/grok-imagine-video-1-5.json)
+- [hailuo-02](/api-manual/video-series/hailuo-02.json)
+- [hailuo-2-3](/api-manual/video-series/hailuo-2-3.json)
+- [hailuo-03](/api-manual/video-series/hailuo-03.json)
+- [h3-max](/api-manual/video-series/h3-max.json)
+- [h3-max-turbo](/api-manual/video-series/h3-max-turbo.json)
+- [vidu-q4](/api-manual/video-series/vidu-q4.json)
+- [pixverse-v6-max](/api-manual/video-series/pixverse-v6-max.json)
+- [omnihuman-2-0](/api-manual/video-series/omnihuman-2-0.json)
+- [runway-gen-4-5](/api-manual/video-series/runway-gen-4-5.json)
+- [seedance-1.0-pro](/api-manual/video-series/seedance-1.0-pro.json)
+- [seedance-1-5-pro](/api-manual/video-series/seedance-1-5-pro.json)
+- [seedance-2](/api-manual/video-series/seedance-2.json)
+- [seedance-2-mini](/api-manual/video-series/seedance-2-mini.json)
+- [seedance-2.5](/api-manual/video-series/seedance-2.5.json)
+- [happy-horse](/api-manual/video-series/happy-horse.json)
+- [happy-horse-1-1](/api-manual/video-series/happy-horse-1-1.json)
+- [chat-completions](/api-manual/chat-series/chat-completions.json)
+- [responses](/api-manual/chat-series/responses.json)
+- [claude-messages](/api-manual/chat-series/claude-messages.json)
+- [gemini-native-format](/api-manual/chat-series/gemini-native-format.json)
+- [openai](/api-manual/chat-series/openai.json)
+- [anthropic](/api-manual/chat-series/anthropic.json)
+- [google](/api-manual/chat-series/google.json)
+- [deepseek](/api-manual/chat-series/deepseek.json)
+- [xai](/api-manual/chat-series/xai.json)
+- [moonshot](/api-manual/chat-series/moonshot.json)
+- [meshy-6-3d](/api-manual/3d-series/meshy-6-3d.json)
+- [meshy-7-1-3d](/api-manual/3d-series/meshy-7-1-3d.json)
+- [hunyuan-3d-3-1](/api-manual/3d-series/hunyuan-3d-3-1.json)
+- [tripo-h31-3d](/api-manual/3d-series/tripo-h31-3d.json)
+- [tripo-p1-3d](/api-manual/3d-series/tripo-p1-3d.json)
+- [generate-music](/api-manual/music-series/generate-music.json)
+- [generate-midi](/api-manual/music-series/generate-midi.json)
+- [generate-mashup](/api-manual/music-series/generate-mashup.json)
+- [generate-sounds](/api-manual/music-series/generate-sounds.json)
+- [extend-music](/api-manual/music-series/extend-music.json)
+- [upload-and-cover-audio](/api-manual/music-series/upload-and-cover-audio.json)
+- [upload-and-extend-audio](/api-manual/music-series/upload-and-extend-audio.json)
+- [add-instrumental](/api-manual/music-series/add-instrumental.json)
+- [add-vocals](/api-manual/music-series/add-vocals.json)
+- [get-timestamped-lyrics](/api-manual/music-series/get-timestamped-lyrics.json)
+- [boost-music-style](/api-manual/music-series/boost-music-style.json)
+- [generate-music-cover](/api-manual/music-series/generate-music-cover.json)
+- [replace-section](/api-manual/music-series/replace-section.json)
+- [generate-persona](/api-manual/music-series/generate-persona.json)
+- [generate-lyrics](/api-manual/music-series/generate-lyrics.json)
+- [convert-to-wav](/api-manual/music-series/convert-to-wav.json)
+- [separate-vocals](/api-manual/music-series/vocal-remover/separate-vocals.json)
+- [stem-split](/api-manual/music-series/vocal-remover/stem-split.json)
+- [upload-and-separate-vocals](/api-manual/music-series/vocal-remover/upload-and-separate-vocals.json)
+- [validate](/api-manual/music-series/voice/validate.json)
+- [generate](/api-manual/music-series/voice/generate.json)
+- [regenerate](/api-manual/music-series/voice/regenerate.json)
+- [check](/api-manual/music-series/voice/check.json)
+- [create-music-video](/api-manual/music-series/create-music-video.json)
+- [minimax-music-2.6](/api-manual/music-series/minimax-music-2.6.json)
+- [elevenlabs-music](/api-manual/music-series/elevenlabs-music.json)
+- [elevenlabs-v3-tts](/api-manual/music-series/elevenlabs-v3-tts.json)
+- [elevenlabs-tts-turbo-2-5](/api-manual/music-series/elevenlabs-tts-turbo-2-5.json)
+- [elevenlabs-v4-tts](/api-manual/music-series/elevenlabs-v4-tts.json)
+- [elevenlabs-v4-turbo-tts](/api-manual/music-series/elevenlabs-v4-turbo-tts.json)
+- [gemini-3-1-flash-tts](/api-manual/music-series/gemini-3-1-flash-tts.json)
+- [gemini-3-8-flash-lite-tts](/api-manual/music-series/gemini-3-8-flash-lite-tts.json)
+- [gemini-3-8-flash-tts](/api-manual/music-series/gemini-3-8-flash-tts.json)
+- [xai-tts-1](/api-manual/music-series/xai-tts-1.json)
+- [image-translator](/api-manual/tools-series/image-translator.json)
+- [video-translator](/api-manual/tools-series/video-translator.json)
+- [video-background-removal](/api-manual/tools-series/video-background-removal.json)
+- [video-upscaler](/api-manual/tools-series/video-upscaler.json)
+- [omni-moderation](/api-manual/moderation-series/omni-moderation.json)
+- [sora-2-beta](/api-manual/video-series/sora-2-beta.json)
+- [sora-2-official](/api-manual/video-series/sora-2-official.json)
+- [sora-2-pro-official](/api-manual/video-series/sora-2-pro-official.json)
+- [sora-2-pro](/api-manual/video-series/sora-2-pro.json)
+- [sora-2](/api-manual/video-series/sora-2.json)
+- [capability-catalog](/integrations/capability-catalog.json)
+- [sora-2-beta](/zh/api-manual/video-series/sora-2-beta.json)
+- [sora-2-official](/zh/api-manual/video-series/sora-2-official.json)
+- [sora-2-pro-official](/zh/api-manual/video-series/sora-2-pro-official.json)
+- [sora-2-pro](/zh/api-manual/video-series/sora-2-pro.json)
+- [sora-2](/zh/api-manual/video-series/sora-2.json)
+- [capability-catalog](/zh/integrations/capability-catalog.json)
+
+> The links below point to documentation indexes. Follow each `/_llms/` index recursively until you reach documentation pages.
+
+## Indexes
+
+- [Chinese (181 pages)](https://docs.poyo.ai/_llms/zh.txt): 平台, 图像模型, 视频模型, LLM 模型, 3D 模型, 音乐模型, AI 工具, AI Agent.
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

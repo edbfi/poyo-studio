@@ -10,6 +10,7 @@ import {
   VIDEO_PAGE_SLUGS,
   VIDEO_REGISTRY_VERSION
 } from '../src/lib/features/registry/video-registry';
+import { missingIndexedModels } from './registry-discovery';
 import {
   fetchRegistrySource,
   type RegistrySourceEvidence,
@@ -19,6 +20,7 @@ import {
 } from './registry-evidence-lib';
 
 const outputPath = resolve('src/lib/features/registry/evidence/official-source-manifest.json');
+const catalogBodies: Record<string, string> = {};
 
 function pairedOperationsSource(id: string, path: string): RegistrySourceSpec[] {
   return [
@@ -128,14 +130,45 @@ async function fetchAll(specs: readonly RegistrySourceSpec[]): Promise<RegistryS
     while (pending.length) {
       const spec = pending.shift();
       if (!spec) return;
-      results.push(await fetchRegistrySource(spec));
+      results.push(
+        await fetchRegistrySource(spec, (body) => {
+          if (spec.category === 'catalog') catalogBodies[spec.id] = body;
+        })
+      );
     }
   });
   await Promise.all(workers);
   return results.sort((left, right) => left.id.localeCompare(right.id));
 }
 
-const sources = await fetchAll(sourceSpecs());
+const indexResponse = await fetch('https://docs.poyo.ai/llms.txt');
+if (!indexResponse.ok) throw new Error(`Documentation index returned ${indexResponse.status}.`);
+const indexBody = await indexResponse.text();
+const missing = missingIndexedModels(indexBody, {
+  image: IMAGE_PAGE_SLUGS,
+  video: VIDEO_PAGE_SLUGS
+});
+if (missing.length)
+  throw new Error(
+    `New documented models require registry review before evidence refresh: ${missing.map((page) => `${page.modality}/${page.pageSlug}`).join(', ')}`
+  );
+const previousManifest = (await Bun.file(outputPath).json()) as RegistrySourceManifest;
+const catalogSpecs = previousManifest.sources
+  .filter((source) => source.category === 'catalog')
+  .map(({ id, category, representation, url, reviewNote }) => ({
+    id,
+    category,
+    representation,
+    url,
+    ...(reviewNote ? { reviewNote } : {})
+  }));
+const sources = await fetchAll([...sourceSpecs(), ...catalogSpecs]);
+const indexSource = sources.find((source) => source.id === 'index:llms');
+const indexHash = new Bun.CryptoHasher('sha256').update(indexBody).digest('hex');
+if (indexSource?.sha256 !== indexHash)
+  throw new Error(
+    'Documentation index changed during refresh; retry to capture one consistent index.'
+  );
 const verifiedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
 const manifest: RegistrySourceManifest = {
   version: 1,
@@ -146,6 +179,11 @@ const manifest: RegistrySourceManifest = {
   sources
 };
 await mkdir(dirname(outputPath), { recursive: true });
+await Bun.write(resolve('src/lib/features/registry/evidence/documentation-index.txt'), indexBody);
+await Bun.write(
+  resolve('src/lib/features/registry/evidence/live-catalog-models.json'),
+  `${JSON.stringify(Object.fromEntries(Object.entries(catalogBodies).sort(([left], [right]) => left.localeCompare(right))), null, 2)}\n`
+);
 await Bun.write(outputPath, `${JSON.stringify(manifest, null, 2)}\n`);
 const counts = Object.fromEntries(
   Object.entries(Object.groupBy(sources, (source) => source.status)).map(([key, value]) => [

@@ -111,20 +111,15 @@ describe('October image model contracts', () => {
     });
     test(`${model} validates size/resolution dependencies and starts with valid studio defaults`, () => {
       const key = `${model}:text-to-image`;
-      expect(() =>
+      // November source revision permits auto and custom sizes at every resolution.
+      expect(
         normalizeImageRequest(key, { prompt: 'poster', aspectRatio: 'auto', resolution: '2K' })
-      ).toThrow('auto size requires 1K');
-      expect(() =>
-        normalizeImageRequest(key, { prompt: 'poster', width: 1024, height: 1024 })
-      ).toThrow('require 2K or 4K');
-      expect(() =>
-        normalizeImageRequest(key, {
-          prompt: 'poster',
-          width: 3840,
-          height: 2160,
-          resolution: '2K'
-        })
-      ).toThrow('3840-pixel edge requires 4K');
+          .request.input.size
+      ).toBe('auto');
+      expect(
+        normalizeImageRequest(key, { prompt: 'poster', width: 1024, height: 1024 }).request.input
+          .size
+      ).toBe('1024x1024');
       expect(
         normalizeImageRequest(key, {
           prompt: 'poster',
@@ -143,7 +138,7 @@ describe('October image model contracts', () => {
       );
       expect(normalizeImageRequest(key, values).request.input).toMatchObject({
         resolution: '4K',
-        size: '1:1'
+        size: 'auto'
       });
     });
   }

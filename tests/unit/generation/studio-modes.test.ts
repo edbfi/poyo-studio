@@ -48,11 +48,11 @@ describe('studio creative-intent modes', () => {
     );
   });
 
-  test('MODE-03 keeps the image studio on its two documented intents', () => {
+  test('MODE-03 includes image conversion alongside generation and editing', () => {
     const groups = studioModeGroups(IMAGE_REGISTRY_ENTRIES.map((entry) => entry.workflow));
     expect(groups.map((group) => [group.key, group.modes.map((mode) => mode.workflow)])).toEqual([
       ['create', ['text-to-image']],
-      ['edit', ['image-edit']]
+      ['edit', ['image-to-image', 'image-edit']]
     ]);
     expect(studioModeLabel('image-edit')).toBe('Edit an image');
   });

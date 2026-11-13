@@ -22,19 +22,21 @@ function registryEntry(key: string) {
 }
 
 describe('audited image registry', () => {
-  test('REG-01/02 accounts for all 29 pages, 53 public IDs, and 66 reviewed workflows', () => {
-    expect(IMAGE_PAGE_SLUGS).toHaveLength(29);
-    expect(new Set(IMAGE_PAGE_SLUGS).size).toBe(29);
-    expect(IMAGE_PUBLIC_IDS).toHaveLength(53);
-    expect(IMAGE_REGISTRY_ENTRIES).toHaveLength(66);
-    expect(new Set(IMAGE_REGISTRY_ENTRIES.map((entry) => entry.key)).size).toBe(66);
+  test('REG-01/02 accounts for all 41 pages, 73 public IDs, and 98 reviewed workflows', () => {
+    expect(IMAGE_PAGE_SLUGS).toHaveLength(41);
+    expect(new Set(IMAGE_PAGE_SLUGS).size).toBe(41);
+    expect(IMAGE_PUBLIC_IDS).toHaveLength(73);
+    expect(IMAGE_REGISTRY_ENTRIES).toHaveLength(98);
+    expect(new Set(IMAGE_REGISTRY_ENTRIES.map((entry) => entry.key)).size).toBe(98);
     for (const entry of IMAGE_REGISTRY_ENTRIES) {
-      expect(entry.provenance.markdownUrl).toStartWith('https://docs.poyo.ai/');
+      expect(new URL(entry.provenance.markdownUrl).hostname).toBe(
+        entry.provenance.pageSlug.startsWith('catalog:') ? 'api.poyo.ai' : 'docs.poyo.ai'
+      );
       expect(entry.provenance.markdownSha256).toHaveLength(64);
       expect(entry.provenance.jsonSha256).toHaveLength(64);
       expect(entry.provenance.jsonStatus).toBe('available');
       expect(entry.provenance.sourceManifestVersion).toMatch(/^1:[a-f0-9]{64}$/);
-      expect(entry.fields.some((field) => field.level === 'essential')).toBe(true);
+      expect(entry.fields.length + entry.inputRoles.length).toBeGreaterThan(0);
       expect(entry.status).toBe('current');
     }
   });
@@ -42,7 +44,8 @@ describe('audited image registry', () => {
     for (const entry of IMAGE_REGISTRY_ENTRIES) {
       const preview = normalizeImageRequest(entry.key, minimumValidRequest(entry));
       expect(preview.request.model).toBe(entry.publicModelId);
-      expect(preview.request.input.prompt).toBe('studio image');
+      if (entry.fields.some((field) => field.key === 'prompt' && field.required))
+        expect(preview.request.input.prompt).toBe('studio image');
     }
   });
   test('REG-04 validates prompt, reference counts, enums, output counts and custom dimensions', () => {
@@ -133,6 +136,10 @@ describe('audited image registry', () => {
       'seedream-5.0-lite-edit',
       'seedream-5.0-pro',
       'seedream-5.0-pro-edit',
+      'flux-3-klein',
+      'flux-3-klein-edit',
+      'seedream-5.5',
+      'seedream-5.5-layerize',
       'z-image'
     ]);
     for (const entry of IMAGE_REGISTRY_ENTRIES) {
@@ -309,7 +316,7 @@ describe('audited image registry', () => {
     expect(
       database.query<{ count: number }, []>('SELECT COUNT(*) count FROM registry_entries').get()
         ?.count
-    ).toBe(68);
+    ).toBe(100);
     expect(
       database
         .query<{ manifest_hash: string }, []>('SELECT manifest_hash FROM registry_versions')

@@ -39,6 +39,8 @@ export interface PoyoRequestOptions {
 }
 
 export interface PoyoOutputFile {
+  /** Official Seedream layer placement and OCR metadata, persisted with the output. */
+  layer?: Record<string, unknown>;
   url: string;
   fileType: string;
   label: string | null;

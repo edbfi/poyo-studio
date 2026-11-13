@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "registryVersion": "image-2026-10-11.1",
-  "reviewedAt": "2026-10-11T11:26:07Z",
+  "registryVersion": "image-2026-11-13.1",
+  "reviewedAt": "2026-11-13T17:09:37Z",
   "workflows": [
     {
       "entryKey": "gpt-image-2.5-flare:text-to-image",
@@ -102,7 +102,7 @@
           "safetyChecker": false
         },
         "validation": {
-          "conditionalRules": ["auto-size-only-at-1k"],
+          "conditionalRules": [],
           "customDimensions": {
             "divisor": 16,
             "maxEdge": 3840,
@@ -116,7 +116,7 @@
           "dimensionsEncoding": "width-x-height-string"
         },
         "limitations": [
-          "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+          "Transparent output requires PNG or WebP. Auto and custom sizes work at every resolution; custom dimensions are billed by pixel area or the higher selected tier."
         ]
       },
       "vectors": {
@@ -167,9 +167,8 @@
         }
       },
       "manualDecisions": [
-        "Reviewed adapter condition: auto-size-only-at-1k.",
         "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
-        "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+        "Transparent output requires PNG or WebP. Auto and custom sizes work at every resolution; custom dimensions are billed by pixel area or the higher selected tier."
       ]
     },
     {
@@ -279,7 +278,7 @@
           "safetyChecker": false
         },
         "validation": {
-          "conditionalRules": ["auto-size-only-at-1k"],
+          "conditionalRules": [],
           "customDimensions": {
             "divisor": 16,
             "maxEdge": 3840,
@@ -293,7 +292,7 @@
           "dimensionsEncoding": "width-x-height-string"
         },
         "limitations": [
-          "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+          "Transparent output requires PNG or WebP. Auto and custom sizes work at every resolution; custom dimensions are billed by pixel area or the higher selected tier."
         ]
       },
       "vectors": {
@@ -350,9 +349,8 @@
         }
       },
       "manualDecisions": [
-        "Reviewed adapter condition: auto-size-only-at-1k.",
         "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
-        "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+        "Transparent output requires PNG or WebP. Auto and custom sizes work at every resolution; custom dimensions are billed by pixel area or the higher selected tier."
       ]
     },
     {
@@ -454,7 +452,7 @@
           "safetyChecker": false
         },
         "validation": {
-          "conditionalRules": ["auto-size-only-at-1k"],
+          "conditionalRules": [],
           "customDimensions": {
             "divisor": 16,
             "maxEdge": 3840,
@@ -468,7 +466,7 @@
           "dimensionsEncoding": "width-x-height-string"
         },
         "limitations": [
-          "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+          "Transparent output requires PNG or WebP. Auto and custom sizes work at every resolution; custom dimensions are billed by pixel area or the higher selected tier."
         ]
       },
       "vectors": {
@@ -519,9 +517,8 @@
         }
       },
       "manualDecisions": [
-        "Reviewed adapter condition: auto-size-only-at-1k.",
         "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
-        "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+        "Transparent output requires PNG or WebP. Auto and custom sizes work at every resolution; custom dimensions are billed by pixel area or the higher selected tier."
       ]
     },
     {
@@ -631,7 +628,7 @@
           "safetyChecker": false
         },
         "validation": {
-          "conditionalRules": ["auto-size-only-at-1k"],
+          "conditionalRules": [],
           "customDimensions": {
             "divisor": 16,
             "maxEdge": 3840,
@@ -645,7 +642,7 @@
           "dimensionsEncoding": "width-x-height-string"
         },
         "limitations": [
-          "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+          "Transparent output requires PNG or WebP. Auto and custom sizes work at every resolution; custom dimensions are billed by pixel area or the higher selected tier."
         ]
       },
       "vectors": {
@@ -702,9 +699,8 @@
         }
       },
       "manualDecisions": [
-        "Reviewed adapter condition: auto-size-only-at-1k.",
         "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
-        "Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K."
+        "Transparent output requires PNG or WebP. Auto and custom sizes work at every resolution; custom dimensions are billed by pixel area or the higher selected tier."
       ]
     },
     {
@@ -8434,6 +8430,4499 @@
         "Reviewed adapter condition: size-required-for-text-only.",
         "Project override: enable_safety_checker is explicitly false unless the user opts in.",
         "Size is required for text generation and optional for edit."
+      ]
+    },
+    {
+      "entryKey": "ideogram-vector-1.0/text-to-vector:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "ideogram-vector-1-0",
+        "markdownId": "model:image:ideogram-vector-1-0:markdown",
+        "jsonId": "model:image:ideogram-vector-1-0:json"
+      },
+      "schema": {
+        "publicModelId": "ideogram-vector-1.0/text-to-vector",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 9500
+          },
+          {
+            "key": "quality",
+            "apiKey": "quality",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["low", "medium", "high"],
+            "default": "medium"
+          },
+          {
+            "key": "n",
+            "apiKey": "n",
+            "kind": "integer",
+            "level": "common",
+            "min": 1,
+            "max": 8,
+            "default": 1
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "1:4",
+              "1:3",
+              "1:2",
+              "9:16",
+              "10:16",
+              "2:3",
+              "3:4",
+              "4:5",
+              "5:4",
+              "4:3",
+              "3:2",
+              "16:10",
+              "16:9",
+              "2:1",
+              "3:1",
+              "4:1"
+            ],
+            "default": "auto"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": false,
+            "min": 0,
+            "max": 5,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["svg"],
+          "counts": [1, 2, 3, 4, 5, 6, 7, 8],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": [
+          "Returns editable SVG files. Text generation references: up to 10 MB each. Image conversion: up to 50 MB."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "ideogram-vector-1.0/text-to-vector",
+            "input": {
+              "prompt": "studio image",
+              "quality": "medium",
+              "n": 1,
+              "size": "auto",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "quality": "high",
+            "n": 8,
+            "aspectRatio": "4:1"
+          },
+          "request": {
+            "model": "ideogram-vector-1.0/text-to-vector",
+            "input": {
+              "prompt": "studio image",
+              "quality": "high",
+              "n": 8,
+              "size": "4:1",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["quality", "n", "aspectRatio"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Returns editable SVG files. Text generation references: up to 10 MB each. Image conversion: up to 50 MB."
+      ]
+    },
+    {
+      "entryKey": "ideogram-vector-1.0/image-to-vector:image-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "ideogram-vector-1-0",
+        "markdownId": "model:image:ideogram-vector-1-0:markdown",
+        "jsonId": "model:image:ideogram-vector-1-0:json"
+      },
+      "schema": {
+        "publicModelId": "ideogram-vector-1.0/image-to-vector",
+        "workflow": "image-to-image",
+        "fields": [
+          {
+            "key": "mode",
+            "apiKey": "mode",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["default", "simple"],
+            "default": "default"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 1,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["svg"],
+          "counts": [1],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": [
+          "Returns editable SVG files. Text generation references: up to 10 MB each. Image conversion: up to 50 MB."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "ideogram-vector-1.0/image-to-vector",
+            "input": {
+              "mode": "default",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "mode": "simple"
+          },
+          "request": {
+            "model": "ideogram-vector-1.0/image-to-vector",
+            "input": {
+              "mode": "simple",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["mode"]
+        },
+        "invalid": {
+          "label": "required reference input",
+          "values": {},
+          "issueIncludes": "reference"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Returns editable SVG files. Text generation references: up to 10 MB each. Image conversion: up to 50 MB."
+      ]
+    },
+    {
+      "entryKey": "seedream-5.5-layerize:image-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "seedream-5-5-layerize",
+        "markdownId": "model:image:seedream-5-5-layerize:markdown",
+        "jsonId": "model:image:seedream-5-5-layerize:json"
+      },
+      "schema": {
+        "publicModelId": "seedream-5.5-layerize",
+        "workflow": "image-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "common",
+            "max": 2000
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "1.5K", "2K", "auto"],
+            "default": "auto"
+          },
+          {
+            "key": "maxImages",
+            "apiKey": "max_images",
+            "kind": "integer",
+            "level": "common",
+            "min": 2,
+            "max": 100,
+            "default": 30
+          },
+          {
+            "key": "textRecognition",
+            "apiKey": "text_recognition",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg"],
+            "default": "png"
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 1,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg"],
+          "counts": null,
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": true
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": [
+          "Returns a base image and up to max_images minus one transparent PNG layers, with optional OCR metadata. Input: JPEG or PNG up to 10 MB, 512–6000 pixels per edge, aspect ratio at most 16:1."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "seedream-5.5-layerize",
+            "input": {
+              "resolution": "auto",
+              "max_images": 30,
+              "text_recognition": false,
+              "output_format": "png",
+              "enable_safety_checker": false,
+              "image_urls": ["https://assets.example/reference-0.png"]
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "resolution": "auto",
+            "maxImages": 100,
+            "textRecognition": true,
+            "outputFormat": "jpeg",
+            "enableSafetyChecker": true
+          },
+          "request": {
+            "model": "seedream-5.5-layerize",
+            "input": {
+              "resolution": "auto",
+              "max_images": 100,
+              "text_recognition": true,
+              "output_format": "jpeg",
+              "enable_safety_checker": true,
+              "image_urls": ["https://assets.example/reference-0.png"]
+            }
+          },
+          "coveredFields": [
+            "resolution",
+            "maxImages",
+            "textRecognition",
+            "outputFormat",
+            "enableSafetyChecker"
+          ]
+        },
+        "invalid": {
+          "label": "required reference input",
+          "values": {},
+          "issueIncludes": "reference"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in.",
+        "Returns a base image and up to max_images minus one transparent PNG layers, with optional OCR metadata. Input: JPEG or PNG up to 10 MB, 512–6000 pixels per edge, aspect ratio at most 16:1."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-1-official:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "catalog:gpt-image-1-official",
+        "markdownId": "catalog:gpt-image-1-official",
+        "jsonId": "catalog:gpt-image-1-official"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-1-official",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "max": 1000
+          },
+          {
+            "key": "n",
+            "apiKey": "n",
+            "kind": "integer",
+            "level": "common",
+            "min": 1,
+            "max": 4,
+            "default": 1
+          },
+          {
+            "key": "size",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1024x1024", "1024x1536", "1536x1024"],
+            "default": "1024x1024"
+          }
+        ],
+        "inputRoles": [],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1, 2, 3, 4],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": [
+          "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "gpt-image-1-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 1,
+              "size": "1024x1024",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "n": 4,
+            "size": "1536x1024"
+          },
+          "request": {
+            "model": "gpt-image-1-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 4,
+              "size": "1536x1024",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["n", "size"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-1-official:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "catalog:gpt-image-1-official",
+        "markdownId": "catalog:gpt-image-1-official",
+        "jsonId": "catalog:gpt-image-1-official"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-1-official",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "max": 1000
+          },
+          {
+            "key": "n",
+            "apiKey": "n",
+            "kind": "integer",
+            "level": "common",
+            "min": 1,
+            "max": 4,
+            "default": 1
+          },
+          {
+            "key": "size",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1024x1024", "1024x1536", "1536x1024"],
+            "default": "1024x1024"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": null,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          },
+          {
+            "role": "mask",
+            "required": false,
+            "min": 0,
+            "max": 1,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1, 2, 3, 4],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": [
+          "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "gpt-image-1-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 1,
+              "size": "1024x1024",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "n": 4,
+            "size": "1536x1024"
+          },
+          "request": {
+            "model": "gpt-image-1-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 4,
+              "size": "1536x1024",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["n", "size"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-1-edit-official:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "catalog:gpt-image-1-edit-official",
+        "markdownId": "catalog:gpt-image-1-edit-official",
+        "jsonId": "catalog:gpt-image-1-edit-official"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-1-edit-official",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "max": 1000
+          },
+          {
+            "key": "n",
+            "apiKey": "n",
+            "kind": "integer",
+            "level": "common",
+            "min": 1,
+            "max": 4,
+            "default": 1
+          },
+          {
+            "key": "size",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1024x1024", "1024x1536", "1536x1024"],
+            "default": "1024x1024"
+          }
+        ],
+        "inputRoles": [],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1, 2, 3, 4],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": [
+          "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "gpt-image-1-edit-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 1,
+              "size": "1024x1024",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "n": 4,
+            "size": "1536x1024"
+          },
+          "request": {
+            "model": "gpt-image-1-edit-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 4,
+              "size": "1536x1024",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["n", "size"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-1-edit-official:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "catalog:gpt-image-1-edit-official",
+        "markdownId": "catalog:gpt-image-1-edit-official",
+        "jsonId": "catalog:gpt-image-1-edit-official"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-1-edit-official",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "max": 1000
+          },
+          {
+            "key": "n",
+            "apiKey": "n",
+            "kind": "integer",
+            "level": "common",
+            "min": 1,
+            "max": 4,
+            "default": 1
+          },
+          {
+            "key": "size",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1024x1024", "1024x1536", "1536x1024"],
+            "default": "1024x1024"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": null,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          },
+          {
+            "role": "mask",
+            "required": false,
+            "min": 0,
+            "max": 1,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1, 2, 3, 4],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": [
+          "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "gpt-image-1-edit-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 1,
+              "size": "1024x1024",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "n": 4,
+            "size": "1536x1024"
+          },
+          "request": {
+            "model": "gpt-image-1-edit-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 4,
+              "size": "1536x1024",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["n", "size"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-1.5-official:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "catalog:gpt-image-1.5-official",
+        "markdownId": "catalog:gpt-image-1.5-official",
+        "jsonId": "catalog:gpt-image-1.5-official"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-1.5-official",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "max": 1000
+          },
+          {
+            "key": "n",
+            "apiKey": "n",
+            "kind": "integer",
+            "level": "common",
+            "min": 1,
+            "max": 4,
+            "default": 1
+          },
+          {
+            "key": "size",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1024x1024", "1024x1536", "1536x1024"],
+            "default": "1024x1024"
+          }
+        ],
+        "inputRoles": [],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1, 2, 3, 4],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": [
+          "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "gpt-image-1.5-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 1,
+              "size": "1024x1024",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "n": 4,
+            "size": "1536x1024"
+          },
+          "request": {
+            "model": "gpt-image-1.5-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 4,
+              "size": "1536x1024",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["n", "size"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-1.5-official:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "catalog:gpt-image-1.5-official",
+        "markdownId": "catalog:gpt-image-1.5-official",
+        "jsonId": "catalog:gpt-image-1.5-official"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-1.5-official",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "max": 1000
+          },
+          {
+            "key": "n",
+            "apiKey": "n",
+            "kind": "integer",
+            "level": "common",
+            "min": 1,
+            "max": 4,
+            "default": 1
+          },
+          {
+            "key": "size",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1024x1024", "1024x1536", "1536x1024"],
+            "default": "1024x1024"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": null,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          },
+          {
+            "role": "mask",
+            "required": false,
+            "min": 0,
+            "max": 1,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1, 2, 3, 4],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": [
+          "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "gpt-image-1.5-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 1,
+              "size": "1024x1024",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "n": 4,
+            "size": "1536x1024"
+          },
+          "request": {
+            "model": "gpt-image-1.5-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 4,
+              "size": "1536x1024",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["n", "size"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-1.5-edit-official:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "catalog:gpt-image-1.5-edit-official",
+        "markdownId": "catalog:gpt-image-1.5-edit-official",
+        "jsonId": "catalog:gpt-image-1.5-edit-official"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-1.5-edit-official",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "max": 1000
+          },
+          {
+            "key": "n",
+            "apiKey": "n",
+            "kind": "integer",
+            "level": "common",
+            "min": 1,
+            "max": 4,
+            "default": 1
+          },
+          {
+            "key": "size",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1024x1024", "1024x1536", "1536x1024"],
+            "default": "1024x1024"
+          }
+        ],
+        "inputRoles": [],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1, 2, 3, 4],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": [
+          "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "gpt-image-1.5-edit-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 1,
+              "size": "1024x1024",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "n": 4,
+            "size": "1536x1024"
+          },
+          "request": {
+            "model": "gpt-image-1.5-edit-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 4,
+              "size": "1536x1024",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["n", "size"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-1.5-edit-official:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "catalog:gpt-image-1.5-edit-official",
+        "markdownId": "catalog:gpt-image-1.5-edit-official",
+        "jsonId": "catalog:gpt-image-1.5-edit-official"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-1.5-edit-official",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "max": 1000
+          },
+          {
+            "key": "n",
+            "apiKey": "n",
+            "kind": "integer",
+            "level": "common",
+            "min": 1,
+            "max": 4,
+            "default": 1
+          },
+          {
+            "key": "size",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1024x1024", "1024x1536", "1536x1024"],
+            "default": "1024x1024"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": null,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          },
+          {
+            "role": "mask",
+            "required": false,
+            "min": 0,
+            "max": 1,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1, 2, 3, 4],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": [
+          "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+        ]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "gpt-image-1.5-edit-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 1,
+              "size": "1024x1024",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "n": 4,
+            "size": "1536x1024"
+          },
+          "request": {
+            "model": "gpt-image-1.5-edit-official",
+            "input": {
+              "prompt": "studio image",
+              "n": 4,
+              "size": "1536x1024",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["n", "size"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "The official capability catalog describes all four identifiers with the same generation/editing schema; editing uses reference images. Output format is provider-selected."
+      ]
+    },
+    {
+      "entryKey": "poyo-ai/image-translator:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "catalog:poyo-ai/image-translator",
+        "markdownId": "catalog:poyo-ai/image-translator",
+        "jsonId": "catalog:poyo-ai/image-translator"
+      },
+      "schema": {
+        "publicModelId": "poyo-ai/image-translator",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "sourceLanguage",
+            "apiKey": "source_language",
+            "kind": "text",
+            "level": "common",
+            "required": false,
+            "default": "auto"
+          },
+          {
+            "key": "targetLanguage",
+            "apiKey": "target_language",
+            "kind": "text",
+            "level": "common",
+            "required": true
+          },
+          {
+            "key": "protectText",
+            "apiKey": "protect_text",
+            "kind": "integer",
+            "level": "advanced",
+            "min": 0,
+            "max": 1,
+            "default": 0
+          },
+          {
+            "key": "synthesisOnImage",
+            "apiKey": "synthesis_on_image",
+            "kind": "integer",
+            "level": "advanced",
+            "min": 0,
+            "max": 1,
+            "default": 1
+          },
+          {
+            "key": "translateOnImage",
+            "apiKey": "translate_on_image",
+            "kind": "integer",
+            "level": "advanced",
+            "min": 0,
+            "max": 1,
+            "default": 1
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 1,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg", "webp"],
+          "counts": [1],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": ["Translate text in one image. Output format is provider-selected."]
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "targetLanguage": "English",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "poyo-ai/image-translator",
+            "input": {
+              "source_language": "auto",
+              "target_language": "English",
+              "protect_text": 0,
+              "synthesis_on_image": 1,
+              "translate_on_image": 1,
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "targetLanguage": "reviewed advanced value",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "sourceLanguage": "reviewed advanced value",
+            "protectText": 1,
+            "synthesisOnImage": 1,
+            "translateOnImage": 1
+          },
+          "request": {
+            "model": "poyo-ai/image-translator",
+            "input": {
+              "source_language": "reviewed advanced value",
+              "target_language": "reviewed advanced value",
+              "protect_text": 1,
+              "synthesis_on_image": 1,
+              "translate_on_image": 1,
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": [
+            "sourceLanguage",
+            "targetLanguage",
+            "protectText",
+            "synthesisOnImage",
+            "translateOnImage"
+          ]
+        },
+        "invalid": {
+          "label": "required targetLanguage",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "targetLanguage is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy.",
+        "Translate text in one image. Output format is provider-selected."
+      ]
+    },
+    {
+      "entryKey": "ideogram-v4.5:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "ideogram-v4-5",
+        "markdownId": "model:image:ideogram-v4-5:markdown",
+        "jsonId": "model:image:ideogram-v4-5:json"
+      },
+      "schema": {
+        "publicModelId": "ideogram-v4.5",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 10000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "1:1",
+              "1:1 HD",
+              "4:3",
+              "3:4",
+              "16:9",
+              "9:16",
+              "1024x1024",
+              "1024x3072",
+              "1120x896",
+              "1152x2944",
+              "1152x864",
+              "1248x3328",
+              "1248x832",
+              "1280x3072",
+              "1280x720",
+              "1280x800",
+              "1296x3168",
+              "1440x2560",
+              "1440x2880",
+              "1440x720",
+              "1600x2560",
+              "1664x2496",
+              "1728x2304",
+              "1792x2240",
+              "2048x2048",
+              "2240x1792",
+              "2304x1728",
+              "2496x1664",
+              "2560x1440",
+              "2560x1600",
+              "2880x1440",
+              "2944x1152",
+              "3072x1024",
+              "3072x1280",
+              "3168x1296",
+              "3328x1248",
+              "720x1280",
+              "720x1440",
+              "800x1280",
+              "832x1248",
+              "864x1152",
+              "896x1120"
+            ],
+            "default": "1:1 HD"
+          },
+          {
+            "key": "n",
+            "apiKey": "n",
+            "kind": "integer",
+            "level": "common",
+            "default": 1,
+            "min": 1,
+            "max": 8
+          },
+          {
+            "key": "quality",
+            "apiKey": "quality",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["low", "medium", "high"],
+            "default": "medium"
+          }
+        ],
+        "inputRoles": [],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1, 2, 3, 4, 5, 6, 7, 8],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "ideogram-v4.5",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1 HD",
+              "n": 1,
+              "quality": "medium",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "896x1120",
+            "n": 8,
+            "quality": "high"
+          },
+          "request": {
+            "model": "ideogram-v4.5",
+            "input": {
+              "prompt": "studio image",
+              "size": "896x1120",
+              "n": 8,
+              "quality": "high",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "n", "quality"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "ideogram-v4.5-edit:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "ideogram-v4-5",
+        "markdownId": "model:image:ideogram-v4-5:markdown",
+        "jsonId": "model:image:ideogram-v4-5:json"
+      },
+      "schema": {
+        "publicModelId": "ideogram-v4.5-edit",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 10000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["auto", "1:1", "1:1 HD", "4:3", "3:4", "16:9", "9:16"],
+            "default": "auto"
+          },
+          {
+            "key": "n",
+            "apiKey": "n",
+            "kind": "integer",
+            "level": "common",
+            "default": 1,
+            "min": 1,
+            "max": 8
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "quality",
+            "apiKey": "quality",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["very_low", "low", "medium", "high"],
+            "default": "medium"
+          },
+          {
+            "key": "editPrecision",
+            "apiKey": "edit_precision",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["regular", "high"],
+            "default": "regular"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 1,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          },
+          {
+            "role": "reference-image",
+            "requestKey": "referenceImageUrls",
+            "apiKey": "reference_image_urls",
+            "required": false,
+            "min": 0,
+            "max": 4,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          },
+          {
+            "role": "mask",
+            "required": false,
+            "min": 0,
+            "max": 1,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1, 2, 3, 4, 5, 6, 7, 8],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": [],
+          "customDimensions": {
+            "divisor": 32,
+            "maxPixels": 4194304,
+            "maxAspectRatio": 6
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "ideogram-v4.5-edit",
+            "input": {
+              "prompt": "studio image",
+              "size": "auto",
+              "n": 1,
+              "quality": "medium",
+              "edit_precision": "regular",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "9:16",
+            "n": 8,
+            "quality": "high"
+          },
+          "request": {
+            "model": "ideogram-v4.5-edit",
+            "input": {
+              "prompt": "studio image",
+              "size": "9:16",
+              "n": 8,
+              "quality": "high",
+              "edit_precision": "regular",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "n", "quality"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "flux-3-klein:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "flux-3-klein",
+        "markdownId": "model:image:flux-3-klein:markdown",
+        "jsonId": "model:image:flux-3-klein:json"
+      },
+      "schema": {
+        "publicModelId": "flux-3-klein",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 5000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1:1", "4:3", "3:4", "16:9", "9:16", "3:2", "2:3"],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "key": "n",
+            "apiKey": "n",
+            "kind": "integer",
+            "level": "common",
+            "default": 1,
+            "min": 1,
+            "max": 4
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg", "webp"],
+            "default": "png"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          }
+        ],
+        "inputRoles": [],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg", "webp"],
+          "counts": [1, 2, 3, 4],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": true
+        },
+        "validation": {
+          "conditionalRules": [],
+          "customDimensions": {
+            "divisor": 16,
+            "maxEdge": 4096
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "flux-3-klein",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "n": 1,
+              "output_format": "png",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "2:3",
+            "resolution": "4K",
+            "n": 4,
+            "outputFormat": "webp",
+            "enableSafetyChecker": true
+          },
+          "request": {
+            "model": "flux-3-klein",
+            "input": {
+              "prompt": "studio image",
+              "size": "2:3",
+              "resolution": "4K",
+              "n": 4,
+              "output_format": "webp",
+              "enable_safety_checker": true
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "n", "outputFormat", "enableSafetyChecker"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in."
+      ]
+    },
+    {
+      "entryKey": "flux-3-klein-edit:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "flux-3-klein",
+        "markdownId": "model:image:flux-3-klein:markdown",
+        "jsonId": "model:image:flux-3-klein:json"
+      },
+      "schema": {
+        "publicModelId": "flux-3-klein-edit",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 5000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1:1", "4:3", "3:4", "16:9", "9:16", "3:2", "2:3"],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "key": "n",
+            "apiKey": "n",
+            "kind": "integer",
+            "level": "common",
+            "default": 1,
+            "min": 1,
+            "max": 4
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg", "webp"],
+            "default": "png"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 10,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg", "webp"],
+          "counts": [1, 2, 3, 4],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": true
+        },
+        "validation": {
+          "conditionalRules": [],
+          "customDimensions": {
+            "divisor": 16,
+            "maxEdge": 4096
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "flux-3-klein-edit",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "n": 1,
+              "output_format": "png",
+              "enable_safety_checker": false,
+              "image_urls": ["https://assets.example/reference-0.png"]
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "2:3",
+            "resolution": "4K",
+            "n": 4,
+            "outputFormat": "webp",
+            "enableSafetyChecker": true
+          },
+          "request": {
+            "model": "flux-3-klein-edit",
+            "input": {
+              "prompt": "studio image",
+              "size": "2:3",
+              "resolution": "4K",
+              "n": 4,
+              "output_format": "webp",
+              "enable_safety_checker": true,
+              "image_urls": ["https://assets.example/reference-0.png"]
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "n", "outputFormat", "enableSafetyChecker"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-2.5-fixed:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "gpt-image-2-5-fixed",
+        "markdownId": "model:image:gpt-image-2-5-fixed:markdown",
+        "jsonId": "model:image:gpt-image-2-5-fixed:json"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-2.5-fixed",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "key": "version",
+            "apiKey": "version",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["flare", "sunburst"],
+            "default": "flare"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": false,
+            "min": 1,
+            "max": 16,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "gpt-image-2.5-fixed",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "version": "flare",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "21:9",
+            "resolution": "4K",
+            "version": "sunburst"
+          },
+          "request": {
+            "model": "gpt-image-2.5-fixed",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "version": "sunburst",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "version"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-2.5-fixed:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "gpt-image-2-5-fixed",
+        "markdownId": "model:image:gpt-image-2-5-fixed:markdown",
+        "jsonId": "model:image:gpt-image-2-5-fixed:json"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-2.5-fixed",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "key": "version",
+            "apiKey": "version",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["flare", "sunburst"],
+            "default": "flare"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 16,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "gpt-image-2.5-fixed",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "version": "flare",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "21:9",
+            "resolution": "4K",
+            "version": "sunburst"
+          },
+          "request": {
+            "model": "gpt-image-2.5-fixed",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "version": "sunburst",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "version"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-2.6-fixed:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "gpt-image-2-6-fixed",
+        "markdownId": "model:image:gpt-image-2-6-fixed:markdown",
+        "jsonId": "model:image:gpt-image-2-6-fixed:json"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-2.6-fixed",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "key": "version",
+            "apiKey": "version",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["flare", "sunburst"],
+            "default": "flare"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": false,
+            "min": 1,
+            "max": 16,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "gpt-image-2.6-fixed",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "version": "flare",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "21:9",
+            "resolution": "4K",
+            "version": "sunburst"
+          },
+          "request": {
+            "model": "gpt-image-2.6-fixed",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "version": "sunburst",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "version"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-2.6-fixed:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "gpt-image-2-6-fixed",
+        "markdownId": "model:image:gpt-image-2-6-fixed:markdown",
+        "jsonId": "model:image:gpt-image-2-6-fixed:json"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-2.6-fixed",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "key": "version",
+            "apiKey": "version",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["flare", "sunburst"],
+            "default": "flare"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 16,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "gpt-image-2.6-fixed",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "version": "flare",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "21:9",
+            "resolution": "4K",
+            "version": "sunburst"
+          },
+          "request": {
+            "model": "gpt-image-2.6-fixed",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "version": "sunburst",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "version"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-2.6-flare:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "gpt-image-2-6-flare",
+        "markdownId": "model:image:gpt-image-2-6-flare:markdown",
+        "jsonId": "model:image:gpt-image-2-6-flare:json"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-2.6-flare",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg", "webp"],
+            "default": "png"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "quality",
+            "apiKey": "quality",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["low", "medium", "high", "xhigh", "max"],
+            "default": "high"
+          },
+          {
+            "key": "background",
+            "apiKey": "background",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["auto", "transparent", "opaque"],
+            "default": "auto"
+          },
+          {
+            "key": "outputCompression",
+            "apiKey": "output_compression",
+            "kind": "integer",
+            "level": "advanced",
+            "min": 0,
+            "max": 100
+          },
+          {
+            "key": "moderation",
+            "apiKey": "moderation",
+            "kind": "enum",
+            "level": "advanced",
+            "enum": ["auto", "low"],
+            "default": "auto"
+          },
+          {
+            "key": "complexity",
+            "apiKey": "complexity",
+            "kind": "enum",
+            "level": "advanced",
+            "enum": ["low", "medium", "high"],
+            "default": "high"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": false,
+            "min": 1,
+            "max": 16,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg", "webp"],
+          "counts": [1],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": [],
+          "customDimensions": {
+            "divisor": 16,
+            "maxEdge": 3840,
+            "minPixels": 655360,
+            "maxPixels": 8294400,
+            "maxAspectRatio": 3
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "gpt-image-2.6-flare",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "output_format": "png",
+              "quality": "high",
+              "background": "auto",
+              "moderation": "auto",
+              "complexity": "high",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "21:9",
+            "resolution": "4K",
+            "outputFormat": "webp",
+            "quality": "max",
+            "background": "opaque",
+            "outputCompression": 100,
+            "moderation": "low",
+            "complexity": "high"
+          },
+          "request": {
+            "model": "gpt-image-2.6-flare",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "output_format": "webp",
+              "quality": "max",
+              "background": "opaque",
+              "output_compression": 100,
+              "moderation": "low",
+              "complexity": "high",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": [
+            "aspectRatio",
+            "resolution",
+            "outputFormat",
+            "quality",
+            "background",
+            "outputCompression",
+            "moderation",
+            "complexity"
+          ]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-2.6-flare:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "gpt-image-2-6-flare",
+        "markdownId": "model:image:gpt-image-2-6-flare:markdown",
+        "jsonId": "model:image:gpt-image-2-6-flare:json"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-2.6-flare",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg", "webp"],
+            "default": "png"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "quality",
+            "apiKey": "quality",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["low", "medium", "high", "xhigh", "max"],
+            "default": "high"
+          },
+          {
+            "key": "background",
+            "apiKey": "background",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["auto", "transparent", "opaque"],
+            "default": "auto"
+          },
+          {
+            "key": "outputCompression",
+            "apiKey": "output_compression",
+            "kind": "integer",
+            "level": "advanced",
+            "min": 0,
+            "max": 100
+          },
+          {
+            "key": "moderation",
+            "apiKey": "moderation",
+            "kind": "enum",
+            "level": "advanced",
+            "enum": ["auto", "low"],
+            "default": "auto"
+          },
+          {
+            "key": "complexity",
+            "apiKey": "complexity",
+            "kind": "enum",
+            "level": "advanced",
+            "enum": ["low", "medium", "high"],
+            "default": "high"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 16,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          },
+          {
+            "role": "mask",
+            "required": false,
+            "min": 0,
+            "max": 1,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg", "webp"],
+          "counts": [1],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": [],
+          "customDimensions": {
+            "divisor": 16,
+            "maxEdge": 3840,
+            "minPixels": 655360,
+            "maxPixels": 8294400,
+            "maxAspectRatio": 3
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "gpt-image-2.6-flare",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "output_format": "png",
+              "quality": "high",
+              "background": "auto",
+              "moderation": "auto",
+              "complexity": "high",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "21:9",
+            "resolution": "4K",
+            "outputFormat": "webp",
+            "quality": "max",
+            "background": "opaque",
+            "outputCompression": 100,
+            "moderation": "low",
+            "complexity": "high"
+          },
+          "request": {
+            "model": "gpt-image-2.6-flare",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "output_format": "webp",
+              "quality": "max",
+              "background": "opaque",
+              "output_compression": 100,
+              "moderation": "low",
+              "complexity": "high",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": [
+            "aspectRatio",
+            "resolution",
+            "outputFormat",
+            "quality",
+            "background",
+            "outputCompression",
+            "moderation",
+            "complexity"
+          ]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-2.6-sunburst:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "gpt-image-2-6-sunburst",
+        "markdownId": "model:image:gpt-image-2-6-sunburst:markdown",
+        "jsonId": "model:image:gpt-image-2-6-sunburst:json"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-2.6-sunburst",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg", "webp"],
+            "default": "png"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "quality",
+            "apiKey": "quality",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["low", "medium", "high", "xhigh", "max"],
+            "default": "high"
+          },
+          {
+            "key": "background",
+            "apiKey": "background",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["auto", "transparent", "opaque"],
+            "default": "auto"
+          },
+          {
+            "key": "outputCompression",
+            "apiKey": "output_compression",
+            "kind": "integer",
+            "level": "advanced",
+            "min": 0,
+            "max": 100
+          },
+          {
+            "key": "moderation",
+            "apiKey": "moderation",
+            "kind": "enum",
+            "level": "advanced",
+            "enum": ["auto", "low"],
+            "default": "auto"
+          },
+          {
+            "key": "complexity",
+            "apiKey": "complexity",
+            "kind": "enum",
+            "level": "advanced",
+            "enum": ["low", "medium", "high"],
+            "default": "high"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": false,
+            "min": 1,
+            "max": 16,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg", "webp"],
+          "counts": [1],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": [],
+          "customDimensions": {
+            "divisor": 16,
+            "maxEdge": 3840,
+            "minPixels": 655360,
+            "maxPixels": 8294400,
+            "maxAspectRatio": 3
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "gpt-image-2.6-sunburst",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "output_format": "png",
+              "quality": "high",
+              "background": "auto",
+              "moderation": "auto",
+              "complexity": "high",
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "21:9",
+            "resolution": "4K",
+            "outputFormat": "webp",
+            "quality": "max",
+            "background": "opaque",
+            "outputCompression": 100,
+            "moderation": "low",
+            "complexity": "high"
+          },
+          "request": {
+            "model": "gpt-image-2.6-sunburst",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "output_format": "webp",
+              "quality": "max",
+              "background": "opaque",
+              "output_compression": 100,
+              "moderation": "low",
+              "complexity": "high",
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": [
+            "aspectRatio",
+            "resolution",
+            "outputFormat",
+            "quality",
+            "background",
+            "outputCompression",
+            "moderation",
+            "complexity"
+          ]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "gpt-image-2.6-sunburst:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "gpt-image-2-6-sunburst",
+        "markdownId": "model:image:gpt-image-2-6-sunburst:markdown",
+        "jsonId": "model:image:gpt-image-2-6-sunburst:json"
+      },
+      "schema": {
+        "publicModelId": "gpt-image-2.6-sunburst",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "1K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg", "webp"],
+            "default": "png"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "quality",
+            "apiKey": "quality",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["low", "medium", "high", "xhigh", "max"],
+            "default": "high"
+          },
+          {
+            "key": "background",
+            "apiKey": "background",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["auto", "transparent", "opaque"],
+            "default": "auto"
+          },
+          {
+            "key": "outputCompression",
+            "apiKey": "output_compression",
+            "kind": "integer",
+            "level": "advanced",
+            "min": 0,
+            "max": 100
+          },
+          {
+            "key": "moderation",
+            "apiKey": "moderation",
+            "kind": "enum",
+            "level": "advanced",
+            "enum": ["auto", "low"],
+            "default": "auto"
+          },
+          {
+            "key": "complexity",
+            "apiKey": "complexity",
+            "kind": "enum",
+            "level": "advanced",
+            "enum": ["low", "medium", "high"],
+            "default": "high"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 16,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          },
+          {
+            "role": "mask",
+            "required": false,
+            "min": 0,
+            "max": 1,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg", "webp"],
+          "counts": [1],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": [],
+          "customDimensions": {
+            "divisor": 16,
+            "maxEdge": 3840,
+            "minPixels": 655360,
+            "maxPixels": 8294400,
+            "maxAspectRatio": 3
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "gpt-image-2.6-sunburst",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "output_format": "png",
+              "quality": "high",
+              "background": "auto",
+              "moderation": "auto",
+              "complexity": "high",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "21:9",
+            "resolution": "4K",
+            "outputFormat": "webp",
+            "quality": "max",
+            "background": "opaque",
+            "outputCompression": 100,
+            "moderation": "low",
+            "complexity": "high"
+          },
+          "request": {
+            "model": "gpt-image-2.6-sunburst",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "output_format": "webp",
+              "quality": "max",
+              "background": "opaque",
+              "output_compression": 100,
+              "moderation": "low",
+              "complexity": "high",
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": [
+            "aspectRatio",
+            "resolution",
+            "outputFormat",
+            "quality",
+            "background",
+            "outputCompression",
+            "moderation",
+            "complexity"
+          ]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "mai-image-2.6:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "mai-image-2-6",
+        "markdownId": "model:image:mai-image-2-6:markdown",
+        "jsonId": "model:image:mai-image-2-6:json"
+      },
+      "schema": {
+        "publicModelId": "mai-image-2.6",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1:1", "4:3", "3:4", "16:9", "9:16", "3:2", "2:3"],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K"],
+            "default": "1K"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "webSearch",
+            "apiKey": "enable_web_search",
+            "kind": "boolean",
+            "level": "advanced",
+            "default": false
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": false,
+            "min": 1,
+            "max": 5,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": [],
+          "customDimensions": {
+            "divisor": 32,
+            "maxPixels": 2359296
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "mai-image-2.6",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "enable_web_search": false,
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "2:3",
+            "resolution": "2K",
+            "webSearch": true
+          },
+          "request": {
+            "model": "mai-image-2.6",
+            "input": {
+              "prompt": "studio image",
+              "size": "2:3",
+              "resolution": "2K",
+              "enable_web_search": true,
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "webSearch"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "mai-image-2.6:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "mai-image-2-6",
+        "markdownId": "model:image:mai-image-2-6:markdown",
+        "jsonId": "model:image:mai-image-2-6:json"
+      },
+      "schema": {
+        "publicModelId": "mai-image-2.6",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1:1", "4:3", "3:4", "16:9", "9:16", "3:2", "2:3"],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K"],
+            "default": "1K"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "webSearch",
+            "apiKey": "enable_web_search",
+            "kind": "boolean",
+            "level": "advanced",
+            "default": false
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 5,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": [],
+          "customDimensions": {
+            "divisor": 32,
+            "maxPixels": 2359296
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "mai-image-2.6",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "enable_web_search": false,
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "2:3",
+            "resolution": "2K",
+            "webSearch": true
+          },
+          "request": {
+            "model": "mai-image-2.6",
+            "input": {
+              "prompt": "studio image",
+              "size": "2:3",
+              "resolution": "2K",
+              "enable_web_search": true,
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "webSearch"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "mai-image-2.6-flash:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "mai-image-2-6-flash",
+        "markdownId": "model:image:mai-image-2-6-flash:markdown",
+        "jsonId": "model:image:mai-image-2-6-flash:json"
+      },
+      "schema": {
+        "publicModelId": "mai-image-2.6-flash",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1:1", "4:3", "3:4", "16:9", "9:16", "3:2", "2:3"],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K"],
+            "default": "1K"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "webSearch",
+            "apiKey": "enable_web_search",
+            "kind": "boolean",
+            "level": "advanced",
+            "default": false
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": false,
+            "min": 1,
+            "max": 5,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": [],
+          "customDimensions": {
+            "divisor": 32,
+            "maxPixels": 2359296
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "mai-image-2.6-flash",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "enable_web_search": false,
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "2:3",
+            "resolution": "2K",
+            "webSearch": true
+          },
+          "request": {
+            "model": "mai-image-2.6-flash",
+            "input": {
+              "prompt": "studio image",
+              "size": "2:3",
+              "resolution": "2K",
+              "enable_web_search": true,
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "webSearch"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "mai-image-2.6-flash:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "mai-image-2-6-flash",
+        "markdownId": "model:image:mai-image-2-6-flash:markdown",
+        "jsonId": "model:image:mai-image-2-6-flash:json"
+      },
+      "schema": {
+        "publicModelId": "mai-image-2.6-flash",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 32000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1:1", "4:3", "3:4", "16:9", "9:16", "3:2", "2:3"],
+            "default": "1:1"
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K"],
+            "default": "1K"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "webSearch",
+            "apiKey": "enable_web_search",
+            "kind": "boolean",
+            "level": "advanced",
+            "default": false
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 5,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png"],
+          "counts": [1],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": [],
+          "customDimensions": {
+            "divisor": 32,
+            "maxPixels": 2359296
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "mai-image-2.6-flash",
+            "input": {
+              "prompt": "studio image",
+              "size": "1:1",
+              "resolution": "1K",
+              "enable_web_search": false,
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "2:3",
+            "resolution": "2K",
+            "webSearch": true
+          },
+          "request": {
+            "model": "mai-image-2.6-flash",
+            "input": {
+              "prompt": "studio image",
+              "size": "2:3",
+              "resolution": "2K",
+              "enable_web_search": true,
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "webSearch"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "minimax-h3-image:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "minimax-h3-image",
+        "markdownId": "model:image:minimax-h3-image:markdown",
+        "jsonId": "model:image:minimax-h3-image:json"
+      },
+      "schema": {
+        "publicModelId": "minimax-h3-image",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 5000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "2K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg"],
+            "default": "png"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "promptExtend",
+            "apiKey": "enable_prompt_expansion",
+            "kind": "boolean",
+            "level": "common",
+            "default": true
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": false,
+            "min": 1,
+            "max": 16,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg"],
+          "counts": [1],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": [],
+          "customDimensions": {
+            "minPixels": 655360,
+            "maxPixels": 20000000,
+            "maxAspectRatio": 3
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "minimax-h3-image",
+            "input": {
+              "prompt": "studio image",
+              "resolution": "2K",
+              "output_format": "png",
+              "enable_prompt_expansion": true,
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "21:9",
+            "resolution": "4K",
+            "outputFormat": "jpeg",
+            "promptExtend": false
+          },
+          "request": {
+            "model": "minimax-h3-image",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "output_format": "jpeg",
+              "enable_prompt_expansion": false,
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "outputFormat", "promptExtend"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "minimax-h3-image:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "minimax-h3-image",
+        "markdownId": "model:image:minimax-h3-image:markdown",
+        "jsonId": "model:image:minimax-h3-image:json"
+      },
+      "schema": {
+        "publicModelId": "minimax-h3-image",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 1,
+            "max": 5000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": [
+              "auto",
+              "1:1",
+              "2:3",
+              "3:2",
+              "3:4",
+              "4:3",
+              "4:5",
+              "5:4",
+              "9:16",
+              "16:9",
+              "21:9"
+            ]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "2K", "4K"],
+            "default": "2K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg"],
+            "default": "png"
+          },
+          {
+            "key": "dimensions",
+            "apiKey": "size",
+            "kind": "dimensions",
+            "level": "advanced"
+          },
+          {
+            "key": "promptExtend",
+            "apiKey": "enable_prompt_expansion",
+            "kind": "boolean",
+            "level": "common",
+            "default": true
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 16,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg"],
+          "counts": [1],
+          "customSize": true,
+          "seed": false,
+          "safetyChecker": false
+        },
+        "validation": {
+          "conditionalRules": [],
+          "customDimensions": {
+            "minPixels": 655360,
+            "maxPixels": 20000000,
+            "maxAspectRatio": 3
+          }
+        },
+        "payload": {
+          "adapter": "image-input-v1",
+          "dimensionsEncoding": "width-x-height-string"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "minimax-h3-image",
+            "input": {
+              "prompt": "studio image",
+              "resolution": "2K",
+              "output_format": "png",
+              "enable_prompt_expansion": true,
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "21:9",
+            "resolution": "4K",
+            "outputFormat": "jpeg",
+            "promptExtend": false
+          },
+          "request": {
+            "model": "minimax-h3-image",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "4K",
+              "output_format": "jpeg",
+              "enable_prompt_expansion": false,
+              "image_urls": ["https://assets.example/reference-0.png"],
+              "enable_safety_checker": false
+            }
+          },
+          "coveredFields": ["aspectRatio", "resolution", "outputFormat", "promptExtend"]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is sent as false even though this page does not document it, following the existing studio policy."
+      ]
+    },
+    {
+      "entryKey": "seedream-5.5:text-to-image",
+      "status": "current",
+      "source": {
+        "pageSlug": "seedream-5-5",
+        "markdownId": "model:image:seedream-5-5:markdown",
+        "jsonId": "model:image:seedream-5-5:json"
+      },
+      "schema": {
+        "publicModelId": "seedream-5.5",
+        "workflow": "text-to-image",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 5,
+            "max": 5000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1:1", "4:3", "3:4", "16:9", "9:16", "3:2", "2:3", "21:9"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "1.5K", "2K"],
+            "default": "2K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg"],
+            "default": "png"
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          },
+          {
+            "key": "background",
+            "apiKey": "background",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["auto", "transparent", "opaque"],
+            "default": "auto"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": false,
+            "min": 1,
+            "max": 10,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg"],
+          "counts": [1],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": true
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image"
+          },
+          "request": {
+            "model": "seedream-5.5",
+            "input": {
+              "prompt": "studio image",
+              "resolution": "2K",
+              "output_format": "png",
+              "enable_safety_checker": false,
+              "background": "auto"
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "aspectRatio": "21:9",
+            "resolution": "2K",
+            "outputFormat": "jpeg",
+            "enableSafetyChecker": true,
+            "background": "opaque"
+          },
+          "request": {
+            "model": "seedream-5.5",
+            "input": {
+              "prompt": "studio image",
+              "size": "21:9",
+              "resolution": "2K",
+              "output_format": "jpeg",
+              "enable_safety_checker": true,
+              "background": "opaque"
+            }
+          },
+          "coveredFields": [
+            "aspectRatio",
+            "resolution",
+            "outputFormat",
+            "enableSafetyChecker",
+            "background"
+          ]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {},
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in."
+      ]
+    },
+    {
+      "entryKey": "seedream-5.5:image-edit",
+      "status": "current",
+      "source": {
+        "pageSlug": "seedream-5-5",
+        "markdownId": "model:image:seedream-5-5:markdown",
+        "jsonId": "model:image:seedream-5-5:json"
+      },
+      "schema": {
+        "publicModelId": "seedream-5.5",
+        "workflow": "image-edit",
+        "fields": [
+          {
+            "key": "prompt",
+            "apiKey": "prompt",
+            "kind": "text",
+            "level": "essential",
+            "required": true,
+            "min": 5,
+            "max": 5000
+          },
+          {
+            "key": "aspectRatio",
+            "apiKey": "size",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1:1", "4:3", "3:4", "16:9", "9:16", "3:2", "2:3", "21:9", "auto"]
+          },
+          {
+            "key": "resolution",
+            "apiKey": "resolution",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["1K", "1.5K", "2K"],
+            "default": "2K"
+          },
+          {
+            "key": "outputFormat",
+            "apiKey": "output_format",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["png", "jpeg"],
+            "default": "png"
+          },
+          {
+            "key": "enableSafetyChecker",
+            "apiKey": "enable_safety_checker",
+            "kind": "boolean",
+            "level": "common",
+            "default": false
+          },
+          {
+            "key": "background",
+            "apiKey": "background",
+            "kind": "enum",
+            "level": "common",
+            "enum": ["auto", "transparent", "opaque"],
+            "default": "auto"
+          }
+        ],
+        "inputRoles": [
+          {
+            "role": "reference",
+            "required": true,
+            "min": 1,
+            "max": 10,
+            "mediaKind": "image",
+            "formats": ["image/jpeg", "image/png", "image/webp"]
+          }
+        ],
+        "output": {
+          "mediaKind": "image",
+          "formats": ["png", "jpeg"],
+          "counts": [1],
+          "customSize": false,
+          "seed": false,
+          "safetyChecker": true
+        },
+        "validation": {
+          "conditionalRules": []
+        },
+        "payload": {
+          "adapter": "image-input-v1"
+        },
+        "limitations": []
+      },
+      "vectors": {
+        "minimum": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "request": {
+            "model": "seedream-5.5",
+            "input": {
+              "prompt": "studio image",
+              "resolution": "2K",
+              "output_format": "png",
+              "enable_safety_checker": false,
+              "background": "auto",
+              "image_urls": ["https://assets.example/reference-0.png"]
+            }
+          }
+        },
+        "advanced": {
+          "values": {
+            "prompt": "studio image",
+            "imageUrls": ["https://assets.example/reference-0.png"],
+            "aspectRatio": "auto",
+            "resolution": "2K",
+            "outputFormat": "jpeg",
+            "enableSafetyChecker": true,
+            "background": "opaque"
+          },
+          "request": {
+            "model": "seedream-5.5",
+            "input": {
+              "prompt": "studio image",
+              "size": "auto",
+              "resolution": "2K",
+              "output_format": "jpeg",
+              "enable_safety_checker": true,
+              "background": "opaque",
+              "image_urls": ["https://assets.example/reference-0.png"]
+            }
+          },
+          "coveredFields": [
+            "aspectRatio",
+            "resolution",
+            "outputFormat",
+            "enableSafetyChecker",
+            "background"
+          ]
+        },
+        "invalid": {
+          "label": "required prompt",
+          "values": {
+            "imageUrls": ["https://assets.example/reference-0.png"]
+          },
+          "issueIncludes": "prompt is required"
+        }
+      },
+      "manualDecisions": [
+        "Project override: enable_safety_checker is explicitly false unless the user opts in."
       ]
     }
   ]

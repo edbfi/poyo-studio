@@ -135,24 +135,96 @@ function validate(entry: VideoRegistryEntry, values: GuidedVideoRequest): string
   )
     issues.push('Sora 2 Pro aspect_ratio=auto requires an image.');
 
+  if (entry.family === 'Gemini Omni 1.2 Flash') {
+    if (
+      entry.workflow === 'reference-to-video' &&
+      !(values.referenceImageUrls?.length || values.referenceVideoUrls?.length)
+    )
+      issues.push('Gemini reference mode requires reference media.');
+    if ((values.imageUrls?.length ?? 0) > 1 && (values.duration ?? 8) > 10)
+      issues.push('Gemini last-frame generation supports at most 10 seconds.');
+  }
+  if (entry.family.startsWith('Kling 4.0')) {
+    const images = (values.referenceImageUrls?.length ?? 0) + (values.imageUrls?.length ?? 0);
+    const videos = values.referenceVideoUrls?.length ?? 0;
+    const elements = values.elements ?? [];
+    if (images > 10)
+      issues.push('Kling 4 supports at most 10 images including the starting frame.');
+    if (images + videos + elements.length > 15)
+      issues.push('Kling 4 supports at most 15 materials.');
+    if (
+      entry.workflow === 'reference-to-video' &&
+      !(values.referenceImageUrls?.length || videos || elements.length)
+    )
+      issues.push('Kling reference mode requires reference images, videos, or subjects.');
+    const hasReferences = Boolean(values.referenceImageUrls?.length || videos || elements.length);
+    if (hasReferences && (values.imageUrls?.length ?? 0) > 1)
+      issues.push('Kling reference mode supports at most one starting frame.');
+    if (
+      entry.workflow === 'multi-shot-video' &&
+      !hasReferences &&
+      values.imageUrls?.length &&
+      values.aspectRatio !== undefined
+    )
+      issues.push('Kling image mode does not accept aspect_ratio.');
+    let subjectVideos = 0;
+    for (const element of elements) {
+      if (!element || typeof element !== 'object' || Array.isArray(element)) {
+        issues.push('Kling subjects must be objects.');
+        continue;
+      }
+      const subject = element as Record<string, unknown>;
+      const keys = Object.keys(subject);
+      if (
+        keys.length !== 1 ||
+        !['element_input_urls', 'element_input_video_urls'].includes(keys[0] ?? '')
+      ) {
+        issues.push('Each Kling subject requires exactly one image or video list.');
+        continue;
+      }
+      const video = keys[0] === 'element_input_video_urls';
+      const urls = subject[keys[0] ?? ''];
+      if (!Array.isArray(urls) || !urls.every((url) => typeof url === 'string')) {
+        issues.push('Kling subject media must be URL lists.');
+        continue;
+      }
+      if (video) {
+        subjectVideos++;
+        if (urls.length !== 1) issues.push('Video subjects require exactly one video.');
+        if (entry.workflow === 'video-edit' && entry.family === 'Kling 4.0')
+          issues.push('Kling 4 edits support image subjects only.');
+      } else if (urls.length < 2 || urls.length > 4)
+        issues.push('Image subjects require 2–4 images.');
+      issues.push(...validateUrls(urls, 'Kling subject'));
+    }
+    if (subjectVideos > 3) issues.push('Kling supports at most three video subjects.');
+  }
   if (entry.workflow === 'multi-shot-video') {
     const shots = values.multiPrompt ?? [];
-    const shotMax = entry.family.startsWith('Kling O3') ? 12 : 15;
+    const shotMax =
+      entry.family === 'Kling 4.0' ? 30 : entry.family.startsWith('Kling O3') ? 12 : 15;
     for (const shot of shots)
       if (
         !shot ||
         typeof shot.prompt !== 'string' ||
         !shot.prompt.trim() ||
-        !Number.isInteger(shot.duration) ||
-        shot.duration < 1 ||
-        shot.duration > shotMax
+        !Number.isInteger(shot.duration ?? (entry.family === 'Kling 4.0' ? 5 : undefined)) ||
+        (shot.duration ?? 5) < 1 ||
+        (shot.duration ?? 5) > shotMax ||
+        (entry.family === 'Kling 4.0' &&
+          (shot.prompt.length > 512 ||
+            Object.keys(shot).some((key) => !['prompt', 'duration'].includes(key))))
       )
         issues.push(`Each multi_prompt shot requires prompt and duration 1-${shotMax}.`);
     const total = shots.reduce((sum, shot) => {
-      if (!shot || typeof shot !== 'object' || !Number.isFinite(shot.duration)) return sum;
-      return sum + shot.duration;
+      if (!shot || typeof shot !== 'object') return sum;
+      const duration = shot.duration ?? (entry.family === 'Kling 4.0' ? 5 : 0);
+      if (!Number.isFinite(duration)) return sum;
+      return sum + duration;
     }, 0);
-    if (total < 3 || total > 15) issues.push('Multi-shot total duration must be 3-15 seconds.');
+    const maxTotal = entry.family === 'Kling 4.0' ? 30 : 15;
+    if (total < 3 || total > maxTotal)
+      issues.push(`Multi-shot total duration must be 3-${maxTotal} seconds.`);
     if (values.duration !== undefined && total !== values.duration)
       issues.push('Multi-shot duration must equal the total shot duration.');
     if (entry.fields.some((field) => field.key === 'sound') && values.sound === false)
@@ -166,6 +238,12 @@ function validate(entry: VideoRegistryEntry, values: GuidedVideoRequest): string
     const maxIndex = (values.duration ?? 0) * framesPerSecond;
     const seen = new Set<number>();
     for (const keyframe of values.keyframes ?? []) {
+      if (
+        entry.family === 'Flux 3 Max' &&
+        keyframe &&
+        Object.keys(keyframe).some((key) => !['image_url', 'frame_index'].includes(key))
+      )
+        issues.push('Keyframes accept only image_url and frame_index.');
       if (!keyframe || typeof keyframe.image_url !== 'string' || !keyframe.image_url.trim()) {
         issues.push('Each keyframe requires an image_url.');
         continue;
@@ -335,6 +413,8 @@ export function normalizeVideoRequest(
 function minimumFieldValue(entry: VideoRegistryEntry, field: FieldDefinition): unknown {
   if (field.default !== undefined) return field.default;
   if (field.key === 'prompt') return 'studio video';
+  if (field.kind === 'text' && field.required)
+    return field.key === 'targetLanguage' ? 'English' : 'auto';
   if (field.key === 'multiPrompt') {
     const durationField = entry.fields.find((candidate) => candidate.key === 'duration');
     const duration = Number(durationField?.default ?? durationField?.min ?? 3);
@@ -378,7 +458,12 @@ export function minimumValidVideoRequest(entry: VideoRegistryEntry): GuidedVideo
     values.referenceImageUrls = ['https://assets.example/reference.png'];
   if (entry.workflow === 'reference-to-video' && entry.family.startsWith('Wan 3.0'))
     values.referenceImageUrls = ['https://assets.example/reference.png'];
-  if (entry.workflow === 'reference-to-video' && entry.family === 'Hailuo 03')
+  if (
+    entry.workflow === 'reference-to-video' &&
+    (entry.family === 'Hailuo 03' ||
+      entry.family === 'Gemini Omni 1.2 Flash' ||
+      entry.family.startsWith('Kling 4.0'))
+  )
     values.referenceImageUrls = ['https://assets.example/reference.png'];
   if (entry.family === 'Hailuo 02' && entry.workflow === 'frame-to-video')
     values.resolution = '768P';

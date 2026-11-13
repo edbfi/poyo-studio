@@ -92,6 +92,7 @@ function parseOutputFile(value: unknown): PoyoOutputFile {
     throw malformedResponseError('status', 'Poyo returned an invalid output file_size field.');
   }
   return {
+    ...(file.layer === undefined ? {} : { layer: record(file.layer, 'status', 'layer metadata') }),
     url: requiredHttpUrl(file.file_url, 'status', 'file_url'),
     fileType: requiredString(file.file_type, 'status', 'file_type'),
     label: optionalString(file.label, 'status', 'label'),

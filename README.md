@@ -26,18 +26,22 @@ The project is independent and is not an official Poyo.ai client.
 
 ## Model coverage
 
-The October 11, 2026 comparison against [Poyo's documentation index](https://docs.poyo.ai/llms.txt)
-covers all 29 indexed image and 41 indexed video model pages, plus the two existing Sora Official
-pages that remain directly accessible. The registry contains 53 image model IDs with 66 workflows
-and 69 video model IDs with 151 workflows. The studio supports text and reference-image generation, image
-editing, text/image/frame/reference-to-video, video editing and extension, motion transfer,
-multi-shot generation, and audio-driven avatar video.
+The November 13, 2026 comparison against [Poyo's documentation index](https://docs.poyo.ai/llms.txt)
+covers every indexed image and video model page, plus enabled image/video capabilities published
+only in the [official capability catalog](https://api.poyo.ai/v1/catalog/models?service_type=generate&limit=100).
+The studio supports text and reference-image generation, image editing, vector graphics,
+layer decomposition, text/image/frame/reference-to-video, video editing and extension,
+motion transfer, multi-shot generation, and audio-driven avatar video.
 
-Recent additions include [Seedream 5.0 Flash](https://docs.poyo.ai/api-manual/image-series/seedream-5-0-flash),
-GPT Image 2.5 Flare and Sunburst, Nano Banana 2.1, Qwen Image 2.1, Gemini Omni 1.1 Flash,
-H3 Max and H3 Max Turbo. Grok Imagine Video 1.5 includes text, image and reference modes;
-Kling Avatar 2.0 Standard and Pro accept an avatar image and a public driving-audio URL.
-Audio inputs use remote URLs; local audio upload is not available.
+Recent additions include Flux 3 Klein and Max, GPT Image 2.6, Ideogram 4.5 and Vector 1.0,
+MAI Image 2.6, MiniMax H3 Image, Seedream 5.5, Gemini Omni 1.2 Flash, Kling 4.0,
+OmniHuman 2.0, PixVerse V6 Max, and Vidu Q4. Image/video translation, video background
+removal, video upscaling, and VEO 3.1 extension use the enabled capability catalog contracts.
+Audio inputs use remote URLs; local audio upload is not available. Background removal offers
+MP4, WebM, MOV, MKV and GIF output. Browser playback depends on the container and codec;
+Download copy preserves the original file for a compatible media player.
+SVG outputs support presentation attributes and local gradients/references. Active content,
+external resources, stylesheets and inline style attributes are rejected before local publication.
 
 The Models page links each workflow to its source documentation and shows its limitations.
 Model-specific fields, reference limits and incompatible combinations are checked before
@@ -45,7 +49,18 @@ submission. Remote media metadata constraints remain subject to provider validat
 Legacy and JSON-only Sora specifications remain audit records outside the selectors.
 Pricing stays unavailable when published rows cannot be matched unambiguously; the studio
 does not invent prices for new models. Registry evidence includes paired Markdown/JSON hashes,
-reviewed schemas and request fixtures. Run `bun run validate:registry` to check this evidence.
+reviewed schemas and request fixtures. Run `bun run validate:registry` to check this evidence
+offline, including complete coverage of the committed documentation index and capability snapshots.
+
+Run `bun run registry:audit:network` to detect changes in official documents and newly indexed
+model pages without paid generation calls. Bootstrap newly indexed source pairs with
+`bun scripts/discover-registry-sources.ts` before adding registry entries; this command does not
+enable models or refresh reviewed fixtures. For a reviewed model update, add its schema and constraints,
+then run `bun run registry:evidence:refresh` and inspect the changed source evidence and request
+fixtures against the official contracts. Refresh stops when the live image/video index contains an
+unregistered page, so a newly published model cannot silently disappear from the audit.
+Validate with `bun run validate:registry`, `bun run check`, `bun run test` and `bun run build`.
+Evidence refresh uses the network and updates verification timestamps; offline validation is deterministic.
 
 ## Quick start
 

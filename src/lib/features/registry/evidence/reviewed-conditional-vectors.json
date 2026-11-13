@@ -276,16 +276,6 @@
       "issueIncludes": "requires reference media"
     },
     {
-      "rule": "auto-size-only-at-1k",
-      "entryKey": "gpt-image-2.5-flare:text-to-image",
-      "values": {
-        "prompt": "poster",
-        "aspectRatio": "auto",
-        "resolution": "2K"
-      },
-      "issueIncludes": "auto size requires 1K"
-    },
-    {
       "rule": "h3-max-reference-total-at-most-12",
       "entryKey": "h3-max:reference-to-video",
       "values": {

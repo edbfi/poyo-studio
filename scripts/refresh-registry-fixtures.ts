@@ -1,5 +1,6 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
+import { OFFICIAL_SOURCE_MANIFEST } from '../src/lib/features/registry/evidence/source-evidence';
 import {
   IMAGE_REGISTRY_ENTRIES,
   IMAGE_REGISTRY_VERSION
@@ -165,8 +166,12 @@ function invalid(entry: RegistryEntry, base: GuidedValues): InvalidVector {
 function fixture(entry: RegistryEntry): WorkflowFixture {
   const source = {
     pageSlug: entry.provenance.pageSlug,
-    markdownId: `model:${entry.output.mediaKind}:${entry.provenance.pageSlug}:markdown`,
-    jsonId: `model:${entry.output.mediaKind}:${entry.provenance.pageSlug}:json`
+    markdownId:
+      OFFICIAL_SOURCE_MANIFEST.sources.find((source) => source.url === entry.provenance.markdownUrl)
+        ?.id ?? '',
+    jsonId:
+      OFFICIAL_SOURCE_MANIFEST.sources.find((source) => source.url === entry.provenance.jsonUrl)
+        ?.id ?? ''
   };
   const schema = {
     publicModelId: entry.publicModelId,
@@ -217,11 +222,23 @@ function fixture(entry: RegistryEntry): WorkflowFixture {
 
 async function write(name: string, registryVersion: string, entries: readonly RegistryEntry[]) {
   const outputPath = resolve(`src/lib/features/registry/evidence/${name}`);
+  // Keep reviewed vectors in place when catalogue presentation order changes. New workflows
+  // append to the evidence file so a refresh exposes contract changes without block moves.
+  const existing = Bun.file(outputPath);
+  const previous = (await existing.exists())
+    ? ((await existing.json()) as { workflows: Array<{ entryKey: string }> })
+    : { workflows: [] };
+  const order = new Map(previous.workflows.map((workflow, index) => [workflow.entryKey, index]));
+  const orderedEntries = [...entries].sort(
+    (left, right) =>
+      (order.get(left.key) ?? Number.MAX_SAFE_INTEGER) -
+      (order.get(right.key) ?? Number.MAX_SAFE_INTEGER)
+  );
   const payload = {
     version: 1,
     registryVersion,
     reviewedAt: entries[0]?.provenance.verifiedAt,
-    workflows: entries.map(fixture)
+    workflows: orderedEntries.map(fixture)
   };
   await mkdir(dirname(outputPath), { recursive: true });
   await Bun.write(outputPath, `${JSON.stringify(payload, null, 2)}\n`);

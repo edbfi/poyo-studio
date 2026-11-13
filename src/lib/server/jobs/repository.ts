@@ -1339,6 +1339,7 @@ export class JobRepository extends DatabaseRepository {
   private outputExpectations(job: JobRecord): {
     mediaKind: 'image' | 'video';
     count: number;
+    minimumCount: number;
   } {
     const registry = job.entryKey
       ? this.database
@@ -1347,7 +1348,9 @@ export class JobRepository extends DatabaseRepository {
           )
           .get(job.registryVersion ?? '', job.entryKey)
       : null;
-    const mediaKind = registry?.modality ?? (job.workflow.includes('video') ? 'video' : 'image');
+    const mediaKind = this.isGifVideoOutput(job)
+      ? 'image'
+      : (registry?.modality ?? (job.workflow.includes('video') ? 'video' : 'image'));
     const requestedCount = job.guidedRequest.n;
     const count =
       mediaKind === 'image' &&
@@ -1356,15 +1359,29 @@ export class JobRepository extends DatabaseRepository {
       requestedCount > 0
         ? requestedCount
         : 1;
-    return { mediaKind, count };
+    if (job.publicModelId === 'seedream-5.5-layerize') {
+      const maximum = job.guidedRequest.maxImages;
+      return { mediaKind, count: typeof maximum === 'number' ? maximum : 30, minimumCount: 1 };
+    }
+    return { mediaKind, count, minimumCount: count };
+  }
+  private isGifVideoOutput(job: JobRecord): boolean {
+    return (
+      job.publicModelId === 'poyo-ai/video-background-removal' &&
+      job.normalizedPayload.input.output_container_and_codec === 'gif'
+    );
   }
   private outputSetProblem(job: JobRecord, status: PoyoStatusResult): string | null {
     const expected = this.outputExpectations(job);
-    if (status.files.length !== expected.count)
-      return status.files.length < expected.count ? 'missing_outputs' : 'excess_outputs';
+    if (status.files.length < expected.minimumCount || status.files.length > expected.count)
+      return status.files.length < expected.minimumCount ? 'missing_outputs' : 'excess_outputs';
     const urls = new Set<string>();
     for (const file of status.files) {
-      if (file.fileType !== expected.mediaKind) return 'unsupported_output_media';
+      if (
+        file.fileType !== expected.mediaKind &&
+        !(this.isGifVideoOutput(job) && file.fileType === 'video')
+      )
+        return 'unsupported_output_media';
       if (!file.url.trim()) return 'missing_output_url';
       if (urls.has(file.url)) return 'duplicate_output_url';
       urls.add(file.url);
@@ -1384,8 +1401,9 @@ export class JobRepository extends DatabaseRepository {
   }
   private upsertOutputs(jobId: string, status: PoyoStatusResult): void {
     const now = this.timestamp();
+    const gifOutput = this.isGifVideoOutput(this.requireJob(jobId));
     status.files.forEach((file, index) => {
-      const kind = file.fileType as 'image' | 'video';
+      const kind = gifOutput ? 'image' : (file.fileType as 'image' | 'video');
       this.database
         .query(
           `INSERT INTO job_outputs(id,job_id,output_order,media_kind,remote_url,remote_metadata_json,content_type,byte_size,download_state,created_at) VALUES (?,?,?,?,?,?,?,?, 'pending',?) ON CONFLICT(job_id,output_order) DO UPDATE SET remote_url=excluded.remote_url,remote_metadata_json=excluded.remote_metadata_json,content_type=excluded.content_type,byte_size=COALESCE(excluded.byte_size,job_outputs.byte_size)`

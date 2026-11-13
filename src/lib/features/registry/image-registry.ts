@@ -1,4 +1,6 @@
 import { OFFICIAL_SOURCE_MANIFEST, officialModelSources } from './evidence/source-evidence';
+import { LIVE_IMAGE_REGISTRY_ENTRIES } from './live-catalog-registry';
+import { NOVEL_IMAGE_ENTRIES, NOVEL_IMAGE_PAGE_SLUGS } from './novel-image-registry';
 import type {
   FieldDefinition,
   ImageRegistryEntry,
@@ -8,8 +10,52 @@ import type {
   RegistryProvenance
 } from './types';
 
-export const IMAGE_REGISTRY_VERSION = 'image-2026-10-11.1';
+export const IMAGE_REGISTRY_VERSION = 'image-2026-11-13.1';
 export const IMAGE_VERIFIED_AT = OFFICIAL_SOURCE_MANIFEST.verifiedAt;
+const ideogramSizes = [
+  '1:1',
+  '1:1 HD',
+  '4:3',
+  '3:4',
+  '16:9',
+  '9:16',
+  '1024x1024',
+  '1024x3072',
+  '1120x896',
+  '1152x2944',
+  '1152x864',
+  '1248x3328',
+  '1248x832',
+  '1280x3072',
+  '1280x720',
+  '1280x800',
+  '1296x3168',
+  '1440x2560',
+  '1440x2880',
+  '1440x720',
+  '1600x2560',
+  '1664x2496',
+  '1728x2304',
+  '1792x2240',
+  '2048x2048',
+  '2240x1792',
+  '2304x1728',
+  '2496x1664',
+  '2560x1440',
+  '2560x1600',
+  '2880x1440',
+  '2944x1152',
+  '3072x1024',
+  '3072x1280',
+  '3168x1296',
+  '3328x1248',
+  '720x1280',
+  '720x1440',
+  '800x1280',
+  '832x1248',
+  '864x1152',
+  '896x1120'
+];
 const ratios8 = ['1:1', '4:3', '3:4', '16:9', '9:16', '3:2', '2:3', 'auto'];
 const seedreamRatios = ['1:1', '4:3', '3:4', '16:9', '9:16', '3:2', '2:3', '21:9'];
 const ratios10 = ['1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '21:9'];
@@ -74,6 +120,221 @@ type Page = {
   limitations?: string[];
 };
 const pages: Page[] = [
+  {
+    slug: 'ideogram-v4-5',
+    provider: 'Ideogram',
+    family: 'Ideogram 4.5',
+    ids: ['ideogram-v4.5', 'ideogram-v4.5-edit'],
+    prompt: [1, 10000],
+    refs: [1, 1],
+    n: [1, 8],
+    mask: true,
+    extra: [
+      {
+        key: 'quality',
+        apiKey: 'quality',
+        kind: 'enum',
+        level: 'common',
+        enum: ['low', 'medium', 'high'],
+        default: 'medium'
+      }
+    ]
+  },
+  {
+    slug: 'flux-3-klein',
+    provider: 'Black Forest Labs',
+    family: 'Flux 3 Klein',
+    ids: ['flux-3-klein', 'flux-3-klein-edit'],
+    ratios: ratios8.filter((r) => r !== 'auto'),
+    ratioDefault: '1:1',
+    res: ['1K', '2K', '4K'],
+    resDefault: '1K',
+    refs: [1, 10],
+    n: [1, 4],
+    formats: ['png', 'jpeg', 'webp'],
+    formatDefault: 'png',
+    safety: true,
+    custom: { encoding: 'width-x-height-string', divisor: 16, maxEdge: 4096 }
+  },
+  ...['2.5', '2.6'].map(
+    (version): Page => ({
+      slug: `gpt-image-${version.replace('.', '-')}-fixed`,
+      provider: 'OpenAI',
+      family: `GPT Image ${version} Fixed`,
+      ids: [`gpt-image-${version}-fixed`],
+      prompt: [1, 32000],
+      ratios: ['auto', ...ratios10],
+      ratioDefault: '1:1',
+      res: ['1K', '2K', '4K'],
+      resDefault: '1K',
+      optionalRefs: [1, 16],
+      singleOutput: true,
+      extra: [
+        {
+          key: 'version',
+          apiKey: 'version',
+          kind: 'enum',
+          level: 'common',
+          enum: ['flare', 'sunburst'],
+          default: 'flare'
+        }
+      ]
+    })
+  ),
+  ...['flare', 'sunburst'].map(
+    (variant): Page => ({
+      slug: `gpt-image-2-6-${variant}`,
+      provider: 'OpenAI',
+      family: `GPT Image 2.6 ${variant === 'flare' ? 'Flare' : 'Sunburst'}`,
+      ids: [`gpt-image-2.6-${variant}`],
+      prompt: [1, 32000],
+      ratios: ['auto', ...ratios10],
+      ratioDefault: '1:1',
+      res: ['1K', '2K', '4K'],
+      resDefault: '1K',
+      optionalRefs: [1, 16],
+      formats: ['png', 'jpeg', 'webp'],
+      formatDefault: 'png',
+      mask: true,
+      singleOutput: true,
+      custom: {
+        encoding: 'width-x-height-string',
+        divisor: 16,
+        maxEdge: 3840,
+        minPixels: 655360,
+        maxPixels: 8294400,
+        maxAspectRatio: 3
+      },
+      extra: [
+        {
+          key: 'quality',
+          apiKey: 'quality',
+          kind: 'enum',
+          level: 'common',
+          enum: ['low', 'medium', 'high', 'xhigh', 'max'],
+          default: 'high'
+        },
+        {
+          key: 'background',
+          apiKey: 'background',
+          kind: 'enum',
+          level: 'common',
+          enum: ['auto', 'transparent', 'opaque'],
+          default: 'auto'
+        },
+        {
+          key: 'outputCompression',
+          apiKey: 'output_compression',
+          kind: 'integer',
+          level: 'advanced',
+          min: 0,
+          max: 100
+        },
+        {
+          key: 'moderation',
+          apiKey: 'moderation',
+          kind: 'enum',
+          level: 'advanced',
+          enum: ['auto', 'low'],
+          default: 'auto'
+        },
+        {
+          key: 'complexity',
+          apiKey: 'complexity',
+          kind: 'enum',
+          level: 'advanced',
+          enum: ['low', 'medium', 'high'],
+          default: 'high'
+        }
+      ]
+    })
+  ),
+  ...['mai-image-2-6', 'mai-image-2-6-flash'].map(
+    (slug): Page => ({
+      slug,
+      provider: 'Microsoft',
+      family: slug.endsWith('flash') ? 'MAI Image 2.6 Flash' : 'MAI Image 2.6',
+      ids: [slug.replace('2-6', '2.6')],
+      prompt: [1, 32000],
+      ratios: ratios8.filter((r) => r !== 'auto'),
+      ratioDefault: '1:1',
+      res: ['1K', '2K'],
+      resDefault: '1K',
+      optionalRefs: [1, 5],
+      inputFormats: ['image/jpeg', 'image/png', 'image/webp'],
+      singleOutput: true,
+      custom: {
+        encoding: 'width-x-height-string',
+        divisor: 32,
+        maxPixels: 2359296
+      },
+      extra: [
+        {
+          key: 'webSearch',
+          apiKey: 'enable_web_search',
+          kind: 'boolean',
+          level: 'advanced',
+          default: false
+        }
+      ]
+    })
+  ),
+  {
+    slug: 'minimax-h3-image',
+    provider: 'MiniMax',
+    family: 'MiniMax H3 Image',
+    ids: ['minimax-h3-image'],
+    ratios: ['auto', ...ratios10],
+    res: ['1K', '2K', '4K'],
+    resDefault: '2K',
+    optionalRefs: [1, 16],
+    singleOutput: true,
+    inputFormats: ['image/jpeg', 'image/png', 'image/webp'],
+    formats: ['png', 'jpeg'],
+    formatDefault: 'png',
+    custom: {
+      encoding: 'width-x-height-string',
+      minPixels: 655360,
+      maxPixels: 20000000,
+      maxAspectRatio: 3
+    },
+    extra: [
+      {
+        key: 'promptExtend',
+        apiKey: 'enable_prompt_expansion',
+        kind: 'boolean',
+        level: 'common',
+        default: true
+      }
+    ]
+  },
+  {
+    slug: 'seedream-5-5',
+    provider: 'ByteDance',
+    family: 'Seedream 5.5',
+    ids: ['seedream-5.5'],
+    prompt: [5, 5000],
+    ratios: [...seedreamRatios, 'auto'],
+    res: ['1K', '1.5K', '2K'],
+    resDefault: '2K',
+    optionalRefs: [1, 10],
+    singleOutput: true,
+    inputFormats: ['image/jpeg', 'image/png', 'image/webp'],
+    formats: ['png', 'jpeg'],
+    formatDefault: 'png',
+    safety: true,
+    extra: [
+      {
+        key: 'background',
+        apiKey: 'background',
+        kind: 'enum',
+        level: 'common',
+        enum: ['auto', 'transparent', 'opaque'],
+        default: 'auto'
+      }
+    ]
+  },
+
   ...['flare', 'sunburst'].map(
     (variant): Page => ({
       slug: `gpt-image-2-5-${variant}`,
@@ -117,7 +378,7 @@ const pages: Page[] = [
         }
       ],
       limitations: [
-        'Transparent output requires PNG or WebP. Auto size is limited to 1K; custom dimensions require 2K or 4K, and a 3840-pixel edge requires 4K.'
+        'Transparent output requires PNG or WebP. Auto and custom sizes work at every resolution; custom dimensions are billed by pixel area or the higher selected tier.'
       ]
     })
   ),
@@ -301,7 +562,13 @@ const pages: Page[] = [
     n: [1, null],
     formats: ['png', 'jpeg', 'jpg', 'webp'],
     extra: [
-      { key: 'syncMode', apiKey: 'sync_mode', kind: 'boolean', level: 'advanced', default: false }
+      {
+        key: 'syncMode',
+        apiKey: 'sync_mode',
+        kind: 'boolean',
+        level: 'advanced',
+        default: false
+      }
     ]
   },
   {
@@ -339,7 +606,14 @@ const pages: Page[] = [
     res: ['1K', '2K'],
     n: [1, 9],
     formats: ['jpeg', 'png', 'webp'],
-    extra: [{ key: 'elements', apiKey: 'elements', kind: 'elements', level: 'advanced' }]
+    extra: [
+      {
+        key: 'elements',
+        apiKey: 'elements',
+        kind: 'elements',
+        level: 'advanced'
+      }
+    ]
   },
   {
     slug: 'kling-o3',
@@ -351,7 +625,14 @@ const pages: Page[] = [
     res: ['1K', '2K', '4K'],
     n: [1, 9],
     formats: ['jpeg', 'png', 'webp'],
-    extra: [{ key: 'elements', apiKey: 'elements', kind: 'elements', level: 'advanced' }],
+    extra: [
+      {
+        key: 'elements',
+        apiKey: 'elements',
+        kind: 'elements',
+        level: 'advanced'
+      }
+    ],
     limitations: ['Elements remain a reviewed structured adapter surface.']
   },
   {
@@ -375,7 +656,13 @@ const pages: Page[] = [
     refs: [1, 14],
     formats: ['png', 'jpg', 'jpeg', 'webp'],
     extra: [
-      { key: 'webSearch', apiKey: 'web_search', kind: 'boolean', level: 'advanced', default: false }
+      {
+        key: 'webSearch',
+        apiKey: 'web_search',
+        kind: 'boolean',
+        level: 'advanced',
+        default: false
+      }
     ],
     limitations: ['Output format and web search are Pro-only.']
   },
@@ -548,18 +835,65 @@ function provenance(page: Page): RegistryProvenance {
     jsonStatus: sources.json.status,
     jsonSha256: sources.json.sha256,
     sourceManifestVersion: `${OFFICIAL_SOURCE_MANIFEST.version}:${OFFICIAL_SOURCE_MANIFEST.corpusSha256}`,
-    verifiedAt: IMAGE_VERIFIED_AT
+    verifiedAt: IMAGE_VERIFIED_AT,
+    ...(page.slug === 'gpt-image-2-6-fixed'
+      ? {
+          manualDecision:
+            'Markdown and enabled live catalog document resolution 1K/2K/4K; the dedicated JSON omits it. Follow the two agreeing active contracts.'
+        }
+      : {})
   };
 }
 function entry(page: Page, id: string, mode: 'base' | 'edit'): ImageRegistryEntry {
   const isEdit = mode === 'edit';
+  if (page.slug === 'ideogram-v4-5')
+    page = {
+      ...page,
+      ratios: isEdit ? ['auto', '1:1', '1:1 HD', '4:3', '3:4', '16:9', '9:16'] : ideogramSizes,
+      ratioDefault: isEdit ? 'auto' : '1:1 HD',
+      ...(isEdit
+        ? {
+            custom: {
+              encoding: 'width-x-height-string',
+              divisor: 32,
+              maxPixels: 4194304,
+              maxAspectRatio: 6
+            },
+            extra: [
+              {
+                key: 'quality',
+                apiKey: 'quality',
+                kind: 'enum',
+                level: 'common',
+                enum: ['very_low', 'low', 'medium', 'high'],
+                default: 'medium'
+              },
+              {
+                key: 'editPrecision',
+                apiKey: 'edit_precision',
+                kind: 'enum',
+                level: 'common',
+                enum: ['regular', 'high'],
+                default: 'regular'
+              }
+            ]
+          }
+        : {})
+    };
+
   const supportsSeed =
     Boolean(page.seed) && (page.slug !== 'nano-banana-2-new' || id.includes('official'));
   const isNanoBananaPro = page.family === 'Nano Banana 2 / Pro' && id.includes('pro');
   const supportsOutputFormat = page.family !== 'Nano Banana 2 / Pro' || isNanoBananaPro;
   const effectiveFormats = supportsOutputFormat ? page.formats : undefined;
   const effectiveRatios =
-    ['Kling O3 Image', 'Nano Banana 2.1', 'Qwen Image 2.1'].includes(page.family) && !isEdit
+    [
+      'Kling O3 Image',
+      'Nano Banana 2.1',
+      'Qwen Image 2.1',
+      'MiniMax H3 Image',
+      'Seedream 5.5'
+    ].includes(page.family) && !isEdit
       ? page.ratios?.filter((ratio) => ratio !== 'auto')
       : page.ratios;
   const unionSize = ['Seedream 4.5', 'Seedream 5.0 Lite'].includes(page.family);
@@ -666,7 +1000,6 @@ function entry(page: Page, id: string, mode: 'base' | 'edit'): ImageRegistryEntr
       : null;
   const customDimensions = typeof page.custom === 'object' ? page.custom : undefined;
   const conditionalRules = [
-    ...(page.family.startsWith('GPT Image 2.5') ? ['auto-size-only-at-1k'] : []),
     ...(unionSize ? ['size-is-one-of-resolution-ratio-or-custom'] : []),
     ...(page.family === 'Flux.2' ? ['size-and-resolution-required'] : []),
     ...(page.family === 'Seedream 4' ? ['reference-count-plus-output-count-at-most-15'] : []),
@@ -683,7 +1016,21 @@ function entry(page: Page, id: string, mode: 'base' | 'edit'): ImageRegistryEntr
     status: 'current',
     inputRoles: [
       ...(refSpec ? [refs(isEdit, refSpec[0], refSpec[1], page.inputFormats)] : []),
-      ...((id.includes('gpt-') || page.mask) && isEdit ? [mask] : [])
+      ...(page.slug === 'ideogram-v4-5' && isEdit
+        ? [
+            {
+              role: 'reference-image' as const,
+              requestKey: 'referenceImageUrls' as const,
+              apiKey: 'reference_image_urls',
+              required: false,
+              min: 0,
+              max: 4,
+              mediaKind: 'image' as const,
+              formats
+            }
+          ]
+        : []),
+      ...(((id.includes('gpt-') && !id.endsWith('-fixed')) || page.mask) && isEdit ? [mask] : [])
     ],
     output: {
       mediaKind: 'image',
@@ -720,20 +1067,24 @@ function entry(page: Page, id: string, mode: 'base' | 'edit'): ImageRegistryEntr
     provenance: provenance(page)
   };
 }
-export const IMAGE_REGISTRY_ENTRIES: readonly ImageRegistryEntry[] = pages.flatMap((page) =>
-  page.ids.flatMap((id) => {
-    const explicitEdit = id.endsWith('-edit');
-    if (explicitEdit) return [entry(page, id, 'edit')];
-    const hasEditId = page.ids.includes(`${id}-edit`);
-    const switches = Boolean(page.optionalRefs);
-    return hasEditId
-      ? [entry(page, id, 'base')]
-      : switches
-        ? [entry(page, id, 'base'), entry(page, id, 'edit')]
-        : [entry(page, id, 'base')];
-  })
-);
-export const IMAGE_PAGE_SLUGS = pages.map((page) => page.slug);
+export const IMAGE_REGISTRY_ENTRIES: readonly ImageRegistryEntry[] = [
+  ...NOVEL_IMAGE_ENTRIES,
+  ...LIVE_IMAGE_REGISTRY_ENTRIES,
+  ...pages.flatMap((page) =>
+    page.ids.flatMap((id) => {
+      const explicitEdit = id.endsWith('-edit');
+      if (explicitEdit) return [entry(page, id, 'edit')];
+      const hasEditId = page.ids.includes(`${id}-edit`);
+      const switches = Boolean(page.optionalRefs);
+      return hasEditId
+        ? [entry(page, id, 'base')]
+        : switches
+          ? [entry(page, id, 'base'), entry(page, id, 'edit')]
+          : [entry(page, id, 'base')];
+    })
+  )
+];
+export const IMAGE_PAGE_SLUGS = [...NOVEL_IMAGE_PAGE_SLUGS, ...pages.map((page) => page.slug)];
 export const IMAGE_PUBLIC_IDS = [
   ...new Set(IMAGE_REGISTRY_ENTRIES.map((item) => item.publicModelId))
 ];

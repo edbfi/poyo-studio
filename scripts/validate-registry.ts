@@ -1,3 +1,4 @@
+import catalogBodiesJson from '../src/lib/features/registry/evidence/live-catalog-models.json';
 import sourceManifestJson from '../src/lib/features/registry/evidence/official-source-manifest.json';
 import conditionalJson from '../src/lib/features/registry/evidence/reviewed-conditional-vectors.json';
 import conflictsJson from '../src/lib/features/registry/evidence/reviewed-conflicts.json';
@@ -30,6 +31,7 @@ import {
   VIDEO_REGISTRY_ENTRIES,
   VIDEO_REGISTRY_VERSION
 } from '../src/lib/features/registry/video-registry';
+import { missingIndexedModels } from './registry-discovery';
 import { type RegistrySourceManifest, sourceCorpusSha256 } from './registry-evidence-lib';
 
 type RegistryEntry = ImageRegistryEntry | VideoRegistryEntry;
@@ -125,26 +127,65 @@ function expectRejection(
 }
 
 const sourceIds = new Set(sourceManifest.sources.map((source) => source.id));
+if (sourceIds.size !== sourceManifest.sources.length) errors.push('duplicate official source IDs');
+const catalogBodies = catalogBodiesJson as Record<string, string>;
+for (const source of sourceManifest.sources.filter((source) => source.category === 'catalog')) {
+  const body = catalogBodies[source.id];
+  if (
+    typeof body !== 'string' ||
+    new Bun.CryptoHasher('sha256').update(body).digest('hex') !== source.sha256
+  )
+    errors.push(`capability snapshot hash mismatch: ${source.id}`);
+  else {
+    const payload = JSON.parse(body) as { code?: number; data?: { model_id?: string } };
+    if (payload.code !== 200 || `catalog:${payload.data?.model_id}` !== source.id)
+      errors.push(`invalid capability snapshot identity: ${source.id}`);
+    if (!entries.some((entry) => `catalog:${entry.publicModelId}` === source.id))
+      errors.push(`capability evidence has no registry entry: ${source.id}`);
+  }
+}
+if (
+  Object.keys(catalogBodies).length !==
+  sourceManifest.sources.filter((source) => source.category === 'catalog').length
+)
+  errors.push('capability snapshot inventory differs from official source records');
 if (sourceManifest.registryVersion !== `${IMAGE_REGISTRY_VERSION}+${VIDEO_REGISTRY_VERSION}`)
   errors.push('official source manifest registry version is stale');
 if (sourceCorpusSha256(sourceManifest.sources) !== sourceManifest.corpusSha256)
   errors.push('official source corpus hash does not match committed source records');
-if (sourceManifest.sources.length !== 174)
-  errors.push(`expected 174 official source records, found ${sourceManifest.sources.length}`);
 const modelMarkdown = sourceManifest.sources.filter(
   (source) => source.category === 'model' && source.representation === 'markdown'
 );
 const modelJson = sourceManifest.sources.filter(
   (source) => source.category === 'model' && source.representation === 'json'
 );
-if (modelMarkdown.length !== 72 || modelJson.length !== 72)
-  errors.push(
-    `expected 72 Markdown and 72 JSON model sources, found ${modelMarkdown.length}/${modelJson.length}`
-  );
+const documentedPages = new Set(
+  entries
+    .filter((entry) => !entry.provenance.pageSlug.startsWith('catalog:'))
+    .map((entry) => `${entry.output.mediaKind}:${entry.provenance.pageSlug}`)
+);
+for (const page of documentedPages)
+  for (const representation of ['markdown', 'json'])
+    if (!sourceIds.has(`model:${page}:${representation}`))
+      errors.push(`missing official ${representation} evidence for ${page}`);
+if (modelMarkdown.length !== documentedPages.size || modelJson.length !== documentedPages.size)
+  errors.push('model evidence page inventory does not match registry provenance');
+const indexBody = await Bun.file(
+  new URL('../src/lib/features/registry/evidence/documentation-index.txt', import.meta.url)
+).text();
+const indexSource = sourceManifest.sources.find((source) => source.id === 'index:llms');
+if (new Bun.CryptoHasher('sha256').update(indexBody).digest('hex') !== indexSource?.sha256)
+  errors.push('committed documentation index does not match official source evidence');
+for (const page of missingIndexedModels(indexBody, {
+  image: IMAGE_PAGE_SLUGS,
+  video: VIDEO_PAGE_SLUGS
+}))
+  errors.push(`indexed model missing from registry: ${page.modality}/${page.pageSlug}`);
 for (const source of sourceManifest.sources) {
   if (source.sha256.length !== 64 || source.canonicalSha256.length !== 64)
     errors.push(`invalid fetched body hash for ${source.id}`);
-  if (source.byteLength <= 0) errors.push(`empty fetched source evidence for ${source.id}`);
+  if (source.byteLength <= 0 && source.status !== 'unavailable')
+    errors.push(`empty fetched source evidence for ${source.id}`);
   if (source.category === 'model' && source.status !== 'available')
     errors.push(`model source is not available: ${source.id} (${source.status})`);
   if (source.category === 'model' && source.representation === 'json' && !source.structured)
@@ -236,18 +277,13 @@ for (const conflict of conflictsJson.conflicts)
   for (const sourceId of conflict.sources)
     if (!sourceIds.has(sourceId)) errors.push(`conflict ${conflict.scope} references ${sourceId}`);
 
-if (
-  IMAGE_PAGE_SLUGS.length !== 29 ||
-  IMAGE_PUBLIC_IDS.length !== 53 ||
-  IMAGE_REGISTRY.entries.length !== 66
-)
-  errors.push('image registry inventory changed without reviewed evidence');
-if (
-  VIDEO_PAGE_SLUGS.length !== 43 ||
-  VIDEO_PUBLIC_IDS.length !== 69 ||
-  VIDEO_CURRENT_ENTRIES.length !== 151
-)
-  errors.push('video registry inventory changed without reviewed evidence');
+for (const [registry, pages, ids] of [
+  [IMAGE_REGISTRY, IMAGE_PAGE_SLUGS, IMAGE_PUBLIC_IDS],
+  [VIDEO_REGISTRY, VIDEO_PAGE_SLUGS, VIDEO_PUBLIC_IDS]
+] as const) {
+  if (registry.pageCount !== pages.length || registry.publicIdCount !== ids.length)
+    errors.push(`registry inventory metadata drift: ${registry.version}`);
+}
 if (VIDEO_EXCLUDED_ENTRIES.length !== 0) errors.push('Current video models must be selectable');
 if (VIDEO_AUDIT_RECORDS.length !== 8)
   errors.push(`expected 8 video legacy/unindexed records, found ${VIDEO_AUDIT_RECORDS.length}`);

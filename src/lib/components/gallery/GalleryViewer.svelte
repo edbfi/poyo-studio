@@ -941,6 +941,9 @@ $effect(() => {
               {#if session.status === 'error'}
                 <p class="gallery-viewer-state" role="alert" data-testid="gallery-viewer-error">
                   {session.reason}
+                  {#if activeGroup.representative.mediaKind === 'video'}
+                    Use Download copy to open this file in a compatible media player.
+                  {/if}
                 </p>
               {/if}
             </div>
