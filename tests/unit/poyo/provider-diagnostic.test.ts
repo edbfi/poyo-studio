@@ -45,8 +45,10 @@ describe('bounded provider rejection diagnostics (no retry classification)', () 
       raw_payload: { prompt, url }
     };
     const diagnostic = providerDiagnostic(payload, 422);
-    expect(diagnostic).toMatchObject({ errorCode: 'E_INPUT', errorMessagePresent: true });
-    const serialized = JSON.stringify(normalizePoyoError('submit', 422, payload).toSafeDto());
+    expect(diagnostic).toMatchObject({ errorCode: null, errorMessagePresent: true });
+    const serialized = JSON.stringify(
+      normalizePoyoError('submit', 422, payload).providerDiagnostic
+    );
     for (const canary of [prompt, url, 'private-token', 'sk-private', '94567812'])
       expect(serialized).not.toContain(canary);
     expect(serialized).not.toContain('raw_payload');
@@ -61,15 +63,18 @@ describe('bounded provider rejection diagnostics (no retry classification)', () 
       'https:private-url-canary',
       'private prompt',
       'A'.repeat(81),
-      'token=private'
+      'token=private',
+      'PrivateCredentialAbCd1234_5678',
+      'SingleTokenPromptCanary',
+      1234567890123456
     ]) {
       const raw = { code: unsafe, error: { code: unsafe, type: unsafe }, status: unsafe };
       const diagnostic = providerDiagnostic(raw);
       expect(diagnostic).toMatchObject({
-        responseCode: '[REDACTED]',
-        errorCode: '[REDACTED]',
-        errorType: '[REDACTED]',
-        statusRaw: '[REDACTED]'
+        responseCode: null,
+        errorCode: null,
+        errorType: null,
+        statusRaw: null
       });
       const publicDiagnostic = readJobProviderDiagnostic({
         providerDiagnostic: {
@@ -80,7 +85,7 @@ describe('bounded provider rejection diagnostics (no retry classification)', () 
           documentedMessage: unsafe
         }
       });
-      expect(JSON.stringify(publicDiagnostic)).not.toContain(unsafe);
+      expect(JSON.stringify(publicDiagnostic)).not.toContain(String(unsafe));
       expect(publicDiagnostic?.documentedMessage).toBeNull();
     }
     expect(readJobProviderDiagnostic({ providerDiagnostic: { version: 2 } })).toBeNull();
@@ -95,12 +100,12 @@ describe('bounded provider rejection diagnostics (no retry classification)', () 
       expect(parseStatusResponse(payload)).toMatchObject({
         status: 'failed',
         statusRaw: raw,
-        providerDiagnostic: { statusRaw: raw, errorCode: 'E_TASK' }
+        providerDiagnostic: { statusRaw: raw, errorCode: null }
       });
       expect(parseSubmitResponse(payload)).toMatchObject({
         status: 'failed',
         statusRaw: raw,
-        providerDiagnostic: { statusRaw: raw, errorCode: 'E_TASK' }
+        providerDiagnostic: { statusRaw: raw, errorCode: null }
       });
     }
   });
@@ -126,7 +131,7 @@ describe('bounded provider rejection diagnostics (no retry classification)', () 
         providerDiagnostic: {
           httpStatus: 202,
           responseCode: 200,
-          errorCode: 'E_INCOMPLETE',
+          errorCode: null,
           statusRaw: 'failed',
           errorMessagePresent: true,
           documentedMessage: null
@@ -134,6 +139,22 @@ describe('bounded provider rejection diagnostics (no retry classification)', () 
       });
       expect(String(error)).not.toContain('private prompt canary');
     }
+  });
+
+  test('live upload detail stays useful while logged messages are omitted', () => {
+    const error = normalizePoyoError('upload_stream', 422, {
+      detail: [{ msg: 'file too large max 10MB' }]
+    });
+    expect(error.toSafeDto().message).toContain('max 10MB');
+    expect(JSON.stringify(error.providerDiagnostic)).not.toContain('10MB');
+    const unknown = normalizePoyoError('submit', 422, {
+      error: { type: 'PrivateCredentialAbCd1234_5678' }
+    });
+    expect(unknown.technicalCode).toBe('http_422');
+    expect(unknown.providerDiagnostic).toMatchObject({ errorType: null, errorTypePresent: true });
+    expect(normalizePoyoError('submit', 200, { code: 0 }).technicalCode).toBe(
+      'business_code_error'
+    );
   });
 
   test('diagnostics do not broaden existing content/configuration classification', () => {
@@ -145,7 +166,7 @@ describe('bounded provider rejection diagnostics (no retry classification)', () 
     }
     expect(providerDiagnostic({ code: '400', data: { error_code: 'E_EXACT' } })).toMatchObject({
       responseCode: '400',
-      errorCode: 'E_EXACT'
+      errorCode: null
     });
   });
 });

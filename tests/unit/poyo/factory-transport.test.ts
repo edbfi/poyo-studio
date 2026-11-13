@@ -93,6 +93,33 @@ describe('Poyo transport safety boundaries', () => {
     expect(delays).toEqual([100, 200]);
   });
 
+  test('keeps actual HTTP metadata when successful response decoding fails', async () => {
+    for (const oversized of [false, true]) {
+      const logger = new MemoryPoyoMetadataLogger();
+      const transport = new PoyoTransport({
+        apiKey: 'test-key',
+        logger,
+        maxResponseBytes: 32,
+        fetch: async () =>
+          new Response(oversized ? 'PrivateCredentialAbCd1234_5678'.repeat(10) : '{bad', {
+            status: 202
+          })
+      });
+      await expect(
+        transport.request({
+          operation: 'submit',
+          method: 'POST',
+          path: '/api/generate/submit',
+          safeToRetry: false
+        })
+      ).rejects.toMatchObject({
+        category: 'malformed_response',
+        providerDiagnostic: { httpStatus: 202 }
+      });
+      expect(JSON.stringify(logger.events)).not.toContain('PrivateCredential');
+    }
+  });
+
   test('PYO-06 caps malformed responses and does not leak media through request metadata', async () => {
     const logger = new MemoryPoyoMetadataLogger();
     const transport = new PoyoTransport({

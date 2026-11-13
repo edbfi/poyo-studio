@@ -60,7 +60,7 @@ describe('durable provider diagnostic paths', () => {
         test(`${workflow} ${path}: seed ${seedExplicit ? 'explicit' : 'omitted'}, private durable metadata`, async () => {
           const fixture = await createJobFixture();
           cleanups.push(fixture.cleanup);
-          const prompt = 'private prompt canary';
+          const prompt = 'SingleTokenPromptCanary';
           const url = 'https://private.example/secret-path?private_signature=url-canary';
           const input = {
             prompt,
@@ -83,8 +83,8 @@ describe('durable provider diagnostic paths', () => {
           const echoedError = {
             code: 422,
             error: {
-              type: 'validation_error',
-              code: 'E_INPUT',
+              type: 'PrivateCredentialAbCd1234_5678',
+              code: 'PrivateCredentialAbCd1234_5678',
               message: `${prompt} ${url} Bearer token-canary sk-private_canary_12345`,
               details: { input }
             },
@@ -175,7 +175,14 @@ describe('durable provider diagnostic paths', () => {
           );
           const replay = initialJobEvents(restarted, String(cursor)).chunks.map(decodeEventChunk);
           const outward = JSON.stringify({ history: detail?.history, replay, logs: logger.events });
-          for (const canary of [prompt, url, 'token-canary', 'sk-private', '987654321'])
+          for (const canary of [
+            prompt,
+            url,
+            'token-canary',
+            'sk-private',
+            '987654321',
+            'PrivateCredentialAbCd1234_5678'
+          ])
             expect(outward).not.toContain(canary);
           expect(
             replay.some((item) => JSON.stringify(item.data).includes('providerDiagnostic'))
@@ -210,7 +217,7 @@ describe('durable provider diagnostic paths', () => {
     const detail = await new LibraryRepository(fixture.database).getJobDetail(job.id);
     expect(detail?.history[0]?.providerDiagnostic).toMatchObject({
       statusRaw: 'cancelled',
-      errorType: '[REDACTED]',
+      errorType: null,
       documentedMessage: null
     });
     const replay = initialJobEvents(fixture.repository, '0').chunks.map(decodeEventChunk);

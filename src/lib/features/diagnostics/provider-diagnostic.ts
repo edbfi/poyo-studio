@@ -6,6 +6,10 @@ export interface ProviderDiagnostic {
   errorCode: string | number | null;
   errorType: string | null;
   statusRaw: string | null;
+  responseCodePresent: boolean;
+  errorCodePresent: boolean;
+  errorTypePresent: boolean;
+  statusPresent: boolean;
   errorMessagePresent: boolean;
   documentedMessage: string | null;
 }

@@ -2,7 +2,6 @@ import type {
   JobProviderDiagnostic,
   ProviderDiagnostic
 } from '../../features/diagnostics/provider-diagnostic';
-import { redactString } from '../diagnostics/redaction';
 
 function record(value: unknown): Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -10,21 +9,45 @@ function record(value: unknown): Record<string, unknown> {
     : {};
 }
 
-/** Keep exact machine tokens; redact free text, URLs, credentials and oversized values. */
+const publicTokens = new Set([
+  'unknown',
+  'not_started',
+  'running',
+  'finished',
+  'failed',
+  'cancelled',
+  'canceled',
+  'validation_error',
+  'content_moderation_error',
+  'content_too_long_error',
+  'file_format_error',
+  'authentication_error',
+  'insufficient_credits_error',
+  'permission_denied_error',
+  'resource_not_found_error',
+  'timeout_error',
+  'rate_limit_error',
+  'internal_error',
+  'upstream_error',
+  'service_error',
+  'invalid_request_error'
+]);
+const publicCodes = new Set([200, 400, 401, 402, 403, 404, 408, 413, 422, 429, 500, 502, 503]);
+
+/** Unknown provider values are presence-only, even when they look like machine tokens. */
 export function safeProviderToken(value: unknown): string | null {
-  if (typeof value !== 'string') return null;
-  if (!/^[a-zA-Z][a-zA-Z0-9_.-]{0,79}$/.test(value) || redactString(value) !== value)
-    return '[REDACTED]';
-  return value;
+  return typeof value === 'string' && publicTokens.has(value) ? value : null;
 }
 
 function code(value: unknown): string | number | null {
-  if (typeof value === 'string' && /^\d{1,16}$/.test(value)) return value;
-  return typeof value === 'number'
-    ? Number.isSafeInteger(value)
-      ? value
-      : null
-    : safeProviderToken(value);
+  if (typeof value === 'number') return publicCodes.has(value) ? value : null;
+  if (
+    typeof value === 'string' &&
+    publicCodes.has(Number(value)) &&
+    String(Number(value)) === value
+  )
+    return value;
+  return safeProviderToken(value);
 }
 
 // Exact static example from Poyo's error-codes and task-management/status docs.
@@ -46,6 +69,10 @@ export function sanitizeProviderDiagnostic(value: unknown): ProviderDiagnostic {
     errorCode: code(data.errorCode),
     errorType: safeProviderToken(data.errorType),
     statusRaw: safeProviderToken(data.statusRaw),
+    responseCodePresent: data.responseCodePresent === true,
+    errorCodePresent: data.errorCodePresent === true,
+    errorTypePresent: data.errorTypePresent === true,
+    statusPresent: data.statusPresent === true,
     errorMessagePresent: data.errorMessagePresent === true,
     documentedMessage: data.documentedMessage === documentedMessage ? documentedMessage : null
   };
@@ -62,6 +89,10 @@ export function providerDiagnostic(payload: unknown, httpStatus?: number): Provi
     errorCode: error.code ?? data.error_code,
     errorType: error.type ?? data.error_type,
     statusRaw: data.status,
+    responseCodePresent: root.code != null,
+    errorCodePresent: (error.code ?? data.error_code) != null,
+    errorTypePresent: (error.type ?? data.error_type) != null,
+    statusPresent: data.status != null,
     errorMessagePresent: message !== undefined && message !== null,
     documentedMessage: message
   });

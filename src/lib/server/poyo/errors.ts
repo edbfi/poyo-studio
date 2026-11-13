@@ -63,7 +63,7 @@ export class PoyoError extends Error {
       ? sanitizeProviderDiagnostic(options.providerDiagnostic)
       : undefined;
     this.category = options.category;
-    this.technicalCode = safeProviderToken(options.technicalCode) ?? 'unknown';
+    this.technicalCode = safeTechnicalCode(options.technicalCode);
     this.retryable = options.retryable;
     this.operation = options.operation;
     this.httpStatus = options.httpStatus ?? null;
@@ -83,6 +83,44 @@ export class PoyoError extends Error {
       upstreamType: this.upstreamType
     };
   }
+}
+
+const localCodes = new Set([
+  'unknown',
+  'public_ipv4_guard_match',
+  'public_ipv4_guard_unavailable',
+  'public_ipv4_guard_misconfigured',
+  'local_upload_validation',
+  'local_request_validation',
+  'non_serializable_request',
+  'invalid_task_id',
+  'invalid_json',
+  'api_key_missing',
+  'submission_claim_lost_before_dispatch',
+  'malformed_response',
+  'request_timeout',
+  'network_failure',
+  'insufficient_credits',
+  'rate_limited',
+  'upstream_timeout',
+  'task_not_found',
+  'business_code_error'
+]);
+function safeTechnicalCode(value: string): string {
+  if (localCodes.has(value) || safeProviderToken(value)) return value;
+  if (/^http_[1-5]\d\d$/.test(value)) return value;
+  return 'unknown';
+}
+
+function liveDetail(value: unknown): string | null {
+  if (typeof value === 'string') return redactString(value).slice(0, 1000);
+  if (!Array.isArray(value)) return null;
+  const parts = value
+    .slice(0, 5)
+    .flatMap((entry) =>
+      entry && typeof entry === 'object' && typeof entry.msg === 'string' ? [entry.msg] : []
+    );
+  return parts.length ? redactString(parts.join('; ')).slice(0, 1000) : null;
 }
 
 export type PublicIpv4GuardReason = 'match' | 'unavailable' | 'misconfigured';
@@ -143,11 +181,14 @@ export function normalizePoyoError(
     payload && typeof payload === 'object' ? (payload as UpstreamErrorEnvelope) : undefined;
   const upstreamType = safeProviderToken(envelope?.error?.type);
   const diagnostic = providerDiagnostic(payload, httpStatus);
-  const upstreamMessage = diagnostic.documentedMessage;
+  // Live operation feedback is separate from the persisted, allowlisted diagnostic.
+  const upstreamMessage = liveDetail(envelope?.error?.message) ?? liveDetail(envelope?.detail);
   const normalizedError = (options: PoyoErrorOptions) =>
     new PoyoError({ ...options, providerDiagnostic: diagnostic });
   const businessCode = typeof envelope?.code === 'number' ? envelope.code : httpStatus;
   const status = businessCode >= 400 ? businessCode : httpStatus;
+  const businessFailure =
+    typeof envelope?.code === 'number' && envelope.code !== 200 && envelope.code < 400;
   const type = upstreamType?.toLowerCase() ?? '';
 
   if (status === 401 || status === 403 || type.includes('authentication')) {
@@ -239,7 +280,7 @@ export function normalizePoyoError(
 
   return normalizedError({
     category: defaultCategory(operation),
-    technicalCode: upstreamType ?? `http_${status}`,
+    technicalCode: upstreamType ?? (businessFailure ? 'business_code_error' : `http_${status}`),
     message: upstreamMessage ?? 'Poyo returned an unrecognized error.',
     retryable: false,
     operation,

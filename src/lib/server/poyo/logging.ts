@@ -4,7 +4,9 @@ import { PoyoError } from './errors';
 import type { PoyoMetadataLogger, PoyoRequestMetadata } from './types';
 
 function safeFailure(error: unknown): unknown {
-  return error instanceof PoyoError ? error.toSafeDto() : safeErrorSummary(error);
+  if (!(error instanceof PoyoError)) return safeErrorSummary(error);
+  const dto = error.toSafeDto();
+  return { ...dto, message: error.providerDiagnostic ? 'Provider request failed.' : dto.message };
 }
 
 export function createPoyoMetadataLogger(logger: StructuredLogger): PoyoMetadataLogger {
