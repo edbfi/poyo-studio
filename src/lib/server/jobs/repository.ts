@@ -70,6 +70,7 @@ type JobRow = {
   local_outcome: LocalOutcome | null;
   settled_at: string | null;
   terminal_ack_pending: number;
+  output_observed: number;
   id: string;
   registry_version: string | null;
   entry_key: string | null;
@@ -418,6 +419,7 @@ function mapJob(row: JobRow): JobRecord {
     localOutcome: row.local_outcome,
     settledAt: row.settled_at,
     terminalAckPending: row.terminal_ack_pending === 1,
+    outputObserved: row.output_observed === 1,
     id: row.id,
     registryVersion: row.registry_version,
     entryKey: row.entry_key,
@@ -648,26 +650,32 @@ export class JobRepository extends DatabaseRepository {
       if (!root) return;
       const changed = this.database
         .query(`UPDATE generation_retry_roots SET state='stopped',reason=?,updated_at=?
-        WHERE root_id=? AND state!='stopped'`)
+        WHERE root_id=? AND state='running'`)
         .run(reason, this.timestamp(), root).changes;
-      this.database
+      const cancelledReservations = this.database
         .query(`UPDATE generation_retry_reservations SET state='stopped',updated_at=?
         WHERE root_id=? AND state IN ('pending','refreshing')`)
-        .run(this.timestamp(), root);
+        .run(this.timestamp(), root).changes;
+      let stoppedChildren = 0;
       for (const child of this.database
         .query<{ id: string }, [string]>(
           `SELECT id FROM jobs WHERE auto_root_id=? AND auto_ordinal>0`
         )
         .all(root))
-        this.stopBeforeDispatch(child.id, reason);
+        if (this.stopBeforeDispatch(child.id, reason)) stoppedChildren += 1;
       if (changed) this.retryEvent(root, job.id, 'retry.stopped');
+      else if (cancelledReservations || stoppedChildren)
+        this.retryEvent(root, job.id, 'retry.pending_stopped');
     });
   }
   stopAllAutomaticRetries(): void {
     this.transaction(() => {
       for (const row of this.database
         .query<{ root_id: string }, []>(
-          `SELECT root_id FROM generation_retry_roots WHERE state='running'`
+          `SELECT r.root_id FROM generation_retry_roots r WHERE r.state='running'
+           OR EXISTS(SELECT 1 FROM generation_retry_reservations q WHERE q.root_id=r.root_id AND q.state IN ('pending','refreshing'))
+           OR EXISTS(SELECT 1 FROM jobs j JOIN submission_intents i ON i.job_id=j.id
+             WHERE j.auto_root_id=r.root_id AND j.auto_ordinal>0 AND i.state IN ('prepared','sending') AND i.sent_at IS NULL)`
         )
         .all())
         this.stopAutomaticRetries(row.root_id, 'globally-disabled');
@@ -726,19 +734,16 @@ export class JobRepository extends DatabaseRepository {
   private reserveAutomaticRetry(job: JobRecord, status: PoyoStatusResult, eligible: boolean): void {
     const chain = job.automaticRetry;
     if (chain?.state !== 'running') return;
+    if (status.status === 'finished') {
+      this.setRetryState(job, 'succeeded', null);
+      return;
+    }
     if (!this.generationRetryPolicy().enabled) {
       this.stopAutomaticRetries(job.id, 'globally-disabled');
       return;
     }
     if (!eligible) {
-      if (status.status === 'finished' && job.failureDomain === 'none') return;
-      this.setRetryState(
-        job,
-        status.status === 'finished' && job.failureDomain === 'none'
-          ? 'succeeded'
-          : 'needs_attention',
-        status.status === 'finished' && job.failureDomain === 'none' ? null : 'ineligible-failure'
-      );
+      this.setRetryState(job, 'needs_attention', 'ineligible-failure');
       return;
     }
     if (chain.ordinal >= chain.maxRetries) {
@@ -1140,7 +1145,7 @@ export class JobRepository extends DatabaseRepository {
         inputs.push(input);
         continue;
       }
-      if (!input.managedSourceId) throw new Error('The original managed source is unavailable.');
+      if (!input.managedSourceId) throw this.rerunSourceRequiresReview();
       const role = entry.inputRoles.find((r) => r.role === input.role);
       const fallback: Record<string, [string, string]> = {
         reference: ['image_urls', 'imageUrls'],
@@ -1151,14 +1156,20 @@ export class JobRepository extends DatabaseRepository {
       };
       const binding = role?.apiKey ?? fallback[input.role]?.[0];
       const guidedKey = role?.requestKey ?? fallback[input.role]?.[1];
-      if (!binding) throw new Error('The stored source binding needs review.');
-      const refreshed = await refreshManagedSource(input.managedSourceId, input.mediaKind);
-      if (refreshed.id !== input.managedSourceId) throw new Error('Managed source changed.');
+      if (!binding) throw this.rerunSourceRequiresReview();
+      let refreshed: Awaited<ReturnType<RefreshManagedSource>>;
+      try {
+        refreshed = await refreshManagedSource(input.managedSourceId, input.mediaKind);
+      } catch (error) {
+        if (error instanceof PoyoError) throw error;
+        throw this.rerunSourceRequiresReview();
+      }
+      if (refreshed.id !== input.managedSourceId) throw this.rerunSourceRequiresReview();
       const replaceBound = (record: Record<string, unknown>, key: string, required: boolean) => {
         const value = record[key];
         if (Array.isArray(value) && value[index] === input.url) value[index] = refreshed.url;
         else if (index === 0 && value === input.url) record[key] = refreshed.url;
-        else if (required) throw new Error('The stored source binding needs review.');
+        else if (required) throw this.rerunSourceRequiresReview();
       };
       replaceBound(normalizedPayload.input, binding, true);
       if (guidedKey) replaceBound(guidedRequest, guidedKey, false);
@@ -1195,6 +1206,13 @@ export class JobRepository extends DatabaseRepository {
         this.existingRetry(job.id, actionId) ?? this.create({ ...request, retryOfJobId: job.id })
       );
     });
+  }
+  private rerunSourceRequiresReview(): JobRequestError {
+    return new JobRequestError(
+      'rerun_source_requires_review',
+      'This historical upload is no longer safely reusable. Open it in Studio and select the source again.',
+      409
+    );
   }
   async retryAmbiguous(
     jobId: string,
@@ -1739,10 +1757,17 @@ export class JobRepository extends DatabaseRepository {
           'SELECT state,sent_at FROM submission_intents WHERE job_id=?'
         )
         .get(jobId);
+      const authoritativeMatchingObservation =
+        current.poyoTaskId === status.taskId &&
+        current.localPhase !== 'complete' &&
+        intent?.state === 'acknowledged' &&
+        intent.sent_at !== null;
+      const outputObserved =
+        current.outputObserved || (authoritativeMatchingObservation && status.files.length > 0);
       const eligible =
         source === 'poll' &&
-        intent?.state === 'acknowledged' &&
-        intent.sent_at !== null &&
+        authoritativeMatchingObservation &&
+        !outputObserved &&
         isVerifiedPollRejection(current, status);
       const nextStatusRaw = safeProviderToken(status.statusRaw);
       const nextStatus = status.status;
@@ -1783,6 +1808,7 @@ export class JobRepository extends DatabaseRepository {
       const credits = alreadyComplete ? current.actualCredits : status.creditsAmount;
       const now = this.timestamp();
       const changed =
+        current.outputObserved !== outputObserved ||
         current.localPhase !== phase ||
         current.remoteStatusRaw !== nextStatusRaw ||
         current.remoteStatus !== nextStatus ||
@@ -1792,9 +1818,10 @@ export class JobRepository extends DatabaseRepository {
         current.actualCredits !== credits;
       this.database
         .query(
-          `UPDATE jobs SET local_phase=?,remote_status_raw=?,remote_status=?,failure_domain=?,attention_code=?,progress=?,actual_credits=?,last_polled_at=?,next_poll_at=?,updated_at=?,completed_at=CASE WHEN ?='complete' AND completed_at IS NULL THEN ? ELSE completed_at END WHERE id=?`
+          `UPDATE jobs SET output_observed=?,local_phase=?,remote_status_raw=?,remote_status=?,failure_domain=?,attention_code=?,progress=?,actual_credits=?,last_polled_at=?,next_poll_at=?,updated_at=?,completed_at=CASE WHEN ?='complete' AND completed_at IS NULL THEN ? ELSE completed_at END WHERE id=?`
         )
         .run(
+          outputObserved ? 1 : 0,
           phase,
           nextStatusRaw,
           nextStatus,
@@ -1831,6 +1858,7 @@ export class JobRepository extends DatabaseRepository {
           {
             source,
             retryEligibleRejection: eligible,
+            outputObserved,
             observedProgress: status.progress,
             ...diagnosticPayload,
             ...(taskCharge ? { taskCharge } : {})
@@ -2126,7 +2154,6 @@ export class JobRepository extends DatabaseRepository {
         this.database
           .query(`UPDATE jobs SET local_phase='requires_attention' WHERE id=?`)
           .run(job.id);
-        this.setRetryState(this.requireJob(job.id), 'needs_attention', 'download-failed');
         this.append(this.requireJob(job.id), 'download.failed', { outputId: id });
       }
       return true;
@@ -2145,8 +2172,7 @@ export class JobRepository extends DatabaseRepository {
       if (counts.total < expected.minimumCount || counts.total > expected.count)
         return this.markMalformedOutputSet(jobId, 'stored_output_count_mismatch', counts.total);
       if (job.remoteStatus === 'finished' && counts.verified === counts.total) {
-        const completed = this.transition(jobId, 'complete', 'none', null, 'job.complete');
-        this.setRetryState(completed, 'succeeded', null);
+        this.transition(jobId, 'complete', 'none', null, 'job.complete');
         return this.requireJob(jobId);
       }
       return job;

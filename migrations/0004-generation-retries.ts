@@ -11,6 +11,8 @@ ALTER TABLE jobs ADD COLUMN local_outcome TEXT CHECK(local_outcome IN ('generati
 ALTER TABLE jobs ADD COLUMN settled_at TEXT;
 ALTER TABLE jobs ADD COLUMN retry_eligible_rejection INTEGER NOT NULL DEFAULT 0 CHECK(retry_eligible_rejection IN (0,1));
 ALTER TABLE jobs ADD COLUMN terminal_ack_pending INTEGER NOT NULL DEFAULT 0 CHECK(terminal_ack_pending IN (0,1));
+ALTER TABLE jobs ADD COLUMN output_observed INTEGER NOT NULL DEFAULT 0 CHECK(output_observed IN (0,1));
+UPDATE jobs SET output_observed=1 WHERE EXISTS(SELECT 1 FROM job_outputs WHERE job_id=jobs.id);
 CREATE TABLE generation_retry_roots (
   root_id TEXT PRIMARY KEY REFERENCES jobs(id) ON DELETE CASCADE,
   max_retries INTEGER NOT NULL CHECK(max_retries BETWEEN 1 AND 5),

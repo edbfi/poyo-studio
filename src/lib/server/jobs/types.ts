@@ -72,6 +72,7 @@ export interface JobRecord {
   localOutcome: LocalOutcome | null;
   settledAt: string | null;
   terminalAckPending: boolean;
+  outputObserved: boolean;
   id: string;
   registryVersion: string | null;
   entryKey: string | null;

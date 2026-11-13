@@ -1,5 +1,9 @@
 import { malformedResponseError, PoyoError } from './errors';
-import { providerDiagnostic, safeProviderToken } from './provider-diagnostic';
+import {
+  DOCUMENTED_POLICY_REJECTION_MESSAGE,
+  providerDiagnostic,
+  safeProviderToken
+} from './provider-diagnostic';
 import type {
   PoyoBalanceResult,
   PoyoOperation,
@@ -142,8 +146,9 @@ export function parseStatusResponse(payload: unknown, httpStatus?: number): Poyo
 }
 
 function parseStatusData(payload: unknown, httpStatus?: number): PoyoStatusResult {
+  const root = record(payload, 'status', 'JSON');
   const data = wrappedData(payload, 'status');
-  optionalString(data.error_message, 'status', 'error_message');
+  const errorMessage = optionalString(data.error_message, 'status', 'error_message');
   const statusRaw = requiredString(data.status, 'status', 'status');
   const progress = data.progress;
   if (
@@ -174,7 +179,14 @@ function parseStatusData(payload: unknown, httpStatus?: number): PoyoStatusResul
     files: files.map(parseOutputFile),
     createdTime: requiredString(data.created_time, 'status', 'created_time'),
     progress: typeof progress === 'number' ? progress : null,
-    errorMessage: providerDiagnostic(payload).documentedMessage
+    // Retry evidence comes only from the documented success envelope's task field.
+    // Diagnostic error.message/detail fallbacks must never become rejection proof.
+    errorMessage:
+      root.code === 200 &&
+      root.data === data &&
+      errorMessage === DOCUMENTED_POLICY_REJECTION_MESSAGE
+        ? errorMessage
+        : null
   };
 }
 

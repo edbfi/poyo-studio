@@ -60,6 +60,11 @@ describe('job HTTP boundaries', () => {
     }
   });
 
+  test('Studio output route delegates to remotely finished metadata for download repair', async () => {
+    const route = await Bun.file('src/routes/api/jobs/[jobId]/outputs/+server.ts').text();
+    expect(route).toContain('const outputs = studioOutputMetadata(detail)');
+  });
+
   test('JOB-10 create route delegates browser data to authoritative request preparation', async () => {
     const route = await Bun.file('src/routes/api/jobs/+server.ts').text();
     expect(route).toContain('prepareJobCreateRequest');

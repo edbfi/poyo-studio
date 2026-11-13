@@ -1,13 +1,12 @@
-import type { StudioOutputDto } from '#lib/features/generation/contracts.js';
 import { getJobRuntime } from '#lib/server/jobs/runtime.js';
+import { studioOutputMetadata } from '#lib/server/jobs/studio-output-metadata.js';
 import { LibraryRepository } from '#lib/server/library/repository.js';
 import { getPlatformServices } from '#lib/server/platform/runtime.js';
 import type { RequestHandler } from './$types';
 
 /**
- * Verified outputs for a single job, projected to the minimal shape the studio result stage
- * needs. `mediaUrl` is only populated once an output is locally verified, so a completed job's
- * media is never shown before it is actually available on disk.
+ * Output metadata for a remotely finished job, including downloads Studio can repair.
+ * `mediaUrl` is populated only for locally verified outputs; failed downloads retain metadata.
  */
 export const GET: RequestHandler = async ({ params, setHeaders }) => {
   setHeaders({ 'cache-control': 'no-store' });
@@ -18,21 +17,7 @@ export const GET: RequestHandler = async ({ params, setHeaders }) => {
   // studio's loadOutputs(), which always `await response.json()`s, can read a not-found error rather
   // than hitting a parse failure that erases the 404 context.
   if (!detail) return Response.json({ error: { code: 'job_not_found' } }, { status: 404 });
-  const outputs: StudioOutputDto[] = (
-    detail.localPhase === 'complete' && detail.remoteStatus === 'finished' ? detail.outputs : []
-  ).map((output) => ({
-    outputId: output.outputId,
-    mediaKind: output.mediaKind,
-    mediaUrl: output.mediaUrl,
-    aspectRatio: output.aspectRatio,
-    pixelWidth: output.pixelWidth,
-    pixelHeight: output.pixelHeight,
-    fileName: output.fileName,
-    downloadState: output.downloadState,
-    localAvailable: output.localAvailable,
-    downloadCopyRequestedAt: output.downloadCopyRequestedAt ?? null,
-    downloadCopyRequestCount: output.downloadCopyRequestCount ?? 0
-  }));
+  const outputs = studioOutputMetadata(detail);
   return Response.json({
     outputs,
     actualCredits: detail.actualCredits,

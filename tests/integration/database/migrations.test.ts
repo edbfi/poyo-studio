@@ -171,6 +171,12 @@ describe('database migrations', () => {
         { name: 'id', desc: 1 }
       ]);
       expect(inputColumns).toContain('managed_source_id');
+      expect(
+        database
+          .query<{ name: string }, []>('PRAGMA table_info(jobs)')
+          .all()
+          .map((column) => column.name)
+      ).toContain('output_observed');
       expect(outputColumns).toEqual(expect.arrayContaining(['pixel_width', 'pixel_height']));
       expect(sourceForeignKey).toMatchObject({ table: 'managed_sources', to: 'id' });
       expect(attachmentForeignKey).toMatchObject({
@@ -259,6 +265,13 @@ describe('database migrations', () => {
           .all()
       ).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }, { version: 4 }]);
       expect(databaseHealth(upgraded).schemaVersion).toBe(4);
+      expect(
+        upgraded
+          .query<{ output_observed: number }, []>(
+            "SELECT output_observed FROM jobs WHERE id='sentinel-job'"
+          )
+          .get()?.output_observed
+      ).toBe(1);
       expect(
         upgraded
           .query<{ count: number }, []>(

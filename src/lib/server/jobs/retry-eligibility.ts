@@ -1,3 +1,4 @@
+import { DOCUMENTED_POLICY_REJECTION_MESSAGE } from '../poyo/provider-diagnostic';
 import type { PoyoStatusResult } from '../poyo/types';
 import type { JobRecord } from './types';
 
@@ -8,11 +9,12 @@ export function isVerifiedPollRejection(job: JobRecord, status: PoyoStatusResult
     job.poyoTaskId !== null &&
     status.taskId === job.poyoTaskId &&
     !job.terminalAckPending &&
+    !job.outputObserved &&
     job.remoteStatus !== 'failed' &&
     job.remoteStatus !== 'finished' &&
     status.status === 'failed' &&
     status.statusRaw === 'failed' &&
-    status.errorMessage === 'The prompt violates our content policy' &&
+    status.errorMessage === DOCUMENTED_POLICY_REJECTION_MESSAGE &&
     status.creditsAmount === 0 &&
     status.filesExplicit === true &&
     status.files.length === 0

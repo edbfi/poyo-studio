@@ -16,8 +16,10 @@ import {
   initialJobEvents,
   safeJobDto
 } from '../../../src/lib/server/jobs/events';
+import { jobHttpError } from '../../../src/lib/server/jobs/http';
 import { JobRepository } from '../../../src/lib/server/jobs/repository';
 import { runtimeOperationsSettings } from '../../../src/lib/server/jobs/runtime-settings';
+import { studioOutputMetadata } from '../../../src/lib/server/jobs/studio-output-metadata';
 import { LibraryRepository } from '../../../src/lib/server/library/repository';
 import { openDatabase } from '../../../src/lib/server/platform/database';
 import { normalizePoyoError, PoyoError } from '../../../src/lib/server/poyo/errors';
@@ -359,6 +361,7 @@ describe('exact documented authoritative polled rejection retries', () => {
     expect(pinned()).toBe(false);
     expect(f.repository.outstandingProjection()).toMatchObject({ actionCount: 0, credits: 0 });
     const detail = await new LibraryRepository(f.database).getJobDetail(retry.id);
+    if (detail) expect(studioOutputMetadata(detail)).toEqual([]);
     expect(detail?.cost).toMatchObject({
       kind: 'not-submitted',
       source: 'not-submitted',
@@ -792,9 +795,24 @@ describe('exact documented authoritative polled rejection retries', () => {
     f.advance(1001);
     const second = new JobRepository(f.database, f.now);
     expect(second.claimWork('poll', root.id, 'replacement', 1000)).not.toBeNull();
-    resume(rejection(root.id));
+    resume(
+      parseStatusResponse(
+        {
+          code: 200,
+          data: {
+            ...evidence.documentedFailedStatus.data,
+            task_id: `task-${root.id}`,
+            status: 'running',
+            error_message: null,
+            files: [{ file_url: 'https://media.test/stale.png', file_type: 'image' }]
+          }
+        },
+        200
+      )
+    );
     await pending;
     expect(f.repository.get(root.id)?.remoteStatus).toBe('running');
+    expect(f.repository.get(root.id)?.outputObserved).toBe(false);
     expect(f.repository.claimAutomaticRetry('retry', 1000)).toBeNull();
   });
   test('stop after dispatch preserves the active task and prevents its eligible successor', async () => {
@@ -864,7 +882,7 @@ describe('exact documented authoritative polled rejection retries', () => {
     );
     f.repository.applyStatus(retry.id, status, 1000);
     const settledAt = f.repository.taskCharge(retry.id)?.settledAt;
-    expect(f.repository.get(retry.id)?.automaticRetry?.state).toBe('running');
+    expect(f.repository.get(retry.id)?.automaticRetry?.state).toBe('succeeded');
     const output = f.repository.outputs(retry.id)[0];
     if (!output) throw new Error('Missing output');
     const attempt = f.repository.startDownload(output.id);
@@ -890,5 +908,382 @@ describe('exact documented authoritative polled rejection retries', () => {
       settledAt
     });
     expect(safeJobDto(f.repository.get(retry.id) ?? retry).taskCharge?.settledAt).toBe(settledAt);
+  });
+  test('only the original documented data.error_message proves a rejection; diagnostic fallbacks never do', async () => {
+    const f = await setup();
+    const message = evidence.documentedFailedStatus.data.error_message;
+    for (const location of [
+      'detail',
+      'root-error',
+      'data-error',
+      'missing',
+      'null',
+      'unwrapped',
+      'string-code',
+      'documented',
+      'other-field-with-data-error',
+      'documented-conflicting-diagnostic'
+    ]) {
+      const job = create(f);
+      accept(f, job.id);
+      const { error_message: _removed, ...fields } = evidence.documentedFailedStatus.data;
+      const data: Record<string, unknown> = { ...fields, task_id: `task-${job.id}` };
+      const payload: Record<string, unknown> = { code: 200, data };
+      if (location === 'detail') payload.detail = message;
+      if (location === 'root-error') payload.error = { message };
+      if (location === 'data-error') data.error = { message };
+      if (location === 'other-field-with-data-error') {
+        data.error_message = 'Other failure';
+        data.error = { message };
+      }
+      if (location === 'null') {
+        data.error_message = null;
+        payload.detail = message;
+      }
+      if (location === 'unwrapped') {
+        delete payload.data;
+        Object.assign(payload, data, { error_message: message });
+      }
+      if (location === 'string-code') {
+        payload.code = '200';
+        data.error_message = message;
+      }
+      const eligible = location.startsWith('documented');
+      if (eligible) data.error_message = message;
+      if (location === 'documented-conflicting-diagnostic')
+        payload.error = { message: 'unrelated diagnostic' };
+      const parsed = parseStatusResponse(payload, 200);
+      expect(parsed.errorMessage).toBe(eligible ? message : null);
+      if (['detail', 'root-error', 'data-error', 'null'].includes(location))
+        expect(parsed.providerDiagnostic?.documentedMessage).toBe(message);
+      f.repository.applyStatus(job.id, parsed, 1000);
+      const reservation = f.database
+        .query<{ parent_id: string }, [string]>(
+          'SELECT parent_id FROM generation_retry_reservations WHERE parent_id=?'
+        )
+        .get(job.id);
+      expect(Boolean(reservation)).toBe(eligible);
+    }
+  });
+  test('a previously reported partial output permanently excludes the attempt, including after reopening the database', async () => {
+    const f = await setup();
+    const job = create(f);
+    accept(f, job.id);
+    const running = (files: unknown[]) =>
+      parseStatusResponse(
+        {
+          code: 200,
+          data: {
+            ...evidence.documentedFailedStatus.data,
+            task_id: `task-${job.id}`,
+            status: 'running',
+            error_message: null,
+            files
+          }
+        },
+        200
+      );
+    f.repository.applyStatus(
+      job.id,
+      running([{ file_url: 'https://media.test/private-output-canary.png', file_type: 'image' }]),
+      1000
+    );
+    expect(f.repository.get(job.id)?.outputObserved).toBe(true);
+    expect(f.repository.outputs(job.id)).toHaveLength(0);
+    f.repository.applyStatus(job.id, running([]), 1000);
+    const db = await openDatabase(join(dirname(f.paths.media), 'studio.sqlite'));
+    cleanups.push(async () => db.close());
+    const restarted = new JobRepository(db, f.now);
+    expect(restarted.get(job.id)?.outputObserved).toBe(true);
+    fail(f, job.id, restarted);
+    expect(restarted.get(job.id)).toMatchObject({
+      outputObserved: true,
+      remoteStatus: 'failed',
+      automaticRetry: { state: 'needs_attention' }
+    });
+    f.advance();
+    expect(restarted.claimAutomaticRetry('after-restart', 1000)).toBeNull();
+    const terminal = restarted
+      .eventsAfter(0)
+      .find(
+        (event) =>
+          event.jobId === job.id &&
+          event.eventType === 'status.observed' &&
+          event.remoteStatus === 'failed'
+      );
+    expect(terminal?.payload).toMatchObject({
+      outputObserved: true,
+      retryEligibleRejection: false
+    });
+    expect(JSON.stringify(restarted.eventsAfter(0))).not.toContain('private-output-canary');
+    const control = create(f);
+    accept(f, control.id);
+    f.repository.applyStatus(
+      control.id,
+      parseStatusResponse(
+        {
+          code: 200,
+          data: {
+            ...evidence.documentedFailedStatus.data,
+            task_id: `task-${control.id}`,
+            status: 'running',
+            error_message: null
+          }
+        },
+        200
+      ),
+      1000
+    );
+    fail(f, control.id);
+    f.advance();
+    expect(restarted.claimAutomaticRetry('no-output-control', 1000)?.parent_id).toBe(control.id);
+  });
+  test('mismatched and ignored output observations cannot poison the durable marker', async () => {
+    const f = await setup();
+    const job = create(f);
+    accept(f, job.id);
+    const withOutput = parseStatusResponse(
+      {
+        code: 200,
+        data: {
+          ...evidence.documentedFailedStatus.data,
+          task_id: 'another-task',
+          status: 'running',
+          error_message: null,
+          files: [{ file_url: 'https://media.test/output.png', file_type: 'image' }]
+        }
+      },
+      200
+    );
+    f.repository.applyStatus(job.id, withOutput, 1000);
+    expect(f.repository.get(job.id)?.outputObserved).toBe(false);
+    fail(f, job.id);
+    expect(
+      f.database.query('SELECT * FROM generation_retry_reservations WHERE parent_id=?').get(job.id)
+    ).not.toBeNull();
+    const terminal = create(f);
+    accept(f, terminal.id);
+    f.repository.applyStatus(terminal.id, { ...rejection(terminal.id), errorMessage: null }, 1000);
+    f.repository.applyStatus(terminal.id, { ...withOutput, taskId: `task-${terminal.id}` }, 1000);
+    expect(f.repository.get(terminal.id)?.outputObserved).toBe(false);
+    fail(f, terminal.id);
+    expect(
+      f.database
+        .query('SELECT * FROM generation_retry_reservations WHERE parent_id=?')
+        .get(terminal.id)
+    ).toBeNull();
+  });
+  test('stop, global disable and manual rerun preserve each terminal chain outcome and reason', async () => {
+    const f = await setup();
+    for (const [state, reason] of [
+      ['succeeded', null],
+      ['exhausted', 'retry-budget-exhausted'],
+      ['blocked', 'source-or-registry-unavailable'],
+      ['needs_attention', 'ineligible-failure'],
+      ['needs_attention', 'submission-unknown']
+    ] as const) {
+      const root = create(f);
+      accept(f, root.id);
+      f.repository.applyStatus(root.id, { ...rejection(root.id), errorMessage: null }, 1000);
+      f.database
+        .query('UPDATE generation_retry_roots SET state=?,reason=? WHERE root_id=?')
+        .run(state, reason, root.id);
+      const expected = { state, reason };
+      f.repository.stopAutomaticRetries(root.id);
+      f.repository.stopAutomaticRetries(root.id);
+      expect(f.repository.get(root.id)?.automaticRetry).toMatchObject(expected);
+      f.repository.stopAllAutomaticRetries();
+      expect(f.repository.get(root.id)?.automaticRetry).toMatchObject(expected);
+      await f.repository.rerunAsNew(root.id, crypto.randomUUID(), async () => {
+        throw new Error('Unexpected refresh');
+      });
+      expect(f.repository.get(root.id)?.automaticRetry).toMatchObject(expected);
+      expect(
+        f.repository
+          .eventsAfter(0)
+          .filter((event) => event.jobId === root.id && event.eventType === 'retry.stopped')
+      ).toHaveLength(0);
+    }
+  });
+  test('terminal outcome preservation still defensively closes pending reservations and unsent children', async () => {
+    const f = await setup();
+    const root = create(f);
+    accept(f, root.id);
+    fail(f, root.id);
+    const retry = await child(f);
+    f.database
+      .query(
+        "UPDATE generation_retry_roots SET state='exhausted',reason='retry-budget-exhausted' WHERE root_id=?"
+      )
+      .run(root.id);
+    f.repository.stopAutomaticRetries(root.id);
+    expect(f.repository.get(root.id)?.automaticRetry).toMatchObject({
+      state: 'exhausted',
+      reason: 'retry-budget-exhausted'
+    });
+    expect(f.repository.get(retry.id)?.localOutcome).toBe('stopped-before-dispatch');
+    const pending = create(f);
+    accept(f, pending.id);
+    fail(f, pending.id);
+    f.database
+      .query(
+        "UPDATE generation_retry_roots SET state='needs_attention',reason='ineligible-failure' WHERE root_id=?"
+      )
+      .run(pending.id);
+    f.repository.stopAllAutomaticRetries();
+    expect(
+      f.database
+        .query<{ state: string }, [string]>(
+          'SELECT state FROM generation_retry_reservations WHERE parent_id=?'
+        )
+        .get(pending.id)?.state
+    ).toBe('stopped');
+    expect(f.repository.get(pending.id)?.automaticRetry).toMatchObject({
+      state: 'needs_attention',
+      reason: 'ineligible-failure'
+    });
+    expect(
+      f.repository
+        .eventsAfter(0)
+        .some((event) => event.jobId === pending.id && event.eventType === 'retry.pending_stopped')
+    ).toBe(true);
+  });
+  test('remote completion succeeds with automatic downloads off and survives local download failure and repair', async () => {
+    const f = await setup();
+    const root = create(f);
+    accept(f, root.id);
+    const finished = parseStatusResponse(
+      {
+        code: 200,
+        data: {
+          task_id: `task-${root.id}`,
+          status: 'finished',
+          credits_amount: 7,
+          files: [{ file_url: 'https://media.test/repair.png', file_type: 'image' }],
+          created_time: 'now'
+        }
+      },
+      200
+    );
+    const coordinator = new JobCoordinator({
+      repository: f.repository,
+      now: f.now,
+      automaticDownloads: false,
+      downloader: new OutputDownloader({ repository: f.repository, paths: f.paths }),
+      poyo: {
+        submit: async () => {
+          throw new Error('Unexpected submit');
+        },
+        getStatus: async () => finished,
+        getBalance: async () => ({
+          email: 'test@example.test',
+          creditsAmount: 93,
+          fetchedAt: f.now().toISOString()
+        })
+      }
+    });
+    await coordinator.poll(root.id);
+    expect(f.repository.get(root.id)).toMatchObject({
+      localPhase: 'downloading',
+      automaticRetry: { state: 'succeeded', reason: null }
+    });
+    expect(
+      latestSuccessfulStudioJob({ [root.id]: safeJobDto(f.repository.get(root.id) ?? root) })
+    ).toBeNull();
+    const output = f.repository.outputs(root.id)[0];
+    if (!output) throw new Error('Output missing');
+    const attempt = f.repository.startDownload(output.id);
+    f.repository.failDownload(output.id, attempt, { code: 'download_failed' });
+    expect(f.repository.get(root.id)).toMatchObject({
+      localPhase: 'requires_attention',
+      automaticRetry: { state: 'succeeded', reason: null }
+    });
+    const detail = await new LibraryRepository(f.database).getJobDetail(root.id);
+    if (!detail) throw new Error('Detail missing');
+    expect(studioOutputMetadata(detail)).toMatchObject([
+      { outputId: output.id, downloadState: 'failed', mediaUrl: null, localAvailable: false }
+    ]);
+    const closed = {
+      ...detail,
+      remoteStatus: 'unknown',
+      localPhase: 'complete',
+      localOutcome: 'stopped-before-dispatch' as const
+    };
+    expect(studioOutputMetadata(closed)).toEqual([]);
+    f.repository.stopAutomaticRetries(root.id);
+    f.settings.set('operations', {
+      ...DEFAULT_OPERATIONS_SETTINGS,
+      generationRetries: { enabled: false, maxRetries: 3 }
+    });
+    f.settings.set('operations', {
+      ...DEFAULT_OPERATIONS_SETTINGS,
+      generationRetries: { enabled: true, maxRetries: 3 }
+    });
+    expect(f.repository.get(root.id)?.automaticRetry).toMatchObject({
+      state: 'succeeded',
+      reason: null
+    });
+    const retried = f.repository.startDownload(output.id);
+    f.repository.verifyDownload(output.id, retried, {
+      path: join(f.paths.media, 'repair.png'),
+      contentType: 'image/png',
+      size: 8,
+      checksum: 'checksum',
+      signature: '89504e47'
+    });
+    f.repository.finishIfDownloaded(root.id);
+    expect(f.repository.get(root.id)).toMatchObject({
+      localPhase: 'complete',
+      remoteStatus: 'finished',
+      automaticRetry: { state: 'succeeded' }
+    });
+    expect(
+      f.repository
+        .eventsAfter(0)
+        .filter((event) => event.jobId === root.id && event.eventType === 'retry.succeeded')
+    ).toHaveLength(1);
+  });
+  test('manual source failures retain actionable 409 errors while automatic refresh remains blocked', async () => {
+    const f = await setup();
+    const asset = managed(f);
+    for (const failure of ['unmanaged', 'missing', 'binding'] as const) {
+      const root = create(f, undefined, asset);
+      accept(f, root.id);
+      if (failure === 'unmanaged')
+        f.database
+          .query('UPDATE job_inputs SET managed_source_id=NULL WHERE job_id=?')
+          .run(root.id);
+      if (failure === 'binding')
+        f.database.query("UPDATE job_inputs SET role='unrecognized' WHERE job_id=?").run(root.id);
+      f.repository.applyStatus(root.id, { ...rejection(root.id), errorMessage: null }, 1000);
+      try {
+        await f.repository.rerunAsNew(root.id, crypto.randomUUID(), async () => {
+          throw new Error('Missing file');
+        });
+        throw new Error('Expected source review error');
+      } catch (error) {
+        const response = jobHttpError(error);
+        expect(response.status).toBe(409);
+        expect(await response.json()).toMatchObject({
+          error: {
+            code: 'rerun_source_requires_review',
+            message: expect.stringContaining('Studio')
+          }
+        });
+      }
+    }
+    const automatic = create(f, undefined, asset);
+    accept(f, automatic.id);
+    fail(f, automatic.id);
+    f.advance();
+    const claim = f.repository.claimAutomaticRetry('refresh', 1000);
+    if (!claim) throw new Error('Reservation missing');
+    await f.repository.fulfillAutomaticRetry(claim, async () => {
+      throw new Error('Missing file');
+    });
+    expect(f.repository.get(automatic.id)?.automaticRetry).toMatchObject({
+      state: 'blocked',
+      reason: 'source-or-registry-unavailable'
+    });
   });
 });

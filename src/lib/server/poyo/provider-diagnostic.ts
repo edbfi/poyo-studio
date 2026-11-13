@@ -66,7 +66,8 @@ function code(value: unknown): string | number | null {
 
 // Exact static example from Poyo's error-codes and task-management/status docs.
 // This is diagnostic provenance, NOT a retry classifier or a billing guarantee.
-const documentedMessage = 'The prompt violates our content policy';
+export const DOCUMENTED_POLICY_REJECTION_MESSAGE = 'The prompt violates our content policy';
+const documentedMessage = DOCUMENTED_POLICY_REJECTION_MESSAGE;
 
 export function sanitizeProviderDiagnostic(value: unknown): ProviderDiagnostic {
   const data = record(value);
