@@ -27,6 +27,8 @@ export interface TransportRequest {
   signal?: AbortSignal;
   timeoutMs?: number;
   beforeDispatch?: () => Promise<void> | void;
+  /** Status metadata for parsers; never passes headers or the raw response body. */
+  onResponse?: (httpStatus: number) => void;
 }
 
 export type PoyoFetch = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
@@ -207,6 +209,7 @@ export class PoyoTransport {
           ...(request.body === undefined ? {} : { body: request.body })
         };
         const response = await this.fetchImplementation(`${this.baseUrl}${request.path}`, init);
+        request.onResponse?.(response.status);
         const payload = await readBoundedJson(response, request.operation, this.maxResponseBytes);
         const retryAfterMs = parseRetryAfter(response.headers.get('retry-after'), this.clock.now());
         if (!response.ok) {
@@ -215,7 +218,7 @@ export class PoyoTransport {
         if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
           const code = (payload as { code?: unknown }).code;
           if (typeof code === 'number' && code !== 200) {
-            throw normalizePoyoError(request.operation, code, payload, retryAfterMs);
+            throw normalizePoyoError(request.operation, response.status, payload, retryAfterMs);
           }
         }
         await safelyLog(() =>

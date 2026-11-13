@@ -176,12 +176,18 @@ export class JobCoordinator {
         error instanceof PoyoError &&
         !['network', 'provider', 'rate_limit'].includes(error.category)
       )
-        this.options.repository.rejectSubmission(jobId, claim.token, error.technicalCode);
+        this.options.repository.rejectSubmission(
+          jobId,
+          claim.token,
+          error.technicalCode,
+          error.providerDiagnostic
+        );
       else
         this.options.repository.markSubmissionUnknown(
           jobId,
           claim.token,
-          error instanceof PoyoError ? error.technicalCode : 'transport_unknown'
+          error instanceof PoyoError ? error.technicalCode : 'transport_unknown',
+          error instanceof PoyoError ? error.providerDiagnostic : undefined
         );
       return this.requireJob(jobId);
     }
@@ -220,7 +226,8 @@ export class JobCoordinator {
       return this.options.repository.recordPollFailure(
         jobId,
         error instanceof PoyoError ? error.technicalCode : 'poll_error',
-        !manual && age > this.settings().staleAfterMs
+        !manual && age > this.settings().staleAfterMs,
+        error instanceof PoyoError ? error.providerDiagnostic : undefined
       );
     } finally {
       this.options.repository.releaseWork(claim);

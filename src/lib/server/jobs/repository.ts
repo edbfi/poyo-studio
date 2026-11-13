@@ -1,4 +1,5 @@
 import type { Database } from 'bun:sqlite';
+import type { JobProviderDiagnostic } from '../../features/diagnostics/provider-diagnostic';
 import {
   type EstimateEnvelope,
   type OutstandingSpendProjection,
@@ -20,6 +21,12 @@ import {
   VIDEO_REGISTRY_VERSION
 } from '../../features/registry/video-registry';
 import { DatabaseRepository } from '../platform/repository';
+import {
+  jobProviderDiagnostic,
+  providerDiagnostic,
+  readJobProviderDiagnostic,
+  safeProviderToken
+} from '../poyo/provider-diagnostic';
 import type { PoyoBalanceResult, PoyoStatusResult, PoyoSubmitResult } from '../poyo/types';
 import { isPaidActionId, JobRequestError } from './create-request';
 import { packDurableJobEventPayload } from './event-attention';
@@ -495,6 +502,19 @@ export class JobRepository extends DatabaseRepository {
         ).lastInsertRowid
     );
   }
+  private diagnosticPayload(
+    job: JobRecord,
+    diagnostic: unknown,
+    source: JobProviderDiagnostic['source']
+  ): Record<string, unknown> {
+    return {
+      providerDiagnostic: jobProviderDiagnostic(
+        diagnostic,
+        source,
+        Object.hasOwn(job.normalizedPayload.input, 'seed')
+      )
+    };
+  }
   create(request: CreateJobRequest): JobRecord {
     if (!isPaidActionId(request.actionId))
       throw new JobRequestError('invalid_action_id', 'A stable opaque action ID is required.');
@@ -634,7 +654,10 @@ export class JobRepository extends DatabaseRepository {
         .run(id, request.actionId, immutableHash, now, now);
       const job = this.get(id);
       if (!job) throw new Error('Created job was not found.');
-      this.append(job, 'job.created', { estimate: estimateEnvelope });
+      this.append(job, 'job.created', {
+        estimate: estimateEnvelope,
+        seed_explicit: Object.hasOwn(request.normalizedPayload.input, 'seed')
+      });
       return job;
     });
   }
@@ -1044,7 +1067,8 @@ export class JobRepository extends DatabaseRepository {
   private markSubmissionUnknownInternal(
     jobId: string,
     token: string | null,
-    evidence: string
+    evidence: string,
+    diagnostic?: unknown
   ): void {
     const now = this.timestamp();
     this.database
@@ -1057,11 +1081,17 @@ export class JobRepository extends DatabaseRepository {
       'requires_attention',
       'submission',
       'submission_unknown',
-      'submission.unknown'
+      'submission.unknown',
+      diagnostic ? this.diagnosticPayload(this.requireJob(jobId), diagnostic, 'submit_error') : null
     );
   }
-  markSubmissionUnknown(jobId: string, token: string, evidence: string): void {
-    this.transaction(() => this.markSubmissionUnknownInternal(jobId, token, evidence));
+  markSubmissionUnknown(
+    jobId: string,
+    token: string,
+    evidence: string,
+    diagnostic?: unknown
+  ): void {
+    this.transaction(() => this.markSubmissionUnknownInternal(jobId, token, evidence, diagnostic));
   }
   acknowledgeSubmission(jobId: string, token: string, result: PoyoSubmitResult): boolean {
     return this.transaction(() => {
@@ -1079,18 +1109,27 @@ export class JobRepository extends DatabaseRepository {
         )
         .run(
           result.taskId,
-          result.statusRaw,
+          safeProviderToken(result.statusRaw),
           result.status,
           new Date(this.now().getTime() + 1000).toISOString(),
           now,
           now,
           jobId
         );
-      this.append(this.requireJob(jobId), 'submission.acknowledged');
+      const job = this.requireJob(jobId);
+      this.append(
+        job,
+        'submission.acknowledged',
+        this.diagnosticPayload(
+          job,
+          result.providerDiagnostic ?? providerDiagnostic({ status: result.statusRaw }),
+          'submit_ack'
+        )
+      );
       return true;
     });
   }
-  rejectSubmission(jobId: string, token: string, code: string): void {
+  rejectSubmission(jobId: string, token: string, code: string, diagnostic?: unknown): void {
     this.transaction(() => {
       const now = this.timestamp();
       this.database
@@ -1098,7 +1137,16 @@ export class JobRepository extends DatabaseRepository {
           `UPDATE submission_intents SET state='rejected',resolved_at=?,updated_at=? WHERE job_id=? AND state='sending' AND transmit_claim_token=?`
         )
         .run(now, now, jobId, token);
-      this.transition(jobId, 'requires_attention', 'submission', code, 'submission.rejected');
+      this.transition(
+        jobId,
+        'requires_attention',
+        'submission',
+        code,
+        'submission.rejected',
+        diagnostic
+          ? this.diagnosticPayload(this.requireJob(jobId), diagnostic, 'submit_error')
+          : null
+      );
     });
   }
   rejectUntransmittedPolicy(jobId: string, token: string, code: string): boolean {
@@ -1191,7 +1239,44 @@ export class JobRepository extends DatabaseRepository {
       const current = this.get(jobId);
       if (!current) throw new Error('Job not found.');
       const terminal = current.remoteStatus === 'finished' || current.remoteStatus === 'failed';
-      if (terminal) return current;
+      const diagnosticPayload = this.diagnosticPayload(
+        current,
+        status.providerDiagnostic ??
+          providerDiagnostic({
+            status: status.statusRaw,
+            error_message: status.errorMessage
+          }),
+        'status'
+      );
+      if (terminal) {
+        // A terminal submit ack can precede a more detailed failed-status observation. Retain
+        // diagnostics without changing the existing terminal settlement or scheduling behavior.
+        if (status.status === 'failed') {
+          const previous = this.database
+            .query<{ safe_payload_json: string | null }, [string]>(
+              `SELECT safe_payload_json FROM job_events WHERE job_id=?
+               AND event_type IN ('status.observed','status.diagnostic') ORDER BY event_id DESC LIMIT 1`
+            )
+            .get(jobId);
+          let previousDiagnostic = null;
+          try {
+            previousDiagnostic = readJobProviderDiagnostic(
+              JSON.parse(previous?.safe_payload_json ?? 'null')
+            );
+          } catch {
+            // A malformed legacy payload does not suppress the new diagnostic.
+          }
+          if (
+            JSON.stringify(previousDiagnostic) !==
+            JSON.stringify(diagnosticPayload.providerDiagnostic)
+          )
+            this.append(current, 'status.diagnostic', {
+              ...diagnosticPayload,
+              ignoredAfterTerminal: true
+            });
+        }
+        return current;
+      }
       const nextStatus = status.status;
       const nextTerminal = nextStatus === 'finished' || nextStatus === 'failed';
       const progress =
@@ -1243,7 +1328,7 @@ export class JobRepository extends DatabaseRepository {
         )
         .run(
           phase,
-          status.statusRaw,
+          safeProviderToken(status.statusRaw),
           nextStatus,
           domain,
           attentionCode,
@@ -1262,7 +1347,7 @@ export class JobRepository extends DatabaseRepository {
           ? taskChargeFromParts({
               credits,
               remoteStatus: nextStatus,
-              remoteStatusRaw: status.statusRaw,
+              remoteStatusRaw: safeProviderToken(status.statusRaw),
               settledAt: now
             })
           : null;
@@ -1271,6 +1356,7 @@ export class JobRepository extends DatabaseRepository {
           'status.observed',
           {
             observedProgress: status.progress,
+            ...diagnosticPayload,
             ...(taskCharge ? { taskCharge } : {})
           },
           now
@@ -1285,7 +1371,7 @@ export class JobRepository extends DatabaseRepository {
       return job;
     });
   }
-  recordPollFailure(jobId: string, code: string, stale = false): JobRecord {
+  recordPollFailure(jobId: string, code: string, stale = false, diagnostic?: unknown): JobRecord {
     return this.transaction(() => {
       const current = this.get(jobId);
       if (!current) throw new Error('Job not found.');
@@ -1294,7 +1380,11 @@ export class JobRepository extends DatabaseRepository {
         current.remoteStatus === 'finished' ||
         current.remoteStatus === 'failed'
       ) {
-        this.append(current, 'poll.failed', { code, ignoredAfterTerminal: true });
+        this.append(current, 'poll.failed', {
+          code,
+          ignoredAfterTerminal: true,
+          ...(diagnostic ? this.diagnosticPayload(current, diagnostic, 'poll_error') : {})
+        });
         return current;
       }
       const phase = stale ? 'requires_attention' : current.localPhase;
@@ -1314,7 +1404,10 @@ export class JobRepository extends DatabaseRepository {
         )
         .run(phase, stale ? 'stale' : code, nextPoll, now, jobId);
       const job = this.requireJob(jobId);
-      this.append(job, 'poll.failed', { code });
+      this.append(job, 'poll.failed', {
+        code,
+        ...(diagnostic ? this.diagnosticPayload(job, diagnostic, 'poll_error') : {})
+      });
       return job;
     });
   }

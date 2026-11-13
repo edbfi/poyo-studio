@@ -1,3 +1,5 @@
+import type { ProviderDiagnostic } from '../../features/diagnostics/provider-diagnostic';
+
 export const POYO_API_BASE_URL = 'https://api.poyo.ai';
 
 export type PoyoOperation =
@@ -26,6 +28,7 @@ export interface PoyoSubmitRequest {
 }
 
 export interface PoyoSubmitResult {
+  providerDiagnostic?: ProviderDiagnostic;
   taskId: string;
   statusRaw: string;
   status: PoyoTaskStatus;
@@ -51,6 +54,7 @@ export interface PoyoOutputFile {
 }
 
 export interface PoyoStatusResult {
+  providerDiagnostic?: ProviderDiagnostic;
   taskId: string;
   statusRaw: string;
   status: PoyoTaskStatus;

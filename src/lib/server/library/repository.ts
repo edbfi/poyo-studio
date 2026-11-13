@@ -37,6 +37,7 @@ import { MediaOutputError, resolveVerifiedMediaOutput } from '../media/verified-
 import { type AppPaths, resolvePathWithin } from '../platform/app-paths';
 import { DatabaseRepository } from '../platform/repository';
 import { publicIpv4GuardReason } from '../poyo/errors';
+import { readJobProviderDiagnostic } from '../poyo/provider-diagnostic';
 
 export type ViewerSequenceQueryBinding = string | number | null;
 type Binding = ViewerSequenceQueryBinding;
@@ -1285,16 +1286,25 @@ export class LibraryRepository extends DatabaseRepository {
         'SELECT * FROM job_events WHERE job_id=? ORDER BY event_id DESC LIMIT 500'
       )
       .all(id)
-      .map((event) => ({
-        eventId: event.event_id,
-        eventType: event.event_type,
-        localPhase: event.local_phase,
-        remoteStatus: event.remote_status,
-        failureDomain: event.failure_domain,
-        progress: event.progress,
-        observedAt: event.observed_at,
-        authority: event.event_type === 'status.observed' ? 'poyo' : 'local'
-      }));
+      .map((event) => {
+        let diagnostic = null;
+        try {
+          diagnostic = readJobProviderDiagnostic(JSON.parse(event.safe_payload_json ?? 'null'));
+        } catch {
+          // Older or damaged event payloads must not prevent loading job history.
+        }
+        return {
+          ...(diagnostic ? { providerDiagnostic: diagnostic } : {}),
+          eventId: event.event_id,
+          eventType: event.event_type,
+          localPhase: event.local_phase,
+          remoteStatus: event.remote_status,
+          failureDomain: event.failure_domain,
+          progress: event.progress,
+          observedAt: event.observed_at,
+          authority: event.event_type === 'status.observed' ? ('poyo' as const) : ('local' as const)
+        };
+      });
     const configuration = projectSafeConfiguration(JSON.parse(row.guided_request_json));
     return {
       ...jobDto(row),

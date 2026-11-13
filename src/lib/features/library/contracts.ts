@@ -1,3 +1,5 @@
+import type { JobProviderDiagnostic } from '../diagnostics/provider-diagnostic';
+
 const exactIsoUtcInstant = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d{3})?Z$/;
 
 export function isExactIsoUtcInstant(value: unknown): value is string {
@@ -214,6 +216,7 @@ export interface JobOutputDto extends SafeMediaSummary {
 }
 
 export interface JobHistoryDto {
+  providerDiagnostic?: JobProviderDiagnostic;
   eventId: number;
   eventType: string;
   localPhase: string;

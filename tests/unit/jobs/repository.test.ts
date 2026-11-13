@@ -174,6 +174,7 @@ describe('durable job repository invariants', () => {
         sourceVerifiedAt: '2026-07-20T00:00:00.000Z',
         credits: 16
       },
+      seed_explicit: false,
       __poyoStudioEvent: { version: 1, attentionCode: null, payloadWasNull: false }
     });
     expect(JSON.stringify(created?.payload)).not.toContain('private prompt');

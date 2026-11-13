@@ -1,0 +1,36 @@
+{
+  "provenance": {
+    "kind": "official-documentation-examples",
+    "inspectedAt": "2026-11-13",
+    "sources": [
+      "https://docs.poyo.ai/api-manual/error-codes.md",
+      "https://docs.poyo.ai/api-manual/task-management/status.md",
+      "https://docs.poyo.ai/api-manual/image-series/flux-dev.md",
+      "https://docs.poyo.ai/api-manual/image-series/nano-banana.md"
+    ],
+    "gate": "diagnostics-only",
+    "limitations": [
+      "No captured incident response or local sanitized runtime logs were available.",
+      "The error-code table names content_moderation_error but supplies no corresponding submit example or nonbillable/unaccepted guarantee.",
+      "The task-status page provides a generic policy-failure example, not evidence identifying the reported sporadic txt2img/img2img failures.",
+      "Model submit contracts describe generic task states and error envelopes without a retry eligibility or billing guarantee.",
+      "These documentation examples and all synthetic test mutations are not live rejection captures or a retry classifier."
+    ]
+  },
+  "documentedValidationError": {
+    "code": 400,
+    "error": { "message": "task_id is required", "type": "validation_error" }
+  },
+  "documentedFailedStatus": {
+    "code": 200,
+    "data": {
+      "task_id": "task-unified-1757165031-uyujaw3d",
+      "status": "failed",
+      "credits_amount": 0,
+      "files": [],
+      "created_time": "2025-11-12T10:30:00",
+      "progress": 0,
+      "error_message": "The prompt violates our content policy"
+    }
+  }
+}
