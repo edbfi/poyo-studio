@@ -1140,6 +1140,7 @@ async function submit(): Promise<void> {
     return;
   }
   submitting = true;
+  clearTerminalSessionResults();
   const validated = await validateSubmissionSnapshot(snapshot, revision);
   if (!validated) {
     submitting = false;
@@ -2653,7 +2654,19 @@ onMount(() => {
     </div>
 
     <div class="media-stage grid place-items-center px-5 py-10 text-center">
-      {#if resultJob && outputs?.some((output) => output.mediaUrl) && !activeJobOwnsStage}
+      {#if submitting}
+        <div class="max-w-xl" role="status">
+          <h2
+            id={`${data.modality}-stage-heading`}
+            class="text-xl font-semibold tracking-tight text-stage-foreground"
+          >
+            Preparing {data.modality} generation
+          </h2>
+          <p class="mt-2 text-sm leading-6 text-stage-muted">
+            Validating the request and preparing its sources. The new job is not confirmed yet.
+          </p>
+        </div>
+      {:else if resultJob && outputs?.some((output) => output.mediaUrl) && !activeJobOwnsStage}
         {@const shown = outputs.filter((output) => output.mediaUrl)}
         {@const current = shown[Math.min(selectedOutput, shown.length - 1)]}
         {#if current?.mediaUrl}

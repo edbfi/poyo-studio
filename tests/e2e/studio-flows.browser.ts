@@ -2169,7 +2169,31 @@ async function productionJourney() {
       .getByRole('radio', { name: 'Automatic (9:16 from 900 × 1601)' })
       .waitFor();
     await waitForValidRequest(page);
-    await generationCommands(page).getByRole('button', { name: 'Generate image' }).click();
+    // A remembered result must not masquerade as the next generation during source refresh.
+    await page.getByRole('heading', { name: 'Generated image result' }).waitFor();
+    let releasePreparation: () => void = () => {};
+    const preparationGate = new Promise<void>((resolve) => {
+      releasePreparation = resolve;
+    });
+    const holdPreparation = async (route: import('playwright').Route) => {
+      if (route.request().method() === 'POST') await preparationGate;
+      await route.continue();
+    };
+    await page.route('**/api/jobs', holdPreparation, { times: 1 });
+    const newJobRequest = page.waitForRequest(
+      (request) => request.method() === 'POST' && new URL(request.url()).pathname === '/api/jobs'
+    );
+    try {
+      await generationCommands(page).getByRole('button', { name: 'Generate image' }).click();
+      await newJobRequest;
+      await page.getByRole('heading', { name: 'Preparing image generation' }).waitFor();
+      expect(await page.getByRole('heading', { name: 'Generated image result' }).count()).toBe(0);
+      expect(
+        harness.mock.requests.filter((request) => request.pathname === '/api/common/upload/stream')
+      ).toHaveLength(1);
+    } finally {
+      releasePreparation();
+    }
     await page.getByRole('heading', { name: 'Generated image result' }).waitFor({
       timeout: 15_000
     });
