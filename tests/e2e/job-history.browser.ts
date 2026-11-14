@@ -179,6 +179,28 @@ test('image chronology navigation updates from durable output events without red
   }
 
   try {
+    await page.goto(`${harness.url}/jobs`);
+    const downloadRetry = page.getByRole('button', { name: /^Retry failed downloads:/ });
+    await page.route(`**/api/jobs/${third.job.id}/outputs`, (route) =>
+      route.fulfill({ status: 503, json: { error: 'Unavailable' } })
+    );
+    await downloadRetry.click();
+    await page.getByRole('alert').filter({ hasText: 'Could not load failed downloads.' }).waitFor();
+    await page.unroute(`**/api/jobs/${third.job.id}/outputs`);
+    await page.route(`**/api/jobs/${third.job.id}/outputs/${third.output.id}/retry`, (route) =>
+      route.fulfill({ status: 202, json: { accepted: true } })
+    );
+    await downloadRetry.click();
+    const repairStatus = page.getByRole('status').filter({ hasText: 'Download retry queued.' });
+    await repairStatus.waitFor();
+    expect(
+      await repairStatus.evaluate((element) => element.classList.contains('text-destructive'))
+    ).toBe(false);
+    expect(
+      await page.getByRole('alert').filter({ hasText: 'Download retry queued.' }).count()
+    ).toBe(0);
+    await page.unroute(`**/api/jobs/${third.job.id}/outputs/${third.output.id}/retry`);
+
     const eventStream = page.waitForRequest(
       (request) => new URL(request.url()).pathname === '/api/events/jobs'
     );

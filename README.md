@@ -32,8 +32,10 @@ Settings and Studio show the maximum submissions and an estimate for the chain; 
 spending caps. The limit is snapshotted when a root job is created, and later limit changes apply
 to new roots. Turning retries off permanently stops pending chains; turning them on does not revive them.
 
-Confirmed failed generations and definite submission rejections are eligible for automatic retries,
-including failures that have incurred charges. Unknown submission outcomes, uncertain status checks,
+Confirmed failures are eligible for automatic retries, including provider `failed`, `cancelled`,
+and `canceled` statuses, definite submission rejections, submission acknowledgements confirming failure, and
+finished tasks with malformed or unusable outputs. Partial outputs do not prevent retries. This
+includes failures that have incurred charges. Unknown submission outcomes, uncertain status checks,
 and download failures do not trigger a new paid submission. Activity provides a manual retry button
 for failed generations and rejected submissions regardless of the automatic retry setting or limit.
 Manual generation retries ask for confirmation because they create a new paid job. Failed local

@@ -648,9 +648,11 @@ function applyCleanup(): void {
               ></label
             >
             <p class="mt-3 text-sm text-muted-foreground">
-              Off by default. Retries confirmed failed generations and rejected submissions. Unknown
-              submission outcomes require attention. Input settings stay the same. You can manually
-              retry failed jobs from Activity even when this is off.
+              Off by default. Retries confirmed failures, including provider cancellations, rejected
+              submissions, submission acknowledgements confirming failure, and finished tasks with
+              malformed outputs, even when partial outputs exist. Each retry can spend credits.
+              Unknown submission outcomes require attention. Input settings stay the same. You can
+              manually retry failed jobs from Activity even when this is off.
             </p>
             <p class="mt-2 text-sm text-muted-foreground">
               Up to {1 + draft.generationMaxRetries} paid submissions per new generation; maximum

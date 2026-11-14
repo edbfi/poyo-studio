@@ -17,6 +17,7 @@ let downloadPending = $state<string | null>(null);
 let downloadFeedback = $state('');
 let retryPending = $state<string | null>(null);
 let retryFeedback = $state('');
+let retryFailed = $state(false);
 
 const statusFilters = [
   ['all', 'All'],
@@ -96,6 +97,7 @@ function retryJob(jobId: string, downloadOnly = false): void {
     return;
   retryPending = jobId;
   retryFeedback = '';
+  retryFailed = false;
   void (async () => {
     try {
       if (downloadOnly) {
@@ -135,8 +137,18 @@ function retryJob(jobId: string, downloadOnly = false): void {
       const result = (await response.json()) as { job: { id: string } };
       sessionStorage.removeItem(storageKey);
       await goto(`/jobs/${result.job.id}`);
-    } catch {
-      retryFeedback = 'Could not retry this job. Check its details and try again.';
+    } catch (error) {
+      retryFailed = true;
+      retryFeedback = downloadOnly
+        ? error instanceof Error &&
+          [
+            'Could not load failed downloads.',
+            'No failed downloads available.',
+            'Could not queue download retry.'
+          ].includes(error.message)
+          ? error.message
+          : 'Could not retry downloads. Check the job details and try again.'
+        : 'Could not retry this job. Check its details and try again.';
     } finally {
       retryPending = null;
     }
@@ -293,7 +305,13 @@ onMount(() => {
     </form>
 
     {#if retryFeedback}
-      <p class="mt-3 text-sm text-destructive" role="alert">{retryFeedback}</p>
+      <p
+        class="mt-3 text-sm"
+        class:text-destructive={retryFailed}
+        role={retryFailed ? 'alert' : 'status'}
+      >
+        {retryFeedback}
+      </p>
     {/if}
 
     {#if data.page.items.length}

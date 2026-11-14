@@ -3011,8 +3011,10 @@ onMount(() => {
                 ? 'unavailable'
                 : `${creditsLabel((1 + data.generationRetries.maxRetries) * currentEstimate.credits)} cr`}
               ({1 + data.generationRetries.maxRetries}
-              × per-attempt estimate). Confirmed failed generations and rejected submissions are
-              eligible; unknown submission outcomes require attention.</span
+              × per-attempt estimate). Confirmed failures, including cancellations, rejected
+              submissions, submission acknowledgements confirming failure, and finished tasks with
+              malformed outputs, are eligible even when partial outputs exist; unknown submission
+              outcomes require attention.</span
             >
           {/if}
           {#if retryStopFeedback && !activeJobOwnsStage}

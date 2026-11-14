@@ -103,8 +103,10 @@ function summary(item: StudioBatchItem): string {
             {readyEstimate.credits === null
               ? 'unavailable'
               : `${readyEstimate.credits * (1 + retryPolicy.maxRetries)} cr`}. This is an estimate,
-            not a spending cap. Confirmed failed generations and rejected submissions are eligible;
-            unknown submission outcomes require attention. All input settings stay the same.
+            not a spending cap. Confirmed failures, including cancellations, rejected submissions,
+            submission acknowledgements confirming failure, and finished tasks with malformed
+            outputs, are eligible even when partial outputs exist; unknown submission outcomes
+            require attention. All input settings stay the same.
           </p>
         {/if}
         <p class="mt-1">{settledCount} complete · {draftCount} ready to submit</p>
