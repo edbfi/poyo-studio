@@ -3003,7 +3003,7 @@ onMount(() => {
               unavailable · {preview ? 'generation remains enabled' : 'complete setup to generate'}
             {/if}
           </span>
-          {#if data.modality === 'image' && data.generationRetries?.enabled}
+          {#if data.generationRetries?.enabled}
             <span class="text-warning"
               >Automatic retries enabled: up to {1 + data.generationRetries.maxRetries} paid
               submissions per generation. Maximum estimate:
@@ -3011,8 +3011,10 @@ onMount(() => {
                 ? 'unavailable'
                 : `${creditsLabel((1 + data.generationRetries.maxRetries) * currentEstimate.credits)} cr`}
               ({1 + data.generationRetries.maxRetries}
-              × per-attempt estimate). Only the exact documented zero-credit policy rejection is
-              eligible.</span
+              × per-attempt estimate). Confirmed failures, including cancellations, rejected
+              submissions, submission acknowledgements confirming failure, and finished tasks with
+              malformed outputs, are eligible even when partial outputs exist; unknown submission
+              outcomes require attention.</span
             >
           {/if}
           {#if retryStopFeedback && !activeJobOwnsStage}

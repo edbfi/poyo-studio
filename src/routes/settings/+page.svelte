@@ -635,7 +635,7 @@ function applyCleanup(): void {
             <h3 class="section-heading">Automatic generation retries</h3>
             <label class="mt-3 flex items-center gap-2 text-sm"
               ><input type="checkbox" bind:checked={draft.generationRetriesEnabled}>
-              Enable for new image generations</label
+              Enable for new image and video generations</label
             >
             <label class="mt-3 block text-sm"
               >Additional attempts (1–5)<input
@@ -648,9 +648,11 @@ function applyCleanup(): void {
               ></label
             >
             <p class="mt-3 text-sm text-muted-foreground">
-              Off by default. Only retries an acknowledged task when Poyo reports the exact
-              documented policy rejection, zero credits, and no outputs. Other failures require
-              attention. Input settings stay the same.
+              Off by default. Retries confirmed failures, including provider cancellations, rejected
+              submissions, submission acknowledgements confirming failure, and finished tasks with
+              malformed outputs, even when partial outputs exist. Each retry can spend credits.
+              Unknown submission outcomes require attention. Input settings stay the same. You can
+              manually retry failed jobs from Activity even when this is off.
             </p>
             <p class="mt-2 text-sm text-muted-foreground">
               Up to {1 + draft.generationMaxRetries} paid submissions per new generation; maximum
