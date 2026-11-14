@@ -7,7 +7,7 @@ import { nextMonotonicEventId } from '#lib/features/generation/studio-controller
 import { downloadCopy } from '#lib/features/library/attachment-request.js';
 import type { ActivityCostDto } from '#lib/features/library/contracts.js';
 import { dateTimeLabel, elapsedLabel } from '#lib/features/library/presentation.js';
-import { invalidate } from '$app/navigation';
+import { goto, invalidate } from '$app/navigation';
 import type { PageData } from './$types';
 
 let { data }: { data: PageData } = $props();
@@ -15,6 +15,8 @@ let connection = $state<'connecting' | 'connected' | 'disconnected'>('connecting
 let lastEventId = -1;
 let downloadPending = $state<string | null>(null);
 let downloadFeedback = $state('');
+let retryPending = $state<string | null>(null);
+let retryFeedback = $state('');
 
 const statusFilters = [
   ['all', 'All'],
@@ -83,6 +85,62 @@ function requestDownload(outputId: string): void {
       downloadPending = null;
     }
   });
+}
+
+function retryJob(jobId: string, downloadOnly = false): void {
+  if (retryPending) return;
+  if (
+    !downloadOnly &&
+    !confirm('Retry this failed job as a new paid generation? This may spend Poyo credits.')
+  )
+    return;
+  retryPending = jobId;
+  retryFeedback = '';
+  void (async () => {
+    try {
+      if (downloadOnly) {
+        const response = await fetch(`/api/jobs/${encodeURIComponent(jobId)}/outputs`);
+        if (!response.ok) throw new Error('Could not load failed downloads.');
+        const result = (await response.json()) as {
+          outputs: { outputId: string; downloadState: string }[];
+        };
+        const outputs = result.outputs.filter((output) =>
+          ['failed', 'expired'].includes(output.downloadState)
+        );
+        if (!outputs.length) throw new Error('No failed downloads available.');
+        for (const output of outputs) {
+          const retry = await fetch(
+            `/api/jobs/${encodeURIComponent(jobId)}/outputs/${encodeURIComponent(output.outputId)}/retry`,
+            {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: '{}'
+            }
+          );
+          if (!retry.ok) throw new Error('Could not queue download retry.');
+        }
+        retryFeedback = 'Download retry queued.';
+        await invalidate('app:jobs-activity');
+        return;
+      }
+      const storageKey = `poyo-paid-action:rerun:${jobId}`;
+      const actionId = sessionStorage.getItem(storageKey) ?? crypto.randomUUID();
+      sessionStorage.setItem(storageKey, actionId);
+      const response = await fetch(`/api/jobs/${encodeURIComponent(jobId)}/rerun`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ acknowledgeNewPaidJob: true, actionId })
+      });
+      if (!response.ok) throw new Error('Retry request failed.');
+      const result = (await response.json()) as { job: { id: string } };
+      sessionStorage.removeItem(storageKey);
+      await goto(`/jobs/${result.job.id}`);
+    } catch {
+      retryFeedback = 'Could not retry this job. Check its details and try again.';
+    } finally {
+      retryPending = null;
+    }
+  })();
 }
 
 onMount(() => {
@@ -234,6 +292,10 @@ onMount(() => {
       </button>
     </form>
 
+    {#if retryFeedback}
+      <p class="mt-3 text-sm text-destructive" role="alert">{retryFeedback}</p>
+    {/if}
+
     {#if data.page.items.length}
       <div class="mt-4">
         <div
@@ -266,6 +328,38 @@ onMount(() => {
                         remoteStatus={activity.job.remoteStatus}
                         attentionCode={activity.job.attentionCode}
                       />
+                    {/if}
+                    {#if activity.kind === 'job-created' &&
+                      (activity.job.remoteStatus === 'failed' ||
+                        (activity.job.failureDomain === 'submission' &&
+                          activity.job.localPhase === 'requires_attention' &&
+                          activity.job.attentionCode !== 'submission_unknown') ||
+                        (activity.job.remoteStatus === 'finished' &&
+                          activity.job.outputState === 'attention') ||
+                        activity.job.attentionCode === 'malformed_output_set')}
+                      <button
+                        type="button"
+                        class="focus-ring inline-flex size-8 shrink-0 items-center justify-center rounded border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
+                        aria-label={`${activity.job.outputState === 'attention' && activity.job.remoteStatus === 'finished' ? 'Retry failed downloads' : 'Retry failed job'}: ${activity.job.displayName}`}
+                        title={activity.job.outputState === 'attention' &&
+                        activity.job.remoteStatus === 'finished'
+                          ? 'Retry failed downloads'
+                          : 'Retry as a new paid generation'}
+                        disabled={retryPending !== null}
+                        aria-busy={retryPending === activity.job.id}
+                        onclick={() =>
+                          retryJob(
+                            activity.job.id,
+                            activity.job.remoteStatus === 'finished' &&
+                              activity.job.outputState === 'attention'
+                          )}
+                      >
+                        <AppIcon
+                          name="refresh"
+                          size={14}
+                          class={retryPending === activity.job.id ? 'animate-spin' : ''}
+                        />
+                      </button>
                     {/if}
                     {#if activity.kind === 'job-created' && activity.job.representative?.mediaUrl}
                       <button

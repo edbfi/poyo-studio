@@ -27,7 +27,7 @@ import { PoyoClient } from '../../../src/lib/server/poyo/client';
 import { normalizePoyoError, PoyoError } from '../../../src/lib/server/poyo/errors';
 import { parseStatusResponse, parseSubmitResponse } from '../../../src/lib/server/poyo/parsers';
 import { PoyoTransport } from '../../../src/lib/server/poyo/transport';
-import { seedImageRegistry } from '../../../src/lib/server/registry/repository';
+import { seedImageRegistry, seedVideoRegistry } from '../../../src/lib/server/registry/repository';
 import {
   DEFAULT_OPERATIONS_SETTINGS,
   normalizeOperationsSettings,
@@ -147,7 +147,94 @@ function managed(f: Fixture) {
   return id;
 }
 
-describe('exact documented authoritative polled rejection retries', () => {
+describe('bounded generation failure retries', () => {
+  test('video failures retry through the configured cap without changing their request', async () => {
+    const f = await setup(true, 1);
+    seedVideoRegistry(f.database);
+    const root = f.repository.create({
+      actionId: crypto.randomUUID(),
+      entryKey: 'wan2.7-image-to-video:image-to-video',
+      workflow: 'image-to-video',
+      publicModelId: 'wan2.7-image-to-video',
+      guidedRequest: { prompt: 'Animate the source' },
+      normalizedPayload: {
+        model: 'wan2.7-image-to-video',
+        input: { prompt: 'Animate the source' }
+      }
+    });
+    accept(f, root.id);
+    f.repository.applyStatus(root.id, { ...rejection(root.id), creditsAmount: 9 }, 1000);
+    const retry = await child(f);
+    expect(retry.normalizedPayload).toEqual(root.normalizedPayload);
+    expect(retry.workflow).toBe('image-to-video');
+    accept(f, retry.id);
+    fail(f, retry.id);
+    expect(f.repository.get(root.id)?.automaticRetry?.state).toBe('exhausted');
+    f.advance();
+    expect(f.repository.claimAutomaticRetry('over-budget', 1000)).toBeNull();
+  });
+  test('definite submission failures retry once per attempt and stop at the cap', async () => {
+    for (const policyBlocked of [false, true]) {
+      const f = await setup(true, 1);
+      const reject = (id: string) => {
+        const claim = f.repository.claimSubmission(id, 'submit', 1000);
+        if (!claim) throw new Error('Missing claim');
+        if (policyBlocked) {
+          expect(f.repository.rejectUntransmittedPolicy(id, claim.token, 'ip_guard_blocked')).toBe(
+            true
+          );
+          expect(f.repository.rejectUntransmittedPolicy(id, claim.token, 'ip_guard_blocked')).toBe(
+            false
+          );
+        } else {
+          f.repository.rejectSubmission(id, 'stale-token', 'bad_request');
+          expect(f.repository.get(id)?.automaticRetry?.nextRetryAt).toBeNull();
+          expect(f.repository.markSubmissionTransmitted(id, claim.token)).toBe(true);
+          f.repository.rejectSubmission(id, claim.token, 'bad_request');
+          f.repository.rejectSubmission(id, claim.token, 'bad_request');
+        }
+      };
+      const root = create(f);
+      reject(root.id);
+      const retry = await child(f);
+      reject(retry.id);
+      expect(f.repository.get(root.id)?.automaticRetry?.state).toBe('exhausted');
+      expect(f.database.query('SELECT * FROM generation_retry_reservations').all()).toHaveLength(1);
+      f.advance();
+      expect(f.repository.claimAutomaticRetry('over-budget', 1000)).toBeNull();
+      const manual = await f.repository.rerunAsNew(retry.id, crypto.randomUUID(), async () => {
+        throw new Error('Unexpected upload');
+      });
+      expect(manual.retryOfJobId).toBe(retry.id);
+    }
+  });
+  test('known failed tasks permit manual retry even with stale submission uncertainty', async () => {
+    const f = await setup(false);
+    const root = create(f);
+    accept(f, root.id);
+    fail(f, root.id);
+    f.database.query("UPDATE jobs SET attention_code='submission_unknown' WHERE id=?").run(root.id);
+    const retry = await f.repository.rerunAsNew(root.id, crypto.randomUUID(), async () => {
+      throw new Error('Unexpected upload');
+    });
+    expect(retry.retryOfJobId).toBe(root.id);
+    expect(retry.automaticRetry).toBeNull();
+  });
+  test('terminal siblings with stale submission uncertainty do not block a manual retry', async () => {
+    const f = await setup(true, 1);
+    const root = create(f);
+    accept(f, root.id);
+    fail(f, root.id);
+    const retry = await child(f);
+    accept(f, retry.id);
+    fail(f, retry.id);
+    f.database.query("UPDATE jobs SET attention_code='submission_unknown' WHERE id=?").run(root.id);
+    const manual = await f.repository.rerunAsNew(retry.id, crypto.randomUUID(), async () => {
+      throw new Error('Unexpected upload');
+    });
+    expect(manual.retryOfJobId).toBe(retry.id);
+    expect(f.repository.get(root.id)?.automaticRetry?.state).toBe('exhausted');
+  });
   test('unknown numeric server business errors remain ambiguous and never replay a paid submit', async () => {
     for (const code of [504, 599, '504']) {
       const f = await setup();
@@ -277,7 +364,7 @@ describe('exact documented authoritative polled rejection retries', () => {
       if (enabled) expect(f.repository.get(job.id)?.automaticRetry?.state).toBe('exhausted');
     }
   });
-  test('unknown/reworded/cancelled/charged/outputs/task-mismatch and late observations are ineligible', async () => {
+  test('all settled failures retry regardless of error, cancellation, charge or partial outputs', async () => {
     const f = await setup();
     const mutations = [
       { statusRaw: 'cancelled' },
@@ -323,7 +410,7 @@ describe('exact documented authoritative polled rejection retries', () => {
       1000
     );
     fail(f, late.id);
-    expect(f.database.query('SELECT * FROM generation_retry_reservations').all()).toHaveLength(0);
+    expect(f.database.query('SELECT * FROM generation_retry_reservations').all()).toHaveLength(8);
     const diagnostics = f.repository
       .eventsAfter(0)
       .find((e) => e.jobId === late.id && e.eventType === 'status.diagnostic');
@@ -568,7 +655,7 @@ describe('exact documented authoritative polled rejection retries', () => {
         .some((e) => JSON.stringify(e.data).includes('retry.child_created'))
     ).toBe(true);
   });
-  test('unknown child dispatch and no-task HTTP rejection never schedule successors', async () => {
+  test('unknown child dispatch waits while definite no-task rejection retries', async () => {
     const f = await setup();
     const root = create(f);
     accept(f, root.id);
@@ -623,9 +710,10 @@ describe('exact documented authoritative polled rejection retries', () => {
       error.technicalCode,
       error.providerDiagnostic
     );
-    expect(f.repository.claimAutomaticRetry('retry', 1000)).toBeNull();
+    f.advance();
+    expect(f.repository.claimAutomaticRetry('retry', 1000)?.parent_id).toBe(noTask.id);
   });
-  test('terminal acknowledgements settle once or poll boundedly and are never retry eligible', async () => {
+  test('terminal acknowledgements retry settled failures and retain unresolved tasks', async () => {
     const f = await setup();
     const detailed = create(f);
     const claim = f.repository.claimSubmission(detailed.id, 'submit', 1000);
@@ -646,9 +734,10 @@ describe('exact documented authoritative polled rejection retries', () => {
       remoteStatus: 'failed',
       localPhase: 'complete',
       actualCredits: 0,
-      automaticRetry: { state: 'needs_attention' }
+      automaticRetry: { state: 'running' }
     });
     expect(f.repository.taskCharge(detailed.id)?.settledAt).toBe(f.now().toISOString());
+    f.repository.stopAutomaticRetries(detailed.id);
     const pending = create(f);
     const pendingClaim = f.repository.claimSubmission(pending.id, 'submit', 1000);
     if (!pendingClaim) throw new Error('Missing claim');
@@ -931,7 +1020,7 @@ describe('exact documented authoritative polled rejection retries', () => {
     expect(f.repository.claimAutomaticRetry('retry', 1000)).toBeNull();
     expect(f.repository.taskCharge(retry.id)?.credits).toBe(0);
   });
-  test('missing explicit files and incompatible registry never create a successor', async () => {
+  test('missing explicit files permits retries while incompatible registry blocks a successor', async () => {
     const f = await setup();
     const root = create(f);
     accept(f, root.id);
@@ -941,7 +1030,8 @@ describe('exact documented authoritative polled rejection retries', () => {
       parseStatusResponse({ data: { ...data, task_id: `task-${root.id}` } }, 200),
       1000
     );
-    expect(f.repository.claimAutomaticRetry('retry', 1000)).toBeNull();
+    expect(f.repository.get(root.id)?.automaticRetry?.nextRetryAt).not.toBeNull();
+    f.repository.stopAutomaticRetries(root.id);
     const changed = create(f);
     accept(f, changed.id);
     fail(f, changed.id);
@@ -1008,7 +1098,7 @@ describe('exact documented authoritative polled rejection retries', () => {
     });
     expect(safeJobDto(f.repository.get(retry.id) ?? retry).taskCharge?.settledAt).toBe(settledAt);
   });
-  test('only the original documented data.error_message proves a rejection; diagnostic fallbacks never do', async () => {
+  test('diagnostic wording does not gate retries of authoritative failed tasks', async () => {
     const f = await setup();
     const message = evidence.documentedFailedStatus.data.error_message;
     for (const location of [
@@ -1061,10 +1151,10 @@ describe('exact documented authoritative polled rejection retries', () => {
           'SELECT parent_id FROM generation_retry_reservations WHERE parent_id=?'
         )
         .get(job.id);
-      expect(Boolean(reservation)).toBe(eligible);
+      expect(Boolean(reservation)).toBe(true);
     }
   });
-  test('a previously reported partial output permanently excludes the attempt, including after reopening the database', async () => {
+  test('failed attempts retry after partial outputs, including after reopening the database', async () => {
     const f = await setup();
     const job = create(f);
     accept(f, job.id);
@@ -1098,10 +1188,12 @@ describe('exact documented authoritative polled rejection retries', () => {
     expect(restarted.get(job.id)).toMatchObject({
       outputObserved: true,
       remoteStatus: 'failed',
-      automaticRetry: { state: 'needs_attention' }
+      automaticRetry: { state: 'running' }
     });
     f.advance();
-    expect(restarted.claimAutomaticRetry('after-restart', 1000)).toBeNull();
+    const partialClaim = restarted.claimAutomaticRetry('after-restart', 1000);
+    expect(partialClaim?.parent_id).toBe(job.id);
+    restarted.stopAutomaticRetries(job.id);
     const terminal = restarted
       .eventsAfter(0)
       .find(
@@ -1170,7 +1262,7 @@ describe('exact documented authoritative polled rejection retries', () => {
       f.database
         .query('SELECT * FROM generation_retry_reservations WHERE parent_id=?')
         .get(terminal.id)
-    ).toBeNull();
+    ).not.toBeNull();
   });
   test('stop, global disable and manual rerun preserve each terminal chain outcome and reason', async () => {
     const f = await setup();
@@ -1385,7 +1477,7 @@ describe('exact documented authoritative polled rejection retries', () => {
       reason: 'source-or-registry-unavailable'
     });
   });
-  test('malformed upstream finished sets need attention rather than chain success and never retries', async () => {
+  test('malformed upstream finished sets reserve retries instead of reporting chain success', async () => {
     const f = await setup();
     const file = { file_url: 'https://media.test/a.png', file_type: 'image' };
     for (const files of [
@@ -1415,7 +1507,7 @@ describe('exact documented authoritative polled rejection retries', () => {
       expect(f.repository.get(root.id)).toMatchObject({
         localPhase: 'requires_attention',
         attentionCode: 'malformed_output_set',
-        automaticRetry: { state: 'needs_attention', reason: 'malformed-output-set' }
+        automaticRetry: { state: 'running', reason: null }
       });
       expect(
         f.repository
@@ -1424,7 +1516,7 @@ describe('exact documented authoritative polled rejection retries', () => {
       ).toHaveLength(0);
     }
     f.advance();
-    expect(f.repository.claimAutomaticRetry('retry', 1000)).toBeNull();
+    expect(f.repository.claimAutomaticRetry('retry', 1000)).not.toBeNull();
   });
   test('legacy operations updates preserve enabled retry policy; explicit disable still closes pending chains', async () => {
     const f = await setup(true, 5);

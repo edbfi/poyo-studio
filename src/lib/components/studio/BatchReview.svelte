@@ -96,15 +96,15 @@ function summary(item: StudioBatchItem): string {
           Each submitted item is a separate billed Poyo job. Exact credits appear only after
           completion.
         </p>
-        {#if modality === 'image' && retryPolicy?.enabled}
+        {#if retryPolicy?.enabled}
           <p class="mt-2">
             Automatic retries: up to {1 + retryPolicy.maxRetries} paid submissions per generation,
             including the first. Maximum batch estimate:
             {readyEstimate.credits === null
               ? 'unavailable'
               : `${readyEstimate.credits * (1 + retryPolicy.maxRetries)} cr`}. This is an estimate,
-            not a spending cap. Only the exact documented zero-credit policy rejection is eligible;
-            all input settings stay the same.
+            not a spending cap. Confirmed failed generations and rejected submissions are eligible;
+            unknown submission outcomes require attention. All input settings stay the same.
           </p>
         {/if}
         <p class="mt-1">{settledCount} complete · {draftCount} ready to submit</p>

@@ -250,3 +250,63 @@ test('image chronology navigation updates from durable output events without red
     await harness.cleanup();
   }
 });
+
+test('Activity retries a failed job without automatic retries and keeps failures recoverable', async () => {
+  const harness = await startBrowserAppHarness();
+  await harness.stopApp();
+  const database = new Database(harness.databasePath, { strict: true });
+  const repository = new JobRepository(database);
+  const job = repository.create({
+    actionId: crypto.randomUUID(),
+    entryKey: 'flux-schnell:text-to-image',
+    workflow: 'text-to-image',
+    publicModelId: 'flux-schnell',
+    guidedRequest: { prompt: 'Manual retry without automatic retries' },
+    normalizedPayload: {
+      model: 'flux-schnell',
+      input: { prompt: 'Manual retry without automatic retries' }
+    }
+  });
+  database
+    .query(
+      "UPDATE jobs SET local_phase='complete',remote_status='failed',remote_status_raw='failed' WHERE id=?"
+    )
+    .run(job.id);
+  database.close();
+  await harness.startApp();
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  const actionIds: string[] = [];
+  let rejectRequest = true;
+  try {
+    await page.route(`**/api/jobs/${job.id}/rerun`, async (route) => {
+      const body = route.request().postDataJSON();
+      expect(body.acknowledgeNewPaidJob).toBe(true);
+      actionIds.push(body.actionId);
+      if (rejectRequest) {
+        await route.fulfill({ status: 409, json: { error: 'Retry temporarily unavailable.' } });
+      } else {
+        await route.continue();
+      }
+    });
+    page.on('dialog', (dialog) => dialog.accept());
+    await page.goto(`${harness.url}/jobs`);
+    const retry = page.getByRole('button', { name: /^Retry failed job:/ });
+    await retry.waitFor();
+    expect(await page.getByText(/Attempt \d+ of/).count()).toBe(0);
+    expect(await pageHasNoHorizontalOverflow(page)).toBe(true);
+    await retry.click();
+    await page.getByRole('alert').filter({ hasText: 'Could not retry this job.' }).waitFor();
+    expect(await retry.isEnabled()).toBe(true);
+    rejectRequest = false;
+    await retry.click();
+    await page.waitForURL(
+      (url) => url.pathname.startsWith('/jobs/') && url.pathname !== `/jobs/${job.id}`
+    );
+    expect(actionIds.length).toBe(2);
+    expect(actionIds[0]).toBe(actionIds[1]);
+  } finally {
+    await browser.close();
+    await harness.cleanup();
+  }
+});

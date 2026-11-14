@@ -722,7 +722,7 @@ export class JobRepository extends DatabaseRepository {
         { id: string },
         [string, string]
       >(`SELECT j.id FROM jobs j JOIN submission_intents i ON i.job_id=j.id
-      WHERE j.auto_root_id=? AND j.id!=? AND i.sent_at IS NOT NULL AND (j.remote_status NOT IN ('finished','failed') OR j.attention_code='submission_unknown') LIMIT 1`)
+      WHERE j.auto_root_id=? AND j.id!=? AND i.sent_at IS NOT NULL AND i.state!='rejected' AND j.remote_status NOT IN ('finished','failed') LIMIT 1`)
       .get(job.automaticRetry.rootId, job.attentionCode === 'submission_unknown' ? job.id : '');
     if (inFlight)
       throw new JobRequestError(
@@ -731,23 +731,17 @@ export class JobRepository extends DatabaseRepository {
         409
       );
   }
-  private reserveAutomaticRetry(job: JobRecord, status: PoyoStatusResult, eligible: boolean): void {
+  // Scheduling depends on a known failure, not provider wording, charges or partial outputs.
+  // The narrower verified-rejection marker is retained separately for pricing evidence.
+  private reserveAutomaticRetry(job: JobRecord, failed = true): void {
     const chain = job.automaticRetry;
     if (chain?.state !== 'running') return;
-    if (status.status === 'finished') {
-      this.setRetryState(
-        job,
-        job.attentionCode === 'malformed_output_set' ? 'needs_attention' : 'succeeded',
-        job.attentionCode === 'malformed_output_set' ? 'malformed-output-set' : null
-      );
+    if (!failed) {
+      this.setRetryState(job, 'succeeded', null);
       return;
     }
     if (!this.generationRetryPolicy().enabled) {
       this.stopAutomaticRetries(job.id, 'globally-disabled');
-      return;
-    }
-    if (!eligible) {
-      this.setRetryState(job, 'needs_attention', 'ineligible-failure');
       return;
     }
     if (chain.ordinal >= chain.maxRetries) {
@@ -1045,10 +1039,7 @@ export class JobRepository extends DatabaseRepository {
           .run(lineage.rootId, lineage.parentId, lineage.ordinal, id);
       } else {
         const policy = this.generationRetryPolicy();
-        if (
-          policy.enabled &&
-          ['text-to-image', 'image-to-image', 'image-edit'].includes(request.workflow)
-        ) {
+        if (policy.enabled) {
           this.database
             .query(
               "INSERT INTO generation_retry_roots(root_id,max_retries,state,updated_at) VALUES (?,?,'running',?)"
@@ -1236,7 +1227,7 @@ export class JobRepository extends DatabaseRepository {
   ): Promise<JobRecord> {
     const job = this.get(jobId);
     if (!job) throw new Error('Job not found.');
-    if (job.attentionCode === 'submission_unknown')
+    if (job.attentionCode === 'submission_unknown' && job.remoteStatus !== 'failed')
       throw new Error('An ambiguous paid submission cannot be run again from its history record.');
     return this.createRefreshedRetry(job, actionId, refreshManagedSource);
   }
@@ -1602,11 +1593,12 @@ export class JobRepository extends DatabaseRepository {
   rejectSubmission(jobId: string, token: string, code: string, diagnostic?: unknown): void {
     this.transaction(() => {
       const now = this.timestamp();
-      this.database
+      const changed = this.database
         .query(
           `UPDATE submission_intents SET state='rejected',resolved_at=?,updated_at=? WHERE job_id=? AND state='sending' AND transmit_claim_token=?`
         )
-        .run(now, now, jobId, token);
+        .run(now, now, jobId, token).changes;
+      if (!changed) return;
       this.transition(
         jobId,
         'requires_attention',
@@ -1617,7 +1609,7 @@ export class JobRepository extends DatabaseRepository {
           ? this.diagnosticPayload(this.requireJob(jobId), diagnostic, 'submit_error')
           : null
       );
-      this.setRetryState(this.requireJob(jobId), 'needs_attention', 'submission-rejected');
+      this.reserveAutomaticRetry(this.requireJob(jobId));
     });
   }
   rejectUntransmittedPolicy(jobId: string, token: string, code: string): boolean {
@@ -1638,7 +1630,7 @@ export class JobRepository extends DatabaseRepository {
         'submission.policy_blocked',
         { code }
       );
-      this.setRetryState(this.requireJob(jobId), 'needs_attention', 'submission-policy-blocked');
+      this.reserveAutomaticRetry(this.requireJob(jobId));
       return true;
     });
   }
@@ -1878,7 +1870,8 @@ export class JobRepository extends DatabaseRepository {
           observedCount: status.files.length
         });
       else if (!alreadyComplete && nextStatus === 'finished') this.upsertOutputs(jobId, status);
-      if (nextTerminal) this.reserveAutomaticRetry(job, status, eligible);
+      if (nextTerminal && authoritativeMatchingObservation)
+        this.reserveAutomaticRetry(job, nextStatus === 'failed' || malformed !== null);
       else if (current.terminalAckPending) {
         const polls =
           this.database
